@@ -10,6 +10,8 @@ ServerInfo::Id ServerInfoManager::add_new(const ServerInfo& info) {
     return _max_id;
 }
 
+void ServerInfoManager::remove(ServerInfo::Id id) { _info_hash.erase(id); }
+
 ServerInfo& ServerInfoManager::operator[](ServerInfo::Id id) {
     const auto it = _info_hash.find(id);
     return const_cast<ServerInfo&>(_get(it, id)->second);

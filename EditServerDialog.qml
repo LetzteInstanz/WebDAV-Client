@@ -7,7 +7,10 @@ Dialog {
     width: parent.width - 10
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
-    onOpened: handleEnteredTexts()
+    onOpened: {
+        descTxtField.focus = true
+        handleEnteredTexts()
+    }
 
     function handleEnteredTexts() { standardButton(Dialog.Ok).enabled = descTxtField.text !== "" && addressTxtField.text !== "" }
     function desc() { return descTxtField.text }
@@ -21,8 +24,9 @@ Dialog {
     function resetData() {
         descTxtField.clear()
         addressTxtField.clear()
-        portSpinBox.value = 80;
+        portSpinBox.value = 80
         pathTxtField.clear()
+        handleEnteredTexts()
     }
     RowLayout {
         anchors.fill: parent

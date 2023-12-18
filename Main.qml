@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Dialogs
 import QtQuick.Layouts
 
 import WebDavClient 1.0
@@ -14,7 +15,6 @@ ApplicationWindow {
         onOpened: resetData()
         onAccepted: srvListView.model.add_server_info(desc(), addr(), port(), path())
     }
-
     EditServerDialog {
         id: editSrvDlg
         title: qsTr("Edit server")
@@ -32,7 +32,13 @@ ApplicationWindow {
             model.path = path()
         }
     }
-
+    MessageDialog {
+        id: removeMsgDlg
+        text: qsTr("Do you want to remove ") + '"' + desc + '"?'
+        buttons: MessageDialog.Yes | MessageDialog.No
+        property string desc
+        onAccepted: srvListView.model.removeRow(srvListView.currentIndex)
+    }
     StackLayout {
         id: stackLayout
         anchors.fill: parent
@@ -55,6 +61,7 @@ ApplicationWindow {
                     id: removeButton
                     text: qsTr("Delete")
                     enabled: false
+                    onClicked: removeMsgDlg.open()
                 }
                 Button {
                     id: settingsButton
@@ -79,14 +86,14 @@ ApplicationWindow {
                     currentIndex: -1
 
                     highlight: Rectangle {
-                        width: parent.width
+                        width: ListView.view.width
                         color: "lightgray"
                     }
                     delegate: Rectangle {
                         id: delegate
                         color: "transparent"
-                        width: parent.width;
-                        height: descText.height + paramText.height;
+                        width: ListView.view.width
+                        height: descText.height + paramText.height
                         required property var model
                         required property int index
                         required property string desc
@@ -97,20 +104,22 @@ ApplicationWindow {
                         Text {
                             id: descText
                             font.bold: true
-                            font.pointSize: 16
+                            font.pointSize: 14
                             text: desc
                         }
                         Text {
                             id: paramText
                             anchors.top: descText.bottom
-                            text: addr + ":" + port + "/" + path
+                            text: "http://" + addr + ":" + port + "/" + path
                         }
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
                                 delegate.ListView.view.currentIndex = index
                                 editButton.enabled = index !== -1
+                                removeButton.enabled = editButton.enabled
                                 editSrvDlg.model = model
+                                removeMsgDlg.desc = desc
                             }
                         }
                     }

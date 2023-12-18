@@ -87,6 +87,20 @@ QVariant ServerItemModel::headerData(int section, Qt::Orientation orientation, i
     return "headerText";
 }
 
+bool ServerItemModel::removeRows(int row, int count, const QModelIndex& /*parent*/) {
+    const auto last = row + count - 1;
+    beginRemoveRows(QModelIndex(), row, last);
+    const auto beg_it = std::cbegin(_srv_ids);
+    const auto row_it = beg_it + row;
+    const auto last_it = beg_it + last;
+    for (auto it = row_it; it <= last_it; ++it)
+        _srv_manager.remove(*it);
+
+    _srv_ids.erase(row_it, last_it);
+    endRemoveRows();
+    return true;
+}
+
 Qt::ItemFlags ServerItemModel::flags(const QModelIndex& index) const {
     const auto flags = QAbstractListModel::flags(index);
     return flags | Qt::ItemIsEditable;

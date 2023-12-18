@@ -9,7 +9,7 @@ public:
     ServerInfo get(ServerInfo::Id id) const;
 
     ServerInfo::Id add_new(const ServerInfo& info);
-    //void erase() {}
+    void remove(ServerInfo::Id id);
 
     ServerInfo& operator[](ServerInfo::Id id);
 
