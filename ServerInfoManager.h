@@ -6,17 +6,17 @@
 
 class ServerInfoManager {
 public:
-    ServerInfo get(ServerInfo::Id id) const;
+    ServerInfo get(const ServerInfo::Id id) const;
 
     ServerInfo::Id add_new(const ServerInfo& info);
-    void remove(ServerInfo::Id id);
+    void remove(const ServerInfo::Id id);
 
-    ServerInfo& operator[](ServerInfo::Id id);
+    ServerInfo& operator[](const ServerInfo::Id id);
 
 private:
     using IdServerInfoHash = std::unordered_map<ServerInfo::Id, ServerInfo>;
 
-    const IdServerInfoHash::const_iterator _get(IdServerInfoHash::const_iterator it, ServerInfo::Id id) const;
+    IdServerInfoHash::const_iterator _get(const IdServerInfoHash::const_iterator it, const ServerInfo::Id id) const;
 
 private:
     ServerInfo::Id _max_id = 0;
