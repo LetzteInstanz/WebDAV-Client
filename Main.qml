@@ -8,6 +8,7 @@ import WebDavClient 1.0
 ApplicationWindow {
     visible: true
     title: "WebDAVClient 1.0"
+    background: BorderRectangle {}
 
     EditServerDialog {
         id: addSrvDlg
@@ -42,6 +43,7 @@ ApplicationWindow {
     StackLayout {
         id: stackLayout
         anchors.fill: parent
+        anchors.margins: 5
         currentIndex: 0
 
         ColumnLayout {

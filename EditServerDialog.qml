@@ -4,13 +4,14 @@ import QtQuick.Layouts
 
 Dialog {
     anchors.centerIn: parent
-    width: parent.width - 10
+    width: parent.width - 20
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
     onOpened: {
         descTxtField.focus = true
         handleEnteredTexts()
     }
+    background: BorderRectangle {}
 
     function handleEnteredTexts() { standardButton(Dialog.Ok).enabled = descTxtField.text !== "" && addressTxtField.text !== "" }
     function desc() { return descTxtField.text }
@@ -28,6 +29,7 @@ Dialog {
         pathTxtField.clear()
         handleEnteredTexts()
     }
+
     RowLayout {
         anchors.fill: parent
 
