@@ -2,12 +2,11 @@
 
 #include <cstdint>
 
+#include <QJsonObject>
 #include <QString>
 
 class ServerInfo {
 public:
-    using Id = uint16_t;
-
     ServerInfo(const QString& description, const QString& addr, const uint16_t port, const QString& path);
 
     QString get_description() const { return _description; }
@@ -22,7 +21,15 @@ public:
     QString get_path() const { return _path; }
     void set_path(const QString& path) { this->_path = path; }
 
+    static ServerInfo from_json(const QJsonObject& json);
+    QJsonObject to_json() const;
+
 private:
+    static const char* const _desc_key,
+                     * const _addr_key,
+                     * const _port_key,
+                     * const _path_key;
+
     QString _description;
     QString _addr;
     uint16_t _port;

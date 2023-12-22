@@ -1,0 +1,16 @@
+#pragma once
+
+#include <QString>
+
+#include "JsonFile.h"
+
+class SettingsJsonFile final : public JsonFile {
+public:
+    SettingsJsonFile();
+
+    QString get_download_path() const;
+    void set_download_path(const QString& path);
+
+private:
+    static const char* const _dl_path;
+};

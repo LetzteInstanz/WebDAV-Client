@@ -11,16 +11,18 @@ qt_standard_project_setup(REQUIRES 6.5)
 qt_add_executable(web_dav_client
     App.cpp
     App.h
+    DataJsonFile.cpp
+    DataJsonFile.h
+    JsonFile.cpp
+    JsonFile.h
     main.cpp
     pch.h
     ServerInfo.cpp
     ServerInfo.h
     ServerInfoManager.cpp
     ServerInfoManager.h
-    ServerItemModel.cpp
-    ServerItemModel.h
-    Settings.cpp
-    Settings.h
+    SettingsJsonFile.cpp
+    SettingsJsonFile.h
     Util.cpp
     Util.h
 )
@@ -30,8 +32,11 @@ qt_add_qml_module(web_dav_client
     VERSION 1.0
     QML_FILES
         BorderRectangle.qml
-        Main.qml
         EditServerDialog.qml
+        Main.qml
+    SOURCES
+        ServerItemModel.cpp
+        ServerItemModel.h
 )
 
 target_precompile_headers(web_dav_client PRIVATE pch.h)

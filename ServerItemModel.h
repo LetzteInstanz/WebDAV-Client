@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 #include <QAbstractListModel>
 #include <QByteArray>
 #include <QHash>
@@ -10,8 +8,6 @@
 #include <QQmlEngine>
 #include <Qt>
 #include <QVariant>
-
-#include "ServerInfo.h"
 
 class ServerInfoManager;
 
@@ -27,7 +23,7 @@ public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    //QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 
@@ -41,5 +37,4 @@ private:
     enum class Role { Desc = Qt::UserRole, Addr, Port, Path };
 
     ServerInfoManager& _srv_manager;
-    std::vector<ServerInfo::Id> _srv_ids;
 };

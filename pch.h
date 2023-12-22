@@ -1,9 +1,10 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <iterator>
 #include <stdexcept>
-#include <unordered_map>
 #include <vector>
 
 #include <QAbstractListModel>
@@ -13,6 +14,7 @@
 #include <QGuiApplication>
 #include <QHash>
 #include <QIODevice>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>

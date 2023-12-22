@@ -1,5 +1,6 @@
 #include "ServerItemModel.h"
 
+#include "ServerInfo.h"
 #include "ServerInfoManager.h"
 #include "Util.h"
 
@@ -11,8 +12,7 @@ QVariant ServerItemModel::data(const QModelIndex& index, int role) const {
     if (role < to_int(Role::Desc) || role > to_int(Role::Path))
         return QVariant();
 
-    const ServerInfo::Id id = _srv_ids[index.row()];
-    const ServerInfo info = _srv_manager.get(id);
+    const ServerInfo info = _srv_manager.get(index.row());
     switch (to_type<Role>(role)) {
         case Role::Desc:
             return info.get_description();
@@ -33,9 +33,7 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
     if (role < to_int(Role::Desc) || role > to_int(Role::Path))
         return false;
 
-    const ServerInfo::Id id = _srv_ids[index.row()];
-    ServerInfo info = _srv_manager.get(id);
-
+    ServerInfo info = _srv_manager.get(index.row());
     std::function<QString()> get;
     std::function<void(const QString&)> set;
     auto is_port = false;
@@ -69,34 +67,28 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
         }
     }
     if (!is_port) {
-        const QString str = value.toString();
+        const auto str = value.toString();
         if (get() == str)
             return false;
 
         set(str);
     }
-    _srv_manager[id] = info;
+    _srv_manager.edit(index.row(), info);
     dataChanged(index, index, {role});
     return true;
 }
 
-QVariant ServerItemModel::headerData(int section, Qt::Orientation orientation, int role) const {
-    /*if (orientation == Qt::Vertical)
-        return QVariant();*/
+// QVariant ServerItemModel::headerData(int section, Qt::Orientation orientation, int role) const {
+//     if (orientation == Qt::Vertical)
+//         return QVariant();
 
-    return "headerText";
-}
+//     return "headerText";
+// }
 
 bool ServerItemModel::removeRows(int row, int count, const QModelIndex& /*parent*/) {
     const auto last = row + count - 1;
     beginRemoveRows(QModelIndex(), row, last);
-    const auto beg_it = std::cbegin(_srv_ids);
-    const auto row_it = beg_it + row;
-    const auto last_it = beg_it + last;
-    for (auto it = row_it; it <= last_it; ++it)
-        _srv_manager.remove(*it);
-
-    _srv_ids.erase(row_it, last_it);
+    _srv_manager.remove(row, count);
     endRemoveRows();
     return true;
 }
@@ -118,7 +110,6 @@ QHash<int, QByteArray> ServerItemModel::roleNames() const {
 void ServerItemModel::add_server_info(const QString& description, const QString& addr, const uint16_t port, const QString& path) {
     const int row = rowCount();
     beginInsertRows(QModelIndex(), row, row);
-    const ServerInfo::Id id = _srv_manager.add_new(ServerInfo(description, addr, port, path));
-    _srv_ids.insert(_srv_ids.begin() + row, id);
+    _srv_manager.add(ServerInfo(description, addr, port, path));
     endInsertRows();
 }

@@ -1,26 +1,23 @@
 #include "ServerInfoManager.h"
 
-ServerInfo ServerInfoManager::get(const ServerInfo::Id id) const {
-    return _get(_info_hash.find(id), id)->second;
+ServerInfoManager::ServerInfoManager() { _infos = _json_file.read_servers(); }
+
+ServerInfo ServerInfoManager::get(const size_t row) const { return _infos[row]; }
+
+void ServerInfoManager::add(const ServerInfo& info) {
+    _infos.push_back(info);
+    _json_file.add(info);
 }
 
-ServerInfo::Id ServerInfoManager::add_new(const ServerInfo& info) {
-    ++_max_id;
-    _info_hash.emplace(_max_id, info);
-    return _max_id;
+void ServerInfoManager::edit(const size_t row, const ServerInfo& info) {
+    _infos[row] = info;
+    _json_file.edit(row, info);
 }
 
-void ServerInfoManager::remove(const ServerInfo::Id id) { _info_hash.erase(id); }
-
-ServerInfo& ServerInfoManager::operator[](const ServerInfo::Id id) {
-    const auto it = _info_hash.find(id);
-    return const_cast<ServerInfo&>(_get(it, id)->second);
-}
-
-ServerInfoManager::IdServerInfoHash::const_iterator ServerInfoManager::_get(const IdServerInfoHash::const_iterator it, const ServerInfo::Id id) const {
-    if (it == _info_hash.end()) {
-        const QString err(QObject::tr("Server item with the ID ") + QString::number(id) + QObject::tr(" doesn't exist"));
-        throw std::runtime_error(err.toStdString());
-    }
-    return it;
+void ServerInfoManager::remove(const size_t row, const size_t count) {
+    const auto beg_it = std::cbegin(_infos);
+    const auto first_it = beg_it + row;
+    const auto end_it = first_it + count;
+    _infos.erase(first_it, end_it);
+    _json_file.remove(row, count);
 }
