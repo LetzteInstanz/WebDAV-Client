@@ -5,15 +5,15 @@
 
 ServerItemModel::ServerItemModel(ServerInfoManager& manager, QObject* parent) : QAbstractListModel(parent), _srv_manager(manager) {}
 
-int ServerItemModel::rowCount(const QModelIndex& parent) const { return toInt(_srv_ids.size()); }
+int ServerItemModel::rowCount(const QModelIndex& parent) const { return to_int(_srv_manager.amount()); }
 
 QVariant ServerItemModel::data(const QModelIndex& index, int role) const {
-    if (role < toInt(Role::Desc) || role > toInt(Role::Path))
+    if (role < to_int(Role::Desc) || role > to_int(Role::Path))
         return QVariant();
 
     const ServerInfo::Id id = _srv_ids[index.row()];
     const ServerInfo info = _srv_manager.get(id);
-    switch (toType<Role>(role)) {
+    switch (to_type<Role>(role)) {
         case Role::Desc:
             return info.get_description();
 
@@ -30,7 +30,7 @@ QVariant ServerItemModel::data(const QModelIndex& index, int role) const {
 }
 
 bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, int role) {
-    if (role < toInt(Role::Desc) || role > toInt(Role::Path))
+    if (role < to_int(Role::Desc) || role > to_int(Role::Path))
         return false;
 
     const ServerInfo::Id id = _srv_ids[index.row()];
@@ -39,7 +39,7 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
     std::function<QString()> get;
     std::function<void(const QString&)> set;
     auto is_port = false;
-    switch (toType<Role>(role)) {
+    switch (to_type<Role>(role)) {
         case Role::Desc: {
             get = std::bind(&ServerInfo::get_description, &info);
             set = std::bind(&ServerInfo::set_description, &info, std::placeholders::_1);
@@ -108,10 +108,10 @@ Qt::ItemFlags ServerItemModel::flags(const QModelIndex& index) const {
 
 QHash<int, QByteArray> ServerItemModel::roleNames() const {
     auto names = QAbstractListModel::roleNames();
-    names.emplace(toInt(Role::Desc), "desc");
-    names.emplace(toInt(Role::Addr), "addr");
-    names.emplace(toInt(Role::Port), "port");
-    names.emplace(toInt(Role::Path), "path");
+    names.emplace(to_int(Role::Desc), "desc");
+    names.emplace(to_int(Role::Addr), "addr");
+    names.emplace(to_int(Role::Port), "port");
+    names.emplace(to_int(Role::Path), "path");
     return names;
 }
 
