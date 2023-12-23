@@ -5,6 +5,7 @@
 #include <functional>
 #include <iterator>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 #include <QAbstractListModel>

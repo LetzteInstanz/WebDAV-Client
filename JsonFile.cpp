@@ -19,8 +19,7 @@ JsonFile::JsonFile(const QString& filename) {
         _obj = doc.object();
 }
 
-void JsonFile::write(const QJsonObject& root_obj) {
-    _obj = root_obj;
+JsonFile::~JsonFile() {
     _file.seek(0);
     _file.resize(_file.write(QJsonDocument(_obj).toJson()));
 }
