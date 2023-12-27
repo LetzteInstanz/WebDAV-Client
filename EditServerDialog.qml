@@ -1,3 +1,4 @@
+import QtQml
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -9,57 +10,79 @@ Dialog {
     standardButtons: Dialog.Ok | Dialog.Cancel
     onOpened: {
         descTxtField.focus = true
-        handleEnteredTexts()
+        standardButton(Dialog.Ok).enabled = false
     }
     background: BorderRectangle {}
-
-    function handleEnteredTexts() { standardButton(Dialog.Ok).enabled = descTxtField.text !== "" && addressTxtField.text !== "" }
     function desc() { return descTxtField.text }
-    function setDesc(string) { descTxtField.text = string }
+    function setDesc(string) {
+        curData.desc = string
+        descTxtField.text = string
+    }
     function addr() { return addressTxtField.text }
-    function setAddr(string) { addressTxtField.text = string }
+    function setAddr(string) {
+        curData.addr = string
+        addressTxtField.text = string
+    }
     function port() { return portSpinBox.value }
-    function setPort(integer) { portSpinBox.value = integer }
+    function setPort(integer) {
+        curData.port = integer
+        portSpinBox.value = integer
+    }
     function path() { return pathTxtField.text }
-    function setPath(string) { pathTxtField.text = string }
+    function setPath(string) {
+        curData.path = string
+        pathTxtField.text = string
+    }
+    function enableHasChangesFunc(enable) { curData.enabledHasCahngesFunc = enable }
     function resetData() {
+        curData.desc = ""
+        curData.addr = ""
+        curData.port = 80
+        curData.path = ""
         descTxtField.clear()
         addressTxtField.clear()
         portSpinBox.value = 80
         pathTxtField.clear()
-        handleEnteredTexts()
+        curData.enableOkButton()
     }
 
+    QtObject {
+        id: curData
+        property bool enabledHasCahngesFunc: false
+        property string desc
+        property string addr
+        property int port
+        property string path
+
+        function isFieldEmpty() { return descTxtField.text === "" || addressTxtField.text === "" }
+        function hasCahnges() { return !curData.enabledHasCahngesFunc || (curData.desc !== descTxtField.text || curData.addr !== addressTxtField.text || curData.port !== portSpinBox.value || curData.path !== addressTxtField) }
+        function enableOkButton() { standardButton(Dialog.Ok).enabled = hasChanges() && !isFieldEmpty() }
+    }
     RowLayout {
         anchors.fill: parent
 
         ColumnLayout {
             Label {
-                id: nameLabel
                 text: qsTr("Name:")
                 Layout.preferredHeight: descTxtField.height
                 verticalAlignment: Text.AlignVCenter
             }
             /*Label {
-                id: protocolLabel
                 text: qsTr("Protocol:")
                 verticalAlignment: Text.AlignVCenter
                 Layout.preferredHeight: httpRadioButton.height
             }*/
             Label {
-                id: serverLabel
                 text: qsTr("Server address:")
                 verticalAlignment: Text.AlignVCenter
                 Layout.preferredHeight: addressTxtField.height
             }
             Label {
-                id: portLabel
                 text: qsTr("Port:")
                 verticalAlignment: Text.AlignVCenter
                 Layout.preferredHeight: portSpinBox.height
             }
             Label {
-                id: dirLabel
                 text: qsTr("Initial directory:")
                 verticalAlignment: Text.AlignVCenter
                 Layout.preferredHeight: pathTxtField.height
@@ -70,7 +93,7 @@ Dialog {
                 id: descTxtField
                 Layout.fillWidth: true
                 placeholderText: qsTr("Description")
-                onTextEdited: { handleEnteredTexts() }
+                onTextEdited: curData.enableOkButton()
             }
             /*RowLayout {
                 RadioButton {
@@ -89,18 +112,20 @@ Dialog {
                 id: addressTxtField
                 Layout.fillWidth: true
                 placeholderText: "example.com" + qsTr(" or IP address")
-                onTextEdited: { handleEnteredTexts() }
+                onTextEdited: curData.enableOkButton()
             }
             SpinBox {
                 id: portSpinBox
                 editable: true
                 from: 1
                 to: 65535
+                onValueModified: curData.enableOkButton()
             }
             TextField {
                 id: pathTxtField
                 placeholderText: qsTr("directory_1/directory_2/…")
                 Layout.fillWidth: true
+                onTextEdited: curData.enableOkButton()
             }
         }
     }
