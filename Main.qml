@@ -1,3 +1,4 @@
+import QtQml
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
@@ -20,18 +21,8 @@ ApplicationWindow {
         id: editSrvDlg
         title: qsTr("Edit server")
         property var model
-        onOpened: {
-            setDesc(model.desc)
-            setAddr(model.addr)
-            setPort(model.port)
-            setPath(model.path)
-        }
-        onAccepted: {
-            model.desc = desc()
-            model.addr = addr()
-            model.port = port()
-            model.path = path()
-        }
+        onOpened: { enableHasChangesFunc(true); setDesc(model.desc); setAddr(model.addr); setPort(model.port); setPath(model.path) }
+        onAccepted: { model.desc = desc(); model.addr = addr(); model.port = port(); model.path = path() }
     }
     MessageDialog {
         id: removeMsgDlg
@@ -68,7 +59,17 @@ ApplicationWindow {
                 Button {
                     id: settingsButton
                     text: qsTr("Settings")
-                    onClicked: stackLayout.currentIndex = 2
+                    onClicked: {
+                        pathTxtField.text = settings.getDownloadPath()
+                        logLevelComboBox.currentIndex = settings.getCurrentLogLevel()
+                        saveSettingsButton.enabled = false
+                        stackLayout.currentIndex = 2
+                    }
+                }
+                Button {
+                    id: logButton
+                    text: qsTr("Show log")
+                    onClicked: stackLayout.currentIndex = 3
                 }
             }
             BorderRectangle {
@@ -136,27 +137,96 @@ ApplicationWindow {
         ColumnLayout {
             Item {
                 Layout.fillWidth: true
-                Layout.preferredHeight: backButton.height
+                Layout.preferredHeight: saveSettingsButton.height
 
                 Button {
-                    id: backButton
                     text: qsTr("Back")
                     onClicked: stackLayout.currentIndex = 0
                 }
                 Button {
-                    id: okButton
+                    id: saveSettingsButton
                     anchors.right: parent.right
                     text: qsTr("Ok")
-                    onClicked: stackLayout.currentIndex = 0 // todo: Save
+                    onClicked: {
+                        settings.setDownloadPath(pathTxtField.text)
+                        settings.setCurrentLogLevel(logLevelComboBox.currentIndex)
+                        stackLayout.currentIndex = 0
+                    }
                 }
             }
             BorderRectangle {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
 
-                TreeView {
+                RowLayout {
                     anchors.fill: parent
-                } // settings
+
+                    ColumnLayout {
+                        Layout.alignment: Qt.AlignTop
+
+                        Label {
+                            text: qsTr("Path:")
+                            Layout.preferredHeight: pathTxtField.height
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        Label {
+                            text: qsTr("Maximum log level:")
+                            Layout.preferredHeight: logLevelComboBox.height
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+                    ColumnLayout {
+                        Layout.alignment: Qt.AlignTop
+                        function isFieldEmpty() { return pathTxtField.text === "" || logLevelComboBox.currentIndex === -1 }
+                        function hasCahnges() { return settings.getDownloadPath() !== pathTxtField.text || settings.getCurrentLogLevel() !== logLevelComboBox.currentIndex }
+
+                        TextField {
+                            id: pathTxtField
+                            Layout.fillWidth: true
+                            placeholderText: qsTr("Description")
+                            onTextEdited: saveSettingsButton.enabled = hasChanges() && !isFieldEmpty()
+                        }
+                        ComboBox {
+                            id: logLevelComboBox
+                            Layout.fillWidth: true
+                            model: logLevelModel
+                            delegate: Rectangle {
+                                width: ComboBox.view.width
+                                required property string modelData
+                                Text { text: parent.modelData }
+                            }
+                            onActivated: saveSettingsButton.enabled = hasChanges() && !isFieldEmpty()
+                        }
+                    }
+                }
+            }
+        }
+
+        ColumnLayout {
+            Item {
+                Layout.fillWidth: true
+                Layout.preferredHeight: backButton2.height
+
+                Button {
+                    id: backButton2
+                    text: qsTr("Back")
+                    onClicked: stackLayout.currentIndex = 0
+                }
+            }
+            BorderRectangle {
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+
+                TextEdit {
+                    id: logTxtEdit
+                    anchors.fill: parent
+                    text: logger.getLog()
+
+                    Connections {
+                        target: logger
+                        onMsgReceived: (msg) => { logTxtEdit.insert(logTxtEdit.length, msg) }
+                    }
+                }
             }
         }
     }

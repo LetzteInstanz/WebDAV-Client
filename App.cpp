@@ -1,8 +1,31 @@
 #include "App.h"
 
-App::App(int& argc, char** argv) : QGuiApplication(argc, argv), _srv_item_model(_srv_info_manager) {}
+#include "Logger.h"
+#include "QmlLogger.h"
+#include "QmlSettings.h"
+#include "ServerInfoManager.h"
+#include "ServerItemModel.h"
+#include "SettingsJsonFile.h"
 
-void App::set_initial_properties(QQmlApplicationEngine& engine) {
-    engine.rootContext()->setContextProperty("srvItemModel", &_srv_item_model);
-    //engine.setInitialProperties({{ "connListModel", QVariant::fromValue(static_cast<QObject*>(&_conn_list_model)) }}); // note: replace with that, when fixed https://bugreports.qt.io/browse/QTBUG-114403
+App::App(int& argc, char** argv) : QGuiApplication(argc, argv) {
+    _logger = Logger::get_instance();
+    _settings = std::make_shared<SettingsJsonFile>(_logger);
+    _srv_info_manager = std::make_shared<ServerInfoManager>();
+
+    _qml_logger = std::make_unique<QmlLogger>(_logger);
+    _qml_settings = std::make_unique<QmlSettings>(_settings);
+    _srv_item_model = std::make_unique<ServerItemModel>(_srv_info_manager);
 }
+
+void App::initialize_engine(QQmlApplicationEngine& engine) {
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, this, []() { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
+
+    QQmlContext* context = engine.rootContext();
+    context->setContextProperty("srvItemModel", _srv_item_model.get());
+    //engine.setInitialProperties({{"srvItemModel", QVariant::fromValue(static_cast<QObject*>(&_srv_item_model))}}); // note: Replace with this, when fixed https://bugreports.qt.io/browse/QTBUG-114403
+    context->setContextProperty("settings", _qml_settings.get());
+    context->setContextProperty("logger", _qml_logger.get());
+    context->setContextProperty("logLevelModel", _qml_settings->get_level_desc_list());
+}
+
+App::~App() = default;

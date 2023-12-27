@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <QAbstractListModel>
 #include <QByteArray>
 #include <QHash>
@@ -16,7 +18,7 @@ class ServerItemModel : public QAbstractListModel {
     QML_ELEMENT
 
 public:
-    explicit ServerItemModel(ServerInfoManager& manager, QObject* parent = nullptr);
+    explicit ServerItemModel(std::shared_ptr<ServerInfoManager> manager, QObject* parent = nullptr);
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
@@ -36,5 +38,5 @@ public:
 private:
     enum class Role { Desc = Qt::UserRole, Addr, Port, Path };
 
-    ServerInfoManager& _srv_manager;
+    std::shared_ptr<ServerInfoManager> _srv_manager;
 };

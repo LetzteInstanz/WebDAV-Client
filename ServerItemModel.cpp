@@ -4,15 +4,15 @@
 #include "ServerInfoManager.h"
 #include "Util.h"
 
-ServerItemModel::ServerItemModel(ServerInfoManager& manager, QObject* parent) : QAbstractListModel(parent), _srv_manager(manager) {}
+ServerItemModel::ServerItemModel(std::shared_ptr<ServerInfoManager> manager, QObject* parent) : QAbstractListModel(parent), _srv_manager(manager) {}
 
-int ServerItemModel::rowCount(const QModelIndex& parent) const { return to_int(_srv_manager.amount()); }
+int ServerItemModel::rowCount(const QModelIndex& parent) const { return to_int(_srv_manager->amount()); }
 
 QVariant ServerItemModel::data(const QModelIndex& index, int role) const {
     if (role < to_int(Role::Desc) || role > to_int(Role::Path))
         return QVariant();
 
-    const ServerInfo info = _srv_manager.get(index.row());
+    const ServerInfo info = _srv_manager->get(index.row());
     switch (to_type<Role>(role)) {
         case Role::Desc:
             return info.get_description();
@@ -33,7 +33,7 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
     if (role < to_int(Role::Desc) || role > to_int(Role::Path))
         return false;
 
-    ServerInfo info = _srv_manager.get(index.row());
+    ServerInfo info = _srv_manager->get(index.row());
     std::function<QString()> get;
     std::function<void(const QString&)> set;
     auto is_port = false;
@@ -73,7 +73,7 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
 
         set(str);
     }
-    _srv_manager.edit(index.row(), info);
+    _srv_manager->edit(index.row(), info);
     dataChanged(index, index, {role});
     return true;
 }
@@ -88,7 +88,7 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
 bool ServerItemModel::removeRows(int row, int count, const QModelIndex& /*parent*/) {
     const auto last = row + count - 1;
     beginRemoveRows(QModelIndex(), row, last);
-    _srv_manager.remove(row, count);
+    _srv_manager->remove(row, count);
     endRemoveRows();
     return true;
 }
@@ -110,6 +110,6 @@ QHash<int, QByteArray> ServerItemModel::roleNames() const {
 void ServerItemModel::add_server_info(const QString& description, const QString& addr, const uint16_t port, const QString& path) {
     const int row = rowCount();
     beginInsertRows(QModelIndex(), row, row);
-    _srv_manager.add(ServerInfo(description, addr, port, path));
+    _srv_manager->add(ServerInfo(description, addr, port, path));
     endInsertRows();
 }

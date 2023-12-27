@@ -1,10 +1,15 @@
 #pragma once
 
+#include <algorithm>
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <iterator>
+#include <memory>
+#include <mutex>
 #include <stdexcept>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -26,5 +31,8 @@
 #include <QQmlEngine>
 #include <QStandardPaths>
 #include <QString>
+#include <QStringList>
 #include <Qt>
+#include <QTimer>
+#include <QtLogging>
 #include <QVariant>

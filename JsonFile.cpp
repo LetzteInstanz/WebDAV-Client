@@ -6,12 +6,12 @@ JsonFile::JsonFile(const QString& filename) {
     QDir dir(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation));
     if (!dir.exists(_app_dir_name)) {
         if (!dir.mkdir(_app_dir_name, QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner))
-            throw std::runtime_error(QObject::tr("Could not create directory \"").toStdString() + dir.absolutePath().toStdString() + '/' + _app_dir_name + '"');
+            qCritical(qUtf8Printable(QObject::tr("Could not create directory \"%s/%s\"")), qUtf8Printable(dir.absolutePath()), _app_dir_name);
     }
     dir.cd(_app_dir_name);
     _file.setFileName(dir.absolutePath() + '/' + filename);
     if (!_file.open(QIODeviceBase::ReadWrite, QFileDevice::ReadOwner | QFileDevice::WriteOwner))
-        throw std::runtime_error(QObject::tr("Could not create file \"").toStdString() + _file.symLinkTarget().toStdString() + '"');
+        qCritical(qUtf8Printable(QObject::tr("Could not create file \"%s\"")), qUtf8Printable(_file.symLinkTarget()));
 
     const auto doc = QJsonDocument::fromJson(_file.readAll());
     _file.seek(0);

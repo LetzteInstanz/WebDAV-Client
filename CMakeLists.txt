@@ -15,6 +15,8 @@ qt_add_executable(web_dav_client
     DataJsonFile.h
     JsonFile.cpp
     JsonFile.h
+    Logger.cpp
+    Logger.h
     main.cpp
     pch.h
     ServerInfo.cpp
@@ -35,11 +37,17 @@ qt_add_qml_module(web_dav_client
         EditServerDialog.qml
         Main.qml
     SOURCES
+        QmlLogger.cpp
+        QmlLogger.h
+        QmlSettings.cpp
+        QmlSettings.h
         ServerItemModel.cpp
         ServerItemModel.h
 )
 
 target_precompile_headers(web_dav_client PRIVATE pch.h)
+
+set_property(TARGET web_dav_client PROPERTY CXX_STANDARD 20)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
