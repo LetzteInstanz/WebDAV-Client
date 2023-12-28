@@ -161,8 +161,14 @@ ApplicationWindow {
                     anchors.right: parent.right
                     text: qsTr("Ok")
                     onClicked: {
-                        settings.setDownloadPath(pathTxtField.text)
-                        settings.setCurrentLogLevel(logLevelComboBox.currentIndex)
+                        var value = pathTxtField.text
+                        if (settings.getDownloadPath() !== value)
+                            settings.setDownloadPath(value)
+
+                        value = logLevelComboBox.currentIndex
+                        if (settings.getCurrentLogLevel() !== value)
+                            settings.setCurrentLogLevel(value)
+
                         stackLayout.currentIndex = 0
                     }
                 }
