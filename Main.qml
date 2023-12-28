@@ -100,10 +100,7 @@ ApplicationWindow {
                     model: srvItemModel
                     clip: true
                     spacing: 5
-                    bottomMargin: 2
-                    leftMargin: 2
-                    rightMargin: 2
-                    topMargin: 2
+                    anchors.margins: 2
                     highlightFollowsCurrentItem: true
                     currentIndex: -1
 
@@ -112,7 +109,7 @@ ApplicationWindow {
                         color: "lightgray"
                     }
                     delegate: Rectangle {
-                        id: delegate
+                        id: srvItemDelegate
                         color: "transparent"
                         width: ListView.view.width
                         height: descText.height + paramText.height
@@ -136,7 +133,7 @@ ApplicationWindow {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                delegate.ListView.view.currentIndex = index
+                                srvItemDelegate.ListView.view.currentIndex = index
                                 editButton.enabled = index !== -1
                                 removeButton.enabled = index !== -1
                             }
