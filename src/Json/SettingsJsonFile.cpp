@@ -1,6 +1,6 @@
 #include "SettingsJsonFile.h"
 
-#include "Logger.h"
+#include "../Logger.h"
 
 const char* const SettingsJsonFile::_dl_path_key = "download_path";
 const char* const SettingsJsonFile::_log_level_key = "log_level";

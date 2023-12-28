@@ -1,8 +1,8 @@
 #include "ServerItemModel.h"
 
-#include "ServerInfo.h"
-#include "ServerInfoManager.h"
-#include "Util.h"
+#include "../ServerInfo.h"
+#include "../ServerInfoManager.h"
+#include "../Util.h"
 
 ServerItemModel::ServerItemModel(std::shared_ptr<ServerInfoManager> manager, QObject* parent) : QAbstractListModel(parent), _srv_manager(manager) {}
 

@@ -1,6 +1,6 @@
 #include "QmlLogger.h"
 
-#include "Logger.h"
+#include "../Logger.h"
 
 QmlLogger::QmlLogger(std::shared_ptr<Logger> logger, QObject* parent) : QObject(parent), _logger(logger) {
     const std::function<void(const QString&)> func = std::bind(&QmlLogger::emit_signal, this, std::placeholders::_1);

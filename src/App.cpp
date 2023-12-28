@@ -1,11 +1,11 @@
 #include "App.h"
 
+#include "Json/SettingsJsonFile.h"
 #include "Logger.h"
-#include "QmlLogger.h"
-#include "QmlSettings.h"
+#include "Qml/QmlLogger.h"
+#include "Qml/QmlSettings.h"
+#include "Qml/ServerItemModel.h"
 #include "ServerInfoManager.h"
-#include "ServerItemModel.h"
-#include "SettingsJsonFile.h"
 
 App::App(int& argc, char** argv) : QGuiApplication(argc, argv) {
     _logger = Logger::get_instance();
