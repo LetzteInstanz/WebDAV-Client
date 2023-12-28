@@ -213,12 +213,12 @@ ApplicationWindow {
                         ComboBox {
                             id: logLevelComboBox
                             model: logLevelModel
-                            delegate: Rectangle {
-                                width: ComboBox.width
+                            delegate: ItemDelegate {
+                                id: logLevelDelegate
+                                text: modelData
                                 required property string modelData
-                                Text { text: parent.modelData }
                             }
-                            onActivated: saveSettingsButton.enabled = hasChanges()
+                            onActivated: saveSettingsButton.enabled = settingsFieldColumnLayout.hasChanges()
                         }
                     }
                 }
