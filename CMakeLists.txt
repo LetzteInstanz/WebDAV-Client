@@ -9,43 +9,45 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Quick)
 qt_standard_project_setup(REQUIRES 6.5)
 
 qt_add_executable(web_dav_client
-    App.cpp
-    App.h
-    DataJsonFile.cpp
-    DataJsonFile.h
-    JsonFile.cpp
-    JsonFile.h
-    Logger.cpp
-    Logger.h
-    main.cpp
-    pch.h
-    ServerInfo.cpp
-    ServerInfo.h
-    ServerInfoManager.cpp
-    ServerInfoManager.h
-    SettingsJsonFile.cpp
-    SettingsJsonFile.h
-    Util.cpp
-    Util.h
+    src/App.cpp
+    src/App.h
+    src/Json/DataJsonFile.cpp
+    src/Json/DataJsonFile.h
+    src/Json/JsonFile.cpp
+    src/Json/JsonFile.h
+    src/Json/SettingsJsonFile.cpp
+    src/Json/SettingsJsonFile.h
+    src/Logger.cpp
+    src/Logger.h
+    src/main.cpp
+    src/pch.h
+    src/ServerInfo.cpp
+    src/ServerInfo.h
+    src/ServerInfoManager.cpp
+    src/ServerInfoManager.h
+    src/Util.cpp
+    src/Util.h
 )
 
 qt_add_qml_module(web_dav_client
     URI WebDavClient
     VERSION 1.0
     QML_FILES
-        BorderRectangle.qml
-        EditServerDialog.qml
-        Main.qml
+        src/Qml/BorderRectangle.qml
+        src/Qml/EditServerDialog.qml
+        src/Qml/Main.qml
     SOURCES
-        QmlLogger.cpp
-        QmlLogger.h
-        QmlSettings.cpp
-        QmlSettings.h
-        ServerItemModel.cpp
-        ServerItemModel.h
+        src/Qml/QmlLogger.cpp
+        src/Qml/QmlLogger.h
+        src/Qml/QmlSettings.cpp
+        src/Qml/QmlSettings.h
+        src/Qml/ServerItemModel.cpp
+        src/Qml/ServerItemModel.h
 )
 
-target_precompile_headers(web_dav_client PRIVATE pch.h)
+include_directories(src/Qml) # https://doc.qt.io/qt-6/qtqml-cppintegration-definetypes.html: All headers that declare QML types need to be accessible without any prefix from the project's include path.
+
+target_precompile_headers(web_dav_client PRIVATE src/pch.h)
 
 set_property(TARGET web_dav_client PROPERTY CXX_STANDARD 20)
 
