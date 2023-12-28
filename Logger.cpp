@@ -13,9 +13,12 @@ namespace {
     bool operator<(QtMsgType lhs, QtMsgType rhs) { return !(lhs >= rhs); }
 }
 
-Logger::Logger() noexcept { qInstallMessageHandler(&Logger::message_handler); }
+QtMessageHandler Logger::_default_handler = nullptr;
 
-void Logger::message_handler(QtMsgType type, const QMessageLogContext& /*context*/, const QString& msg) {
+Logger::Logger() noexcept { _default_handler = qInstallMessageHandler(&Logger::message_handler); }
+
+void Logger::message_handler(QtMsgType type, const QMessageLogContext& context, const QString& msg) {
+    _default_handler(type, context, msg);
     std::shared_ptr<Logger> logger = Logger::get_instance();
     if (type >= logger->get_max_level())
         logger->append_msg(type, msg);

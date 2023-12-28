@@ -28,6 +28,7 @@ private:
     static void message_handler(QtMsgType type, const QMessageLogContext& context, const QString& msg);
 
 private:
+    static QtMessageHandler _default_handler;
     bool _filtered = false;
     std::atomic<QtMsgType> _max_level = QtDebugMsg;
     std::vector<std::pair<QtMsgType, QString>> _log;
