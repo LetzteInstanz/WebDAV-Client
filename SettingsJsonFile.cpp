@@ -14,6 +14,8 @@ SettingsJsonFile::SettingsJsonFile(std::shared_ptr<Logger> logger) : JsonFile("c
     it = obj.find(_log_level_key);
     if (it == obj.end() || !it->isDouble())
         set_max_log_level(obj, QtWarningMsg);
+
+    set_root_obj(obj);
 }
 
 QString SettingsJsonFile::get_download_path() const {
