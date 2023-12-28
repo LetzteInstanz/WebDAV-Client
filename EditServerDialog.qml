@@ -31,21 +31,11 @@ Dialog {
         return path.endsWith("/") ? path.substring(0, path.length - 1) : path
     }
     function setData(desc, addr, port, path) {
-        curData._desc = desc; curData._addr = addr; curData._port = port; curData._path = path; descTxtField.text = desc; addressTxtField.text = addr; portSpinBox.value = port; pathTxtField.text = path
+        curData._desc = desc; curData._addr = addr; curData._port = port; curData._path = path
+        descTxtField.text = desc; addressTxtField.text = addr; portSpinBox.value = port; pathTxtField.text = path
         curData.enableOkButton()
     }
     function enableHasChangesFunc(enable) { curData._enabledHasChangesFunc = enable }
-    function resetData() {
-        curData._desc = ""
-        curData._addr = ""
-        curData._port = 80
-        curData._path = ""
-        descTxtField.clear()
-        addressTxtField.clear()
-        portSpinBox.value = 80
-        pathTxtField.clear()
-        curData.enableOkButton()
-    }
 
     QtObject {
         id: curData

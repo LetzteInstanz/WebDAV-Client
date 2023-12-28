@@ -14,7 +14,7 @@ ApplicationWindow {
     EditServerDialog {
         id: addSrvDlg
         title: qsTr("Add server")
-        onOpened: resetData()
+        onOpened: setData("", "", 80, "")
         onAccepted: srvListView.model.add_server_info(desc(), addr(), port(), path())
     }
     EditServerDialog {
