@@ -14,31 +14,32 @@ Dialog {
     }
     background: BorderRectangle {}
     function desc() { return descTxtField.text }
-    function setDesc(string) {
-        curData.desc = string
-        descTxtField.text = string
-    }
-    function addr() { return addressTxtField.text }
-    function setAddr(string) {
-        curData.addr = string
-        addressTxtField.text = string
+    function addr() {
+        var path = addressTxtField.text
+        const prefix = "http://"
+        if (path.startsWith(prefix))
+            path = path.substring(prefix.length)
+
+        return path.endsWith("/") ? path.substring(0, path.length - 1) : path
     }
     function port() { return portSpinBox.value }
-    function setPort(integer) {
-        curData.port = integer
-        portSpinBox.value = integer
+    function path() {
+        var path = pathTxtField.text
+        if (path.startsWith("/"))
+            path = path.substring(1)
+
+        return path.endsWith("/") ? path.substring(0, path.length - 1) : path
     }
-    function path() { return pathTxtField.text }
-    function setPath(string) {
-        curData.path = string
-        pathTxtField.text = string
+    function setData(desc, addr, port, path) {
+        curData._desc = desc; curData._addr = addr; curData._port = port; curData._path = path; descTxtField.text = desc; addressTxtField.text = addr; portSpinBox.value = port; pathTxtField.text = path
+        curData.enableOkButton()
     }
-    function enableHasChangesFunc(enable) { curData.enabledHasCahngesFunc = enable }
+    function enableHasChangesFunc(enable) { curData._enabledHasChangesFunc = enable }
     function resetData() {
-        curData.desc = ""
-        curData.addr = ""
-        curData.port = 80
-        curData.path = ""
+        curData._desc = ""
+        curData._addr = ""
+        curData._port = 80
+        curData._path = ""
         descTxtField.clear()
         addressTxtField.clear()
         portSpinBox.value = 80
@@ -48,14 +49,14 @@ Dialog {
 
     QtObject {
         id: curData
-        property bool enabledHasCahngesFunc: false
-        property string desc
-        property string addr
-        property int port
-        property string path
+        property bool _enabledHasChangesFunc: false
+        property string _desc
+        property string _addr
+        property int _port
+        property string _path
 
-        function isFieldEmpty() { return descTxtField.text === "" || addressTxtField.text === "" }
-        function hasCahnges() { return !curData.enabledHasCahngesFunc || (curData.desc !== descTxtField.text || curData.addr !== addressTxtField.text || curData.port !== portSpinBox.value || curData.path !== addressTxtField) }
+        function isFieldEmpty() { return descTxtField.text === "" || addr() === "" }
+        function hasChanges() { return !_enabledHasChangesFunc || (_desc !== descTxtField.text || _addr !== addr() || _port !== portSpinBox.value || _path !== path()) }
         function enableOkButton() { standardButton(Dialog.Ok).enabled = hasChanges() && !isFieldEmpty() }
     }
     RowLayout {

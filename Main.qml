@@ -20,15 +20,19 @@ ApplicationWindow {
     EditServerDialog {
         id: editSrvDlg
         title: qsTr("Edit server")
-        property var model
-        onOpened: { enableHasChangesFunc(true); setDesc(model.desc); setAddr(model.addr); setPort(model.port); setPath(model.path) }
-        onAccepted: { model.desc = desc(); model.addr = addr(); model.port = port(); model.path = path() }
+        onOpened: {
+            enableHasChangesFunc(true)
+            var item = srvListView.currentItem
+            setData(item.desc, item.addr, item.port, item.path)
+        }
+        onAccepted: {
+            var item = srvListView.currentItem
+            item.desc = desc(); item.addr = addr(); item.port = port(); item.path = path()
+        }
     }
     MessageDialog {
         id: removeMsgDlg
-        text: qsTr("Do you want to remove ") + '"' + desc + '"?'
         buttons: MessageDialog.Yes | MessageDialog.No
-        property string desc
         onAccepted: srvListView.model.removeRow(srvListView.currentIndex)
     }
     StackLayout {
@@ -54,7 +58,10 @@ ApplicationWindow {
                     id: removeButton
                     text: qsTr("Delete")
                     enabled: false
-                    onClicked: removeMsgDlg.open()
+                    onClicked: {
+                        removeMsgDlg.text = qsTr("Do you want to remove ") + '"' + srvListView.currentItem.desc + '"?'
+                        removeMsgDlg.open()
+                    }
                 }
                 Button {
                     id: settingsButton
@@ -97,7 +104,6 @@ ApplicationWindow {
                         color: "transparent"
                         width: ListView.view.width
                         height: descText.height + paramText.height
-                        required property var model
                         required property int index
                         required property string desc
                         required property string addr
@@ -120,9 +126,7 @@ ApplicationWindow {
                             onClicked: {
                                 delegate.ListView.view.currentIndex = index
                                 editButton.enabled = index !== -1
-                                removeButton.enabled = editButton.enabled
-                                editSrvDlg.model = model
-                                removeMsgDlg.desc = desc
+                                removeButton.enabled = index !== -1
                             }
                         }
                     }
@@ -178,7 +182,7 @@ ApplicationWindow {
                     ColumnLayout {
                         Layout.alignment: Qt.AlignTop
                         function isFieldEmpty() { return pathTxtField.text === "" || logLevelComboBox.currentIndex === -1 }
-                        function hasCahnges() { return settings.getDownloadPath() !== pathTxtField.text || settings.getCurrentLogLevel() !== logLevelComboBox.currentIndex }
+                        function hasChanges() { return settings.getDownloadPath() !== pathTxtField.text || settings.getCurrentLogLevel() !== logLevelComboBox.currentIndex }
 
                         TextField {
                             id: pathTxtField
@@ -224,7 +228,7 @@ ApplicationWindow {
 
                     Connections {
                         target: logger
-                        onMsgReceived: (msg) => { logTxtEdit.insert(logTxtEdit.length, msg) }
+                        function onMsgReceived(msg) { logTxtEdit.insert(logTxtEdit.length, msg) }
                     }
                 }
             }
