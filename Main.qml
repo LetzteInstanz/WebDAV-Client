@@ -87,6 +87,7 @@ ApplicationWindow {
                     id: srvListView
                     anchors.fill: parent
                     model: srvItemModel
+                    clip: true
                     spacing: 5
                     bottomMargin: 2
                     leftMargin: 2
@@ -164,6 +165,7 @@ ApplicationWindow {
 
                 RowLayout {
                     anchors.fill: parent
+                    anchors.margins: 5
 
                     ColumnLayout {
                         Layout.alignment: Qt.AlignTop
@@ -192,10 +194,9 @@ ApplicationWindow {
                         }
                         ComboBox {
                             id: logLevelComboBox
-                            Layout.fillWidth: true
                             model: logLevelModel
                             delegate: Rectangle {
-                                width: ComboBox.view.width
+                                width: ComboBox.width
                                 required property string modelData
                                 Text { text: parent.modelData }
                             }
