@@ -35,6 +35,17 @@ ApplicationWindow {
         buttons: MessageDialog.Yes | MessageDialog.No
         onAccepted: srvListView.model.removeRow(srvListView.currentIndex)
     }
+    FolderDialog {
+        id: pathDlg
+        onAccepted: {
+            var path = pathDlg.selectedFolder.toString()
+            const prefix = "file://"
+            if (path.startsWith(prefix))
+                path = path.substring(prefix.length)
+
+            pathTxtField.text = path
+        }
+    }
     StackLayout {
         id: stackLayout
         anchors.fill: parent
@@ -182,15 +193,25 @@ ApplicationWindow {
                         }
                     }
                     ColumnLayout {
+                        id: settingsFieldColumnLayout
                         Layout.alignment: Qt.AlignTop
-                        function isFieldEmpty() { return pathTxtField.text === "" || logLevelComboBox.currentIndex === -1 }
                         function hasChanges() { return settings.getDownloadPath() !== pathTxtField.text || settings.getCurrentLogLevel() !== logLevelComboBox.currentIndex }
 
-                        TextField {
-                            id: pathTxtField
-                            Layout.fillWidth: true
-                            placeholderText: qsTr("Description")
-                            onTextEdited: saveSettingsButton.enabled = hasChanges() && !isFieldEmpty()
+                        RowLayout {
+                            TextField {
+                                id: pathTxtField
+                                Layout.fillWidth: true
+                                readOnly: true
+                                onTextChanged: saveSettingsButton.enabled = settingsFieldColumnLayout.hasChanges()
+                            }
+                            Button {
+                                id: pathButton
+                                text: qsTr("Select")
+                                onClicked: {
+                                    pathDlg.currentFolder = "file://" + pathTxtField.text
+                                    pathDlg.open()
+                                }
+                            }
                         }
                         ComboBox {
                             id: logLevelComboBox
@@ -200,7 +221,7 @@ ApplicationWindow {
                                 required property string modelData
                                 Text { text: parent.modelData }
                             }
-                            onActivated: saveSettingsButton.enabled = hasChanges() && !isFieldEmpty()
+                            onActivated: saveSettingsButton.enabled = hasChanges()
                         }
                     }
                 }
