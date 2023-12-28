@@ -37,7 +37,6 @@ void SettingsJsonFile::set_max_log_level(const QtMsgType level) {
 
 template<typename T>
 void SettingsJsonFile::set_value(const char* const key, const T value) {
-    const bool test = std::is_reference<T>();
     QJsonObject obj = get_root_obj();
     obj[key] = value;
     set_root_obj(obj);
