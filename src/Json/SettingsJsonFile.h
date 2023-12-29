@@ -22,10 +22,11 @@ public:
 private:
     template <typename T>
     void set_value(const char* const key, const T value);
-    void set_max_log_level(QJsonObject& obj, const QtMsgType level);
 
 private:
     static const char* const _dl_path_key;
     static const char* const _log_level_key;
     std::shared_ptr<Logger> _logger;
+    QString _download_path;
+    QtMsgType _log_level;
 };
