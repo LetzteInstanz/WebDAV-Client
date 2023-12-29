@@ -8,12 +8,12 @@
 class Logger;
 
 namespace Qml {
-    class QmlLogger : public QObject {
+    class Logger : public QObject {
         Q_OBJECT
 
     public:
-        explicit QmlLogger(std::shared_ptr<Logger> logger, QObject* parent = nullptr);
-        ~QmlLogger();
+        explicit Logger(std::shared_ptr<::Logger> logger, QObject* parent = nullptr);
+        ~Logger();
 
         Q_INVOKABLE QString getLog() const;
         void emit_signal(const QString& msg);
@@ -22,6 +22,6 @@ namespace Qml {
         void msgReceived(const QString& msg);
 
     private:
-        std::shared_ptr<Logger> _logger;
+        std::shared_ptr<::Logger> _logger;
     };
 }

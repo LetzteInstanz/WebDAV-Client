@@ -13,11 +13,11 @@
 class SettingsJsonFile;
 
 namespace Qml {
-    class QmlSettings : public QObject {
+    class Settings : public QObject {
         Q_OBJECT
 
     public:
-        explicit QmlSettings(std::shared_ptr<SettingsJsonFile> settings, QObject* parent = nullptr);
+        explicit Settings(std::shared_ptr<SettingsJsonFile> settings, QObject* parent = nullptr);
 
         Q_INVOKABLE QString getDownloadPath() const;
         Q_INVOKABLE void setDownloadPath(const QString& path);
