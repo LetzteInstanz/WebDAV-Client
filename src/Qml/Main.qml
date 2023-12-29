@@ -240,14 +240,18 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
 
-                TextEdit {
-                    id: logTxtEdit
+                ScrollView {
                     anchors.fill: parent
-                    text: logger.getLog()
 
-                    Connections {
-                        target: logger
-                        function onMsgReceived(msg) { logTxtEdit.insert(logTxtEdit.length, msg) }
+                    TextArea {
+                        id: logTxtEdit
+                        text: logger.getLog()
+                        readOnly: true
+
+                        Connections {
+                            target: logger
+                            function onMsgReceived(msg) { logTxtEdit.insert(logTxtEdit.length, msg) }
+                        }
                     }
                 }
             }

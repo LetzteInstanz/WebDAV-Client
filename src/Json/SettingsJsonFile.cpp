@@ -16,10 +16,10 @@ SettingsJsonFile::SettingsJsonFile(std::shared_ptr<Logger> logger) : JsonFile("c
     it = obj.find(_log_level_key);
     const auto is_number = it != obj.end() && it->isDouble();
     _log_level = is_number ? static_cast<QtMsgType>(it->toInt()) : QtWarningMsg;
-    if (!is_number) {
-        _logger->set_max_level(_log_level);
+    if (!is_number)
         obj[_log_level_key] = _log_level;
-    }
+
+    _logger->set_max_level(_log_level);
     set_root_obj(obj);
 }
 
