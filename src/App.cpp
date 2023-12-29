@@ -2,8 +2,8 @@
 
 #include "Json/SettingsJsonFile.h"
 #include "Logger.h"
-#include "Qml/QmlLogger.h"
-#include "Qml/QmlSettings.h"
+#include "Qml/Logger.h"
+#include "Qml/Settings.h"
 #include "Qml/ServerItemModel.h"
 #include "ServerInfoManager.h"
 

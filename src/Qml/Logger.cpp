@@ -1,4 +1,4 @@
-#include "QmlLogger.h"
+#include "Logger.h"
 
 #include "../Logger.h"
 

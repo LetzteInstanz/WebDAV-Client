@@ -1,4 +1,4 @@
-#include "QmlSettings.h"
+#include "Settings.h"
 
 #include "../Json/SettingsJsonFile.h"
 
