@@ -11,4 +11,4 @@ QmlLogger::~QmlLogger() { _logger->set_notification_func(nullptr); }
 
 QString QmlLogger::getLog() const { return _logger->get_log(); }
 
-void QmlLogger::emit_signal(const QString& msg) { QTimer::singleShot(0, this, [this, msg]() { msgReceived(msg); }); } // note: QString is reentrant, therefore msg is passed as value
+void QmlLogger::emit_signal(const QString& msg) { QTimer::singleShot(0, this, [this, msg]() { msgReceived(msg); }); }
