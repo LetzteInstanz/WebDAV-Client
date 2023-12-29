@@ -37,10 +37,10 @@ qt_add_qml_module(web_dav_client
         src/Qml/EditServerDialog.qml
         src/Qml/Main.qml
     SOURCES
-        src/Qml/QmlLogger.cpp
-        src/Qml/QmlLogger.h
-        src/Qml/QmlSettings.cpp
-        src/Qml/QmlSettings.h
+        src/Qml/Logger.cpp
+        src/Qml/Logger.h
+        src/Qml/Settings.cpp
+        src/Qml/Settings.h
         src/Qml/ServerItemModel.cpp
         src/Qml/ServerItemModel.h
 )
