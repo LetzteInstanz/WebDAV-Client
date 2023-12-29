@@ -6,11 +6,14 @@
 #include <QQmlApplicationEngine>
 
 class Logger;
-class QmlLogger;
-class QmlSettings;
 class ServerInfoManager;
-class ServerItemModel;
 class SettingsJsonFile;
+
+namespace Qml {
+    class QmlLogger;
+    class QmlSettings;
+    class ServerItemModel;
+}
 
 class App : public QGuiApplication {
 public:
@@ -23,7 +26,7 @@ private:
     std::shared_ptr<Logger> _logger;
     std::shared_ptr<SettingsJsonFile> _settings;
     std::shared_ptr<ServerInfoManager> _srv_info_manager;
-    std::unique_ptr<QmlLogger> _qml_logger;
-    std::unique_ptr<QmlSettings> _qml_settings;
-    std::unique_ptr<ServerItemModel> _srv_item_model;
+    std::unique_ptr<Qml::QmlLogger> _qml_logger;
+    std::unique_ptr<Qml::QmlSettings> _qml_settings;
+    std::unique_ptr<Qml::ServerItemModel> _srv_item_model;
 };

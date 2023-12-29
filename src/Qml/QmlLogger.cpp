@@ -2,6 +2,8 @@
 
 #include "../Logger.h"
 
+using namespace Qml;
+
 QmlLogger::QmlLogger(std::shared_ptr<Logger> logger, QObject* parent) : QObject(parent), _logger(logger) {
     const std::function<void(const QString&)> func = std::bind(&QmlLogger::emit_signal, this, std::placeholders::_1);
     _logger->set_notification_func(func);

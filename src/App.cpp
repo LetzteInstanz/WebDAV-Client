@@ -12,9 +12,9 @@ App::App(int& argc, char** argv) : QGuiApplication(argc, argv) {
     _settings = std::make_shared<SettingsJsonFile>(_logger);
     _srv_info_manager = std::make_shared<ServerInfoManager>();
 
-    _qml_logger = std::make_unique<QmlLogger>(_logger);
-    _qml_settings = std::make_unique<QmlSettings>(_settings);
-    _srv_item_model = std::make_unique<ServerItemModel>(_srv_info_manager);
+    _qml_logger = std::make_unique<Qml::QmlLogger>(_logger);
+    _qml_settings = std::make_unique<Qml::QmlSettings>(_settings);
+    _srv_item_model = std::make_unique<Qml::ServerItemModel>(_srv_info_manager);
 }
 
 void App::initialize_engine(QQmlApplicationEngine& engine) {

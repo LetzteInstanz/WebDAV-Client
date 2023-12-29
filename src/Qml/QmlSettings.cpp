@@ -2,6 +2,8 @@
 
 #include "../Json/SettingsJsonFile.h"
 
+using namespace Qml;
+
 QmlSettings::QmlSettings(std::shared_ptr<SettingsJsonFile> settings, QObject* parent) : QObject(parent), _settings(settings) {
     for (size_t i = 0, sz = _desc_level_pairs.size(); i < sz; ++i)
         _indexByLogLevel.emplace(_desc_level_pairs[i].second, i);

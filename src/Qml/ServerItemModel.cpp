@@ -4,6 +4,8 @@
 #include "../ServerInfoManager.h"
 #include "../Util.h"
 
+using namespace Qml;
+
 ServerItemModel::ServerItemModel(std::shared_ptr<ServerInfoManager> manager, QObject* parent) : QAbstractListModel(parent), _srv_manager(manager) {}
 
 int ServerItemModel::rowCount(const QModelIndex& parent) const { return to_int(_srv_manager->amount()); }
