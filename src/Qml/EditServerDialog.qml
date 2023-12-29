@@ -85,6 +85,7 @@ Dialog {
                 Layout.fillWidth: true
                 placeholderText: qsTr("Description")
                 onTextEdited: curData.enableOkButton()
+                onReleased: (event) => { textContextMenu.hanldeReleaseEvent(descTxtField, event) }
             }
             /*RowLayout {
                 RadioButton {
@@ -104,6 +105,7 @@ Dialog {
                 Layout.fillWidth: true
                 placeholderText: "example.com" + qsTr(" or IP address")
                 onTextEdited: curData.enableOkButton()
+                onReleased: (event) => { textContextMenu.hanldeReleaseEvent(addressTxtField, event) }
             }
             SpinBox {
                 id: portSpinBox
@@ -117,6 +119,7 @@ Dialog {
                 placeholderText: qsTr("directory_1/directory_2/…")
                 Layout.fillWidth: true
                 onTextEdited: curData.enableOkButton()
+                onReleased: (event) => { textContextMenu.hanldeReleaseEvent(pathTxtField, event) }
             }
         }
     }

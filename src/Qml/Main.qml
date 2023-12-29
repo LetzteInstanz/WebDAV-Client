@@ -11,6 +11,7 @@ ApplicationWindow {
     title: "WebDAVClient 1.0"
     background: BorderRectangle {}
 
+    TextContextMenu { id: textContextMenu }
     EditServerDialog {
         id: addSrvDlg
         title: qsTr("Add server")
@@ -200,6 +201,7 @@ ApplicationWindow {
                                 Layout.fillWidth: true
                                 readOnly: true
                                 onTextChanged: saveSettingsButton.enabled = settingsFieldColumnLayout.hasChanges()
+                                onReleased: (event) => { textContextMenu.hanldeReleaseEvent(pathTxtField, event) }
                             }
                             Button {
                                 id: pathButton
@@ -244,13 +246,14 @@ ApplicationWindow {
                     anchors.fill: parent
 
                     TextArea {
-                        id: logTxtEdit
+                        id: logTxtArea
                         text: logger.getLog()
                         readOnly: true
+                        onReleased: (event) => { textContextMenu.hanldeReleaseEvent(logTxtArea, event) }
 
                         Connections {
                             target: logger
-                            function onMsgReceived(msg) { logTxtEdit.insert(logTxtEdit.length, msg) }
+                            function onMsgReceived(msg) { logTxtArea.insert(logTxtArea.length, msg) }
                         }
                     }
                 }
