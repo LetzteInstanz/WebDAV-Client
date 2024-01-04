@@ -52,6 +52,22 @@ ApplicationWindow {
             pathTxtField.text = path
         }
     }
+    Menu {
+        id: editItemMenu
+        implicitWidth: 100 // todo: Find a solution to resize to the content.
+
+        MenuItem {
+            text: qsTr("Edit")
+            onTriggered: editSrvDlg.open()
+        }
+        MenuItem {
+            text: qsTr("Remove")
+            onTriggered: {
+                removeMsgDlg.text = qsTr("Do you want to remove ") + '"' + srvListView.currentItem.desc + '"?'
+                removeMsgDlg.open()
+            }
+        }
+    }
     StackLayout {
         id: stackLayout
         anchors.fill: parent
@@ -66,21 +82,6 @@ ApplicationWindow {
                     onClicked: addSrvDlg.open()
                 }
                 Button {
-                    id: editButton
-                    text: qsTr("Edit")
-                    enabled: false
-                    onClicked: editSrvDlg.open()
-                }
-                Button {
-                    id: removeButton
-                    text: qsTr("Delete")
-                    enabled: false
-                    onClicked: {
-                        removeMsgDlg.text = qsTr("Do you want to remove ") + '"' + srvListView.currentItem.desc + '"?'
-                        removeMsgDlg.open()
-                    }
-                }
-                Button {
                     id: settingsButton
                     text: qsTr("Settings")
                     onClicked: {
@@ -92,7 +93,7 @@ ApplicationWindow {
                 }
                 Button {
                     id: logButton
-                    text: qsTr("Show log")
+                    text: qsTr("Log")
                     onClicked: stackLayout.currentIndex = 3
                 }
             }
@@ -138,10 +139,11 @@ ApplicationWindow {
                         }
                         MouseArea {
                             anchors.fill: parent
-                            onPressAndHold: {
-                                srvItemDelegate.ListView.view.currentIndex = index
-                                editButton.enabled = index !== -1
-                                removeButton.enabled = index !== -1
+                            onClicked: srvItemDelegate.ListView.view.currentIndex = -1
+                            onPressAndHold: (mouse) => {
+                                var view = srvItemDelegate.ListView.view
+                                view.currentIndex = index
+                                editItemMenu.popup(view.currentItem, mouse.x, mouse.y)
                             }
                         }
                     }
