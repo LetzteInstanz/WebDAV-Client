@@ -30,6 +30,7 @@ private:
 private:
     static QtMessageHandler _default_handler;
     bool _filtered = false;
+    mutable bool _enable_signal = false;
     std::atomic<QtMsgType> _max_level = QtDebugMsg;
     std::vector<std::pair<QtMsgType, QString>> _log;
     mutable std::mutex _mutex;

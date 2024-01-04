@@ -32,7 +32,8 @@
 #include <QStandardPaths>
 #include <QString>
 #include <QStringList>
-#include <Qt>
+#include <QTextStream>
 #include <QTimer>
-#include <QtLogging>
 #include <QVariant>
+#include <Qt>
+#include <QtLogging>

@@ -25,8 +25,13 @@ void Logger::message_handler(QtMsgType type, const QMessageLogContext& context, 
 }
 
 std::shared_ptr<Logger> Logger::get_instance() {
+#ifdef __cpp_lib_atomic_shared_ptr
     static std::atomic<std::shared_ptr<Logger>> logger(std::shared_ptr<Logger>(new Logger()));
     return logger.load(std::memory_order::relaxed);
+#else
+    static std::shared_ptr<Logger> logger(new Logger());
+    return std::atomic_load_explicit(&logger, std::memory_order::relaxed);
+#endif
 }
 
 void Logger::set_max_level(const QtMsgType level) {
@@ -49,10 +54,13 @@ void Logger::set_max_level(const QtMsgType level) {
 
 QString Logger::get_log() const {
     QString log;
+    QTextStream stream(&log);
     {
         const std::lock_guard<std::mutex> locker(_mutex);
         for (const std::pair<QtMsgType, QString>& pair : _log)
-            log.append(pair.second);
+            stream << pair.second << Qt::endl;
+
+        _enable_signal = true;
     }
     return log;
 }
@@ -63,8 +71,8 @@ void Logger::append_msg(const QtMsgType type, const QString& msg) {
         return;
 
     _log.push_back(std::make_pair(type, msg));
-    if (_notification_func)
-        _notification_func(msg);
+    if (_enable_signal && _notification_func) // note: A message was passed from the QML engine 2 times into the TextArea in QML: signal call _notification_func was posted into the event loop, then get_log() was called.
+        _notification_func(msg);              // _enable_signal enables signal sending only after get_log() call.
 }
 
 void Logger::set_notification_func(const std::function<void (const QString&)> func) {

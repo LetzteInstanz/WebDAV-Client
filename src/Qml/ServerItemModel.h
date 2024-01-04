@@ -8,8 +8,8 @@
 #include <QModelIndex>
 #include <QObject>
 #include <QQmlEngine>
-#include <Qt>
 #include <QVariant>
+#include <Qt>
 
 class ServerInfoManager;
 

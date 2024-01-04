@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
+//import Qt.labs.platform
 
 import WebDavClient 1.0
 
@@ -31,9 +32,13 @@ ApplicationWindow {
             item.desc = desc(); item.addr = addr(); item.port = port(); item.path = path()
         }
     }
-    MessageDialog {
+    // MessageDialog { // note: Doesn't work under Android in Qt6.6 version: https://forum.qt.io/topic/142589/messagedialog-not-working-on-android-qt6-4-0
+    //     id: removeMsgDlg
+    //     buttons: MessageDialog.Yes | MessageDialog.No
+    //     onAccepted: srvListView.model.removeRow(srvListView.currentIndex)
+    // }
+    CustomMsgBox {
         id: removeMsgDlg
-        buttons: MessageDialog.Yes | MessageDialog.No
         onAccepted: srvListView.model.removeRow(srvListView.currentIndex)
     }
     FolderDialog {
@@ -133,7 +138,7 @@ ApplicationWindow {
                         }
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: {
+                            onPressAndHold: {
                                 srvItemDelegate.ListView.view.currentIndex = index
                                 editButton.enabled = index !== -1
                                 removeButton.enabled = index !== -1
@@ -238,23 +243,20 @@ ApplicationWindow {
                     onClicked: stackLayout.currentIndex = 0
                 }
             }
-            BorderRectangle {
+            ScrollView {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
 
-                ScrollView {
-                    anchors.fill: parent
+                TextArea {
+                    id: logTxtArea
+                    background: BorderRectangle {}
+                    text: logger.getLog()
+                    readOnly: true
+                    onReleased: (event) => { textContextMenu.hanldeReleaseEvent(logTxtArea, event) }
 
-                    TextArea {
-                        id: logTxtArea
-                        text: logger.getLog()
-                        readOnly: true
-                        onReleased: (event) => { textContextMenu.hanldeReleaseEvent(logTxtArea, event) }
-
-                        Connections {
-                            target: logger
-                            function onMsgReceived(msg) { logTxtArea.insert(logTxtArea.length, msg) }
-                        }
+                    Connections {
+                        target: logger
+                        function onMsgReceived(msg) { logTxtArea.insert(logTxtArea.length, msg + "\n") }
                     }
                 }
             }

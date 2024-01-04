@@ -3,8 +3,8 @@
 #include "Json/SettingsJsonFile.h"
 #include "Logger.h"
 #include "Qml/Logger.h"
-#include "Qml/Settings.h"
 #include "Qml/ServerItemModel.h"
+#include "Qml/Settings.h"
 #include "ServerInfoManager.h"
 
 App::App(int& argc, char** argv) : QGuiApplication(argc, argv) {

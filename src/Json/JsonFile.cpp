@@ -10,9 +10,10 @@ JsonFile::JsonFile(const QString& filename) {
     }
     dir.cd(_app_dir_name);
     _file.setFileName(dir.absolutePath() + '/' + filename);
-    if (!_file.open(QIODeviceBase::ReadWrite, QFileDevice::ReadOwner | QFileDevice::WriteOwner))
-        qCritical(qUtf8Printable(QObject::tr("Could not create file \"%s\"")), qUtf8Printable(_file.symLinkTarget()));
-
+    if (!_file.open(QIODeviceBase::ReadWrite, QFileDevice::ReadOwner | QFileDevice::WriteOwner)) {
+        qCritical(qUtf8Printable(QObject::tr("Could not create file \"%s\"")), qUtf8Printable(_file.fileName()));
+        return;
+    }
     const auto doc = QJsonDocument::fromJson(_file.readAll());
     _file.seek(0);
     if (doc.isObject())
@@ -20,6 +21,9 @@ JsonFile::JsonFile(const QString& filename) {
 }
 
 JsonFile::~JsonFile() {
+    if (!_file.isOpen())
+        return;
+
     _file.seek(0);
     _file.resize(_file.write(QJsonDocument(_obj).toJson()));
 }
