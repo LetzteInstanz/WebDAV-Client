@@ -13,14 +13,15 @@ Dialog {
         standardButton(Dialog.Ok).enabled = false
     }
     background: BorderRectangle {}
-    function desc() { return descTxtField.text }
+    function desc() { return descTxtField.text.trim() }
     function addr() {
-        var path = addressTxtField.text
+        var addr = addressTxtField.text
         const prefix = "http://"
-        if (path.startsWith(prefix))
-            path = path.substring(prefix.length)
+        if (addr.startsWith(prefix))
+            addr = addr.substring(prefix.length)
 
-        return path.endsWith("/") ? path.substring(0, path.length - 1) : path
+        addr = addr.trim()
+        return addr.endsWith("/") ? addr.substring(0, addr.length - 1) : addr
     }
     function port() { return portSpinBox.value }
     function path() {
@@ -45,8 +46,8 @@ Dialog {
         property int _port
         property string _path
 
-        function isFieldEmpty() { return descTxtField.text === "" || addr() === "" }
-        function hasChanges() { return !_enabledHasChangesFunc || (_desc !== descTxtField.text || _addr !== addr() || _port !== portSpinBox.value || _path !== path()) }
+        function isFieldEmpty() { return desc() === "" || addr() === "" }
+        function hasChanges() { return !_enabledHasChangesFunc || (_desc !== desc() || _addr !== addr() || _port !== portSpinBox.value || _path !== path()) }
         function enableOkButton() { standardButton(Dialog.Ok).enabled = hasChanges() && !isFieldEmpty() }
     }
     RowLayout {
