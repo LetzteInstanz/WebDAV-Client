@@ -44,7 +44,7 @@ ApplicationWindow {
     FolderDialog {
         id: pathDlg
         onAccepted: {
-            var path = pathDlg.selectedFolder.toString()
+            var path = decodeURIComponent(pathDlg.selectedFolder)
             const prefix = "file://"
             if (path.startsWith(prefix))
                 path = path.substring(prefix.length)
@@ -179,56 +179,48 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
 
-                RowLayout {
+                Column {
+                    id: settingsColumnLayout
                     anchors.fill: parent
                     anchors.margins: 5
+                    spacing: 5
+                    function hasChanges() { return settings.getDownloadPath() !== pathTxtField.text || settings.getCurrentLogLevel() !== logLevelComboBox.currentIndex }
 
-                    ColumnLayout {
-                        Layout.alignment: Qt.AlignTop
+                    Label {
+                        text: qsTr("Path:")
+                    }
+                    Row {
+                        width: parent.width
+                        spacing: 5
 
-                        Label {
-                            text: qsTr("Path:")
-                            Layout.preferredHeight: pathTxtField.height
-                            verticalAlignment: Text.AlignVCenter
+                        TextField {
+                            id: pathTxtField
+                            width: parent.width - parent.spacing - pathButton.width
+                            readOnly: true
+                            onTextChanged: saveSettingsButton.enabled = settingsColumnLayout.hasChanges()
+                            onReleased: (event) => { textContextMenu.hanldeReleaseEvent(pathTxtField, event) }
                         }
-                        Label {
-                            text: qsTr("Maximum log level:")
-                            Layout.preferredHeight: logLevelComboBox.height
-                            verticalAlignment: Text.AlignVCenter
+                        Button {
+                            id: pathButton
+                            text: qsTr("Select")
+                            onClicked: {
+                                pathDlg.currentFolder = encodeURIComponent("file://" + pathTxtField.text)
+                                pathDlg.open()
+                            }
                         }
                     }
-                    ColumnLayout {
-                        id: settingsFieldColumnLayout
-                        Layout.alignment: Qt.AlignTop
-                        function hasChanges() { return settings.getDownloadPath() !== pathTxtField.text || settings.getCurrentLogLevel() !== logLevelComboBox.currentIndex }
-
-                        RowLayout {
-                            TextField {
-                                id: pathTxtField
-                                Layout.fillWidth: true
-                                readOnly: true
-                                onTextChanged: saveSettingsButton.enabled = settingsFieldColumnLayout.hasChanges()
-                                onReleased: (event) => { textContextMenu.hanldeReleaseEvent(pathTxtField, event) }
-                            }
-                            Button {
-                                id: pathButton
-                                text: qsTr("Select")
-                                onClicked: {
-                                    pathDlg.currentFolder = "file://" + pathTxtField.text
-                                    pathDlg.open()
-                                }
-                            }
+                    Label {
+                        text: qsTr("Maximum log level:")
+                    }
+                    ComboBox {
+                        id: logLevelComboBox
+                        model: logLevelModel
+                        delegate: ItemDelegate {
+                            id: logLevelDelegate
+                            text: modelData
+                            required property string modelData
                         }
-                        ComboBox {
-                            id: logLevelComboBox
-                            model: logLevelModel
-                            delegate: ItemDelegate {
-                                id: logLevelDelegate
-                                text: modelData
-                                required property string modelData
-                            }
-                            onActivated: saveSettingsButton.enabled = settingsFieldColumnLayout.hasChanges()
-                        }
+                        onActivated: saveSettingsButton.enabled = settingsColumnLayout.hasChanges()
                     }
                 }
             }
