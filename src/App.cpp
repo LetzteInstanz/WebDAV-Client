@@ -17,6 +17,8 @@ App::App(int& argc, char** argv) : QGuiApplication(argc, argv) {
     _srv_item_model = std::make_unique<Qml::ServerItemModel>(_srv_info_manager);
 }
 
+App::~App() = default;
+
 void App::initialize_engine(QQmlApplicationEngine& engine) {
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, this, []() { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
 
@@ -28,4 +30,3 @@ void App::initialize_engine(QQmlApplicationEngine& engine) {
     context->setContextProperty("logLevelModel", _qml_settings->get_level_desc_list());
 }
 
-App::~App() = default;

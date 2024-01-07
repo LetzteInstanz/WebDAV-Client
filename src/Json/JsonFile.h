@@ -14,8 +14,6 @@ protected:
     void set_root_obj(const QJsonObject& obj) { _obj = obj; }
 
 private:
-    static const char* const _app_dir_name;
-
     QFile _file;
     QJsonObject _obj;
 };

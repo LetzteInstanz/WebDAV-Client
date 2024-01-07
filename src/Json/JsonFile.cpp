@@ -1,15 +1,17 @@
 #include "JsonFile.h"
 
-const char* const JsonFile::_app_dir_name = "WebDAVClient_2212ca02-1a86-4707-b731-492959a8fd40";
-
 JsonFile::JsonFile(const QString& filename) {
-    QDir dir(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation));
-    if (!dir.exists(_app_dir_name)) {
-        if (!dir.mkdir(_app_dir_name, QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner))
-            qCritical(qUtf8Printable(QObject::tr("Could not create directory \"%s/%s\"")), qUtf8Printable(dir.absolutePath()), _app_dir_name);
+    QString path = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
+#ifndef Q_OS_ANDROID
+    path += "/WebDAVClient_2212ca02-1a86-4707-b731-492959a8fd40";
+#endif
+    QDir dir;
+    qDebug(qUtf8Printable(QObject::tr("Settings path: \"%s\"")), qUtf8Printable(path));
+    if (!dir.mkpath(path)) {
+        qCritical(qUtf8Printable(QObject::tr("Could not create directory \"%s\"")), qUtf8Printable(path));
+        return;
     }
-    dir.cd(_app_dir_name);
-    _file.setFileName(dir.absolutePath() + '/' + filename);
+    _file.setFileName(path + '/' + filename);
     if (!_file.open(QIODeviceBase::ReadWrite, QFileDevice::ReadOwner | QFileDevice::WriteOwner)) {
         qCritical(qUtf8Printable(QObject::tr("Could not create file \"%s\"")), qUtf8Printable(_file.fileName()));
         return;
