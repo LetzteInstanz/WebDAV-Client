@@ -52,6 +52,7 @@ include_directories(src/Qml) # https://doc.qt.io/qt-6/qtqml-cppintegration-defin
 target_precompile_headers(web_dav_client PRIVATE src/pch.h)
 
 set_property(TARGET web_dav_client PROPERTY CXX_STANDARD 20)
+set_property(TARGET web_dav_client APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
