@@ -28,8 +28,8 @@ ApplicationWindow {
             setData(item.desc, item.addr, item.port, item.path)
         }
         onAccepted: {
-            var item = srvListView.currentItem
-            item.desc = desc(); item.addr = addr(); item.port = port(); item.path = path()
+            var model = srvListView.currentItem.model
+            model.desc = desc(); model.addr = addr(); model.port = port(); model.path = path()
         }
     }
     // MessageDialog { // note: Doesn't work under Android in Qt6.6 version: https://forum.qt.io/topic/142589/messagedialog-not-working-on-android-qt6-4-0
@@ -121,9 +121,10 @@ ApplicationWindow {
                         width: ListView.view.width
                         height: descText.height + paramText.height
                         required property int index
+                        required property var model
                         required property string desc
                         required property string addr
-                        required property string port
+                        required property int port
                         required property string path
 
                         Text {
