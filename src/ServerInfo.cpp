@@ -5,7 +5,7 @@ const char* const ServerInfo::_desc_key = "description",
           * const ServerInfo::_port_key = "port",
           * const ServerInfo::_path_key = "path";
 
-ServerInfo::ServerInfo(const QString& description, const QString& addr, const uint16_t port, const QString& path) : _description(description), _addr(addr), _port(port), _path(path) {}
+ServerInfo::ServerInfo(const QString& description, const QString& addr, const uint16_t port, const QString& path) noexcept : _description(description), _addr(addr), _port(port), _path(path) {}
 
 ServerInfo ServerInfo::from_json(const QJsonObject& obj) {
     const auto log_1 = [](const char* const key) { qWarning(qUtf8Printable(QObject::tr("The value of the key \"%s\" doesn't exist")), key); };
