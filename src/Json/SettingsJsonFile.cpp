@@ -8,13 +8,13 @@ const char* const SettingsJsonFile::_log_level_key = "log_level";
 SettingsJsonFile::SettingsJsonFile(std::shared_ptr<Logger> logger) : JsonFile("config.json"), _logger(logger) {
     QJsonObject obj = get_root_obj();
     auto it = obj.find(_dl_path_key);
-    const auto is_string = it != obj.end() && it->isString();
+    const auto is_string = it != std::end(obj) && it->isString();
     _download_path = is_string ? it->toString() : QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
     if (!is_string)
         obj[_dl_path_key] = _download_path;
 
     it = obj.find(_log_level_key);
-    const auto is_number = it != obj.end() && it->isDouble();
+    const auto is_number = it != std::end(obj) && it->isDouble();
     _log_level = is_number ? static_cast<QtMsgType>(it->toInt()) : QtWarningMsg;
     if (!is_number)
         obj[_log_level_key] = _log_level;

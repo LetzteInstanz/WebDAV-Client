@@ -5,7 +5,7 @@ const char* const DataJsonFile::_server_key = "servers";
 DataJsonFile::DataJsonFile() : JsonFile("data.json") {
     const QJsonObject obj = get_root_obj();
     const auto it = obj.find(_server_key);
-    if (it != obj.end() && it->isArray())
+    if (it != std::end(obj) && it->isArray())
         _json_servers = it->toArray();
 }
 
@@ -23,9 +23,8 @@ std::vector<ServerInfo> DataJsonFile::read_servers() const {
             continue;
 
         try {
-            servers.push_back(ServerInfo::from_json(json_srv.toObject()));
-        }
-        catch (const std::runtime_error&) {}
+            servers.emplace_back(ServerInfo::from_json(json_srv.toObject()));
+        } catch (const std::runtime_error&) {}
     }
     return servers;
 }

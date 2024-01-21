@@ -70,12 +70,12 @@ void Logger::append_msg(const QtMsgType type, const QString& msg) {
     if (type < get_max_level()) // note: The value of _max_level may change in the main thread between calls get_max_level() and append_msg() in message_handler() in another thread
         return;
 
-    _log.push_back(std::make_pair(type, msg));
+    _log.emplace_back(std::make_pair(type, msg));
     if (_enable_signal && _notification_func) // note: A message was passed from the QML engine 2 times into the TextArea in QML: signal call _notification_func was posted into the event loop, then get_log() was called.
         _notification_func(msg);              // _enable_signal enables signal sending only after get_log() call.
 }
 
-void Logger::set_notification_func(const std::function<void (const QString&)> func) {
+void Logger::set_notification_func(std::function<void (const QString&)>&& func) {
     const std::lock_guard<std::mutex> locker(_mutex);
     _notification_func = func;
 }

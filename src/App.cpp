@@ -1,20 +1,25 @@
 #include "App.h"
 
+#include "FileSystem/FileSystemModel.h"
 #include "Json/SettingsJsonFile.h"
 #include "Logger.h"
+#include "Qml/FileItemModel.h"
+#include "Qml/FileSystemModel.h"
 #include "Qml/Logger.h"
 #include "Qml/ServerItemModel.h"
 #include "Qml/Settings.h"
 #include "ServerInfoManager.h"
 
 App::App(int& argc, char** argv) : QGuiApplication(argc, argv) {
-    _logger = Logger::get_instance();
-    _settings = std::make_shared<SettingsJsonFile>(_logger);
-    _srv_info_manager = std::make_shared<ServerInfoManager>();
-
-    _qml_logger = std::make_unique<Qml::Logger>(_logger);
-    _qml_settings = std::make_unique<Qml::Settings>(_settings);
-    _srv_item_model = std::make_unique<Qml::ServerItemModel>(_srv_info_manager);
+    auto logger = Logger::get_instance();
+    _qml_logger = std::make_unique<Qml::Logger>(logger);
+    auto settings = std::make_unique<SettingsJsonFile>(logger);
+    _qml_settings = std::make_unique<Qml::Settings>(std::move(settings));
+    auto srv_info_manager = std::make_unique<ServerInfoManager>();
+    _srv_item_model = std::make_unique<Qml::ServerItemModel>(std::move(srv_info_manager));
+    auto fs_model = std::make_shared<FileSystemModel>();
+    _file_item_model = std::make_unique<Qml::FileItemModel>(fs_model);
+    _qml_fs_client = std::make_unique<Qml::FileSystemModel>(fs_model);
 }
 
 App::~App() = default;
@@ -28,5 +33,5 @@ void App::initialize_engine(QQmlApplicationEngine& engine) {
     context->setContextProperty("settings", _qml_settings.get());
     context->setContextProperty("logger", _qml_logger.get());
     context->setContextProperty("logLevelModel", _qml_settings->get_level_desc_list());
+    context->setContextProperty("fileSystemModel", _qml_fs_client.get());
 }
-

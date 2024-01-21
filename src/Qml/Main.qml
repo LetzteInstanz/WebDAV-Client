@@ -63,10 +63,14 @@ ApplicationWindow {
         MenuItem {
             text: qsTr("Remove")
             onTriggered: {
-                removeMsgDlg.text = qsTr("Do you want to remove ") + '"' + srvListView.currentItem.desc + '"?'
+                removeMsgDlg.text = qsTr("Do you want to remove \"") + srvListView.currentItem.desc + qsTr("\"?")
                 removeMsgDlg.open()
             }
         }
+    }
+    ProgressDialog {
+        id: progressDlg
+        onRejected: stackLayout.currentIndex = 0
     }
     StackLayout {
         id: stackLayout
@@ -140,11 +144,27 @@ ApplicationWindow {
                         }
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: srvItemDelegate.ListView.view.currentIndex = -1
+                            onClicked: {
+                                srvItemDelegate.ListView.view.currentIndex = index
+                                delayTimer.start()
+                            }
                             onPressAndHold: (mouse) => {
                                 var view = srvItemDelegate.ListView.view
                                 view.currentIndex = index
                                 editItemMenu.popup(view.currentItem, mouse.x, mouse.y)
+                            }
+
+                            Timer {
+                                id: delayTimer
+                                interval: 100
+                                repeat: false;
+                                onTriggered: {
+                                    var item = srvListView.currentItem
+                                    fileSystemModel.setServerInfo(item.addr, item.port, item.path)
+                                    fileSystemModel.requestFileList()
+                                    progressDlg.open()
+                                    stackLayout.currentIndex = 1
+                                }
                             }
                         }
                     }

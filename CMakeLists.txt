@@ -11,6 +11,14 @@ qt_standard_project_setup(REQUIRES 6.5)
 qt_add_executable(web_dav_client
     src/App.cpp
     src/App.h
+    src/FileSystem/Client.cpp
+    src/FileSystem/Client.h
+    src/FileSystem/FileSystemModel.cpp
+    src/FileSystem/FileSystemModel.h
+    src/FileSystem/FileSystemObject.cpp
+    src/FileSystem/FileSystemObject.h
+    src/FileSystem/Parser.cpp
+    src/FileSystem/Parser.h
     src/Json/DataJsonFile.cpp
     src/Json/DataJsonFile.h
     src/Json/JsonFile.cpp
@@ -37,8 +45,13 @@ qt_add_qml_module(web_dav_client
         src/Qml/CustomMsgBox.qml
         src/Qml/EditServerDialog.qml
         src/Qml/Main.qml
+        src/Qml/ProgressDialog.qml
         src/Qml/TextContextMenu.qml
     SOURCES
+        src/Qml/FileItemModel.cpp
+        src/Qml/FileItemModel.h
+        src/Qml/FileSystemModel.cpp
+        src/Qml/FileSystemModel.h
         src/Qml/Logger.cpp
         src/Qml/Logger.h
         src/Qml/Settings.cpp
@@ -47,7 +60,7 @@ qt_add_qml_module(web_dav_client
         src/Qml/ServerItemModel.h
 )
 
-include_directories(src/Qml) # https://doc.qt.io/qt-6/qtqml-cppintegration-definetypes.html: All headers that declare QML types need to be accessible without any prefix from the project's include path.
+include_directories(src/Qml) # note: https://doc.qt.io/qt-6/qtqml-cppintegration-definetypes.html: All headers that declare QML types need to be accessible without any prefix from the project's include path.
 
 target_precompile_headers(web_dav_client PRIVATE src/pch.h)
 

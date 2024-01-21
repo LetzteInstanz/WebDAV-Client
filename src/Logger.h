@@ -20,7 +20,7 @@ public:
     void set_max_level(const QtMsgType level);
     QString get_log() const;
     void append_msg(const QtMsgType type, const QString& msg);
-    void set_notification_func(const std::function<void(const QString&)> func);
+    void set_notification_func(std::function<void (const QString&)>&& func);
 
 private:
     Logger() noexcept;

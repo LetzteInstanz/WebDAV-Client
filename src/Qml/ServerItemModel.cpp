@@ -6,7 +6,9 @@
 
 using namespace Qml;
 
-ServerItemModel::ServerItemModel(std::shared_ptr<ServerInfoManager> manager, QObject* parent) : QAbstractListModel(parent), _srv_manager(manager) {}
+ServerItemModel::ServerItemModel(std::unique_ptr<ServerInfoManager>&& manager, QObject* parent) : QAbstractListModel(parent), _srv_manager(std::move(manager)) {}
+
+ServerItemModel::~ServerItemModel() = default;
 
 int ServerItemModel::rowCount(const QModelIndex& parent) const { return to_int(_srv_manager->amount()); }
 
@@ -79,13 +81,6 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
     dataChanged(index, index, {role});
     return true;
 }
-
-// QVariant ServerItemModel::headerData(int section, Qt::Orientation orientation, int role) const {
-//     if (orientation == Qt::Vertical)
-//         return QVariant();
-
-//     return "headerText";
-// }
 
 bool ServerItemModel::removeRows(int row, int count, const QModelIndex& /*parent*/) {
     const auto last = row + count - 1;

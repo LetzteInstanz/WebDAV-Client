@@ -13,7 +13,7 @@ ServerInfo ServerInfo::from_json(const QJsonObject& obj) {
     const auto throw_ = []() { throw std::runtime_error("JSON parsing error for ServerInfo object"); };
     const auto to_str = [log_1, log_2, throw_](const QJsonObject& obj, const char* const key) {
         const auto it = obj.find(key);
-        if (it == obj.end()) {
+        if (it == std::end(obj)) {
             log_1(key);
             throw_();
         }
@@ -25,7 +25,7 @@ ServerInfo ServerInfo::from_json(const QJsonObject& obj) {
     };
     const auto to_uint16 = [log_1, log_2, throw_](const QJsonObject& obj, const char* const key) {
         const auto it = obj.find(key);
-        if (it == obj.end() || !it->isDouble()) {
+        if (it == std::end(obj) || !it->isDouble()) {
             log_1(key);
             throw_();
         }
