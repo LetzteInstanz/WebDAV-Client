@@ -32,7 +32,7 @@ namespace Qml {
 
         QHash<int, QByteArray> roleNames() const override;
 
-        Q_INVOKABLE void add_server_info(const QString& description, const QString& addr, const uint16_t port, const QString& path);
+        Q_INVOKABLE void addServerInfo(const QString& description, const QString& addr, const uint16_t port, const QString& path);
 
     private:
         enum class Role { Desc = Qt::UserRole, Addr, Port, Path };

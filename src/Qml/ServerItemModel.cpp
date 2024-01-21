@@ -104,7 +104,7 @@ QHash<int, QByteArray> ServerItemModel::roleNames() const {
     return names;
 }
 
-void ServerItemModel::add_server_info(const QString& description, const QString& addr, const uint16_t port, const QString& path) {
+void ServerItemModel::addServerInfo(const QString& description, const QString& addr, const uint16_t port, const QString& path) {
     const int row = rowCount();
     beginInsertRows(QModelIndex(), row, row);
     _srv_manager->add(ServerInfo(description, addr, port, path));
