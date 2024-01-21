@@ -15,7 +15,7 @@ namespace {
 
 QtMessageHandler Logger::_default_handler = nullptr;
 
-Logger::Logger() noexcept { _default_handler = qInstallMessageHandler(&Logger::message_handler); }
+Logger::Logger() { _default_handler = qInstallMessageHandler(&Logger::message_handler); }
 
 void Logger::message_handler(QtMsgType type, const QMessageLogContext& context, const QString& msg) {
     _default_handler(type, context, msg);

@@ -23,7 +23,7 @@ public:
     void set_notification_func(std::function<void (const QString&)>&& func);
 
 private:
-    Logger() noexcept;
+    Logger();
 
     static void message_handler(QtMsgType type, const QMessageLogContext& context, const QString& msg);
 
