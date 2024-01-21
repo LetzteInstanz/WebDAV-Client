@@ -18,8 +18,8 @@ App::App(int& argc, char** argv) : QGuiApplication(argc, argv) {
     auto srv_info_manager = std::make_unique<ServerInfoManager>();
     _srv_item_model = std::make_unique<Qml::ServerItemModel>(std::move(srv_info_manager));
     auto fs_model = std::make_shared<FileSystemModel>();
-    _file_item_model = std::make_unique<Qml::FileItemModel>(fs_model);
     _qml_fs_client = std::make_unique<Qml::FileSystemModel>(fs_model);
+    _file_item_model = std::make_unique<Qml::FileItemModel>(fs_model);
 }
 
 App::~App() = default;

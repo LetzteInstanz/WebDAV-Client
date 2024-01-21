@@ -3,8 +3,7 @@
 #include "../Logger.h"
 
 Qml::Logger::Logger(std::shared_ptr<::Logger> logger, QObject* parent) : QObject(parent), _logger(logger) {
-    auto func = std::bind(&Logger::emit_signal, this, std::placeholders::_1);
-    _logger->set_notification_func(std::move(func));
+    _logger->set_notification_func(std::bind(&Logger::emit_signal, this, std::placeholders::_1));
 }
 
 Qml::Logger::~Logger() { _logger->set_notification_func(nullptr); }
