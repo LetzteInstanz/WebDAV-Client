@@ -14,9 +14,9 @@ class Client {
 public:
     using ReplyHandler = std::function<void(QByteArray&&)>;
 
-    Client(ReplyHandler&& handler);
+    Client(ReplyHandler&& handler) noexcept;
 
-    void set_server_info(const QString& addr, const uint16_t port);
+    void set_server_info(const QString& addr, const uint16_t port) noexcept;
     void request_file_list(const QString& path);
     void stop();
 

@@ -1,8 +1,8 @@
 #include "Client.h"
 
-Client::Client(ReplyHandler&& handler) : _handler(std::move(handler)) {}
+Client::Client(ReplyHandler&& handler) noexcept : _handler(std::move(handler)) {}
 
-void Client::set_server_info(const QString& addr, const uint16_t port) {
+void Client::set_server_info(const QString& addr, const uint16_t port) noexcept {
     _addr = addr;
     _port = port;
 }
