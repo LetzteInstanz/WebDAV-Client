@@ -32,7 +32,7 @@ private:
     enum class Tag { None, Multistatus, Response, PropStat, Prop, Href, ResourceType, GetLastModified, Collection, Status };
 
     struct TagHasher {
-        size_t operator()(Tag t) const noexcept { return to_size_t(t); }
+        size_t operator()(Tag t) const noexcept { return to_type<size_t>(t); }
     };
     using TagSet = std::unordered_set<Tag, TagHasher>;
     using TagOrderMap = std::unordered_map<Tag, TagSet, TagHasher>;
