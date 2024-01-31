@@ -8,11 +8,15 @@
 #include <ctime>
 #include <deque>
 #include <functional>
+#include <iomanip>
 #include <iterator>
 #include <memory>
 #include <mutex>
+#include <sstream>
 #include <stack>
 #include <stdexcept>
+#include <string>
+#include <time.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -34,11 +38,14 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QObject>
+#include <QPixmap>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlEngine>
+#include <QQuickImageProvider>
 #include <QRegularExpression>
 #include <QScopedPointer>
+#include <QSize>
 #include <QStandardPaths>
 #include <QString>
 #include <QStringList>
@@ -49,4 +56,6 @@
 #include <QVariant>
 #include <QXmlStreamReader>
 #include <Qt>
+#include <QtGlobal>
 #include <QtLogging>
+#include <QtSystemDetection>

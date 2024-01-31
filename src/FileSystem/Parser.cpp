@@ -155,8 +155,8 @@ const std::vector<std::pair<QString, Parser::FSObjectStruct::Status>> Parser::FS
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Parser::CurrentState::CurrentState(const QString& current_path, TagOrderMap::const_iterator first, CurrDirResultPair& result)
-    : current_path(current_path), result(result) { stack.push(first); }
+Parser::CurrentState::CurrentState(const QStringView& path, TagOrderMap::const_iterator first, CurrDirResultPair& result)
+    : current_path(path), result(result) { stack.push(first); }
 
 void Parser::CurrentState::update_if_start_tag(const Tag t) {
     switch (t) {
@@ -257,15 +257,15 @@ const std::unordered_map<QString, Parser::Tag> Parser::_propfind_tag_by_str_map{
                                                                                 {"status", Tag::Status}};
 
 const Parser::TagOrderMap Parser::_propfind_tag_order{{Tag::None, {Tag::Multistatus}},
-                                                       {Tag::Multistatus, {Tag::Response}},
-                                                       {Tag::Response, {Tag::Href, Tag::PropStat}},
-                                                       {Tag::PropStat, {Tag::Prop, Tag::Status}},
-                                                       {Tag::Prop, {Tag::GetLastModified, Tag::ResourceType}},
-                                                       {Tag::ResourceType, {Tag::Collection}},
-                                                       {Tag::Href, {}},
-                                                       {Tag::GetLastModified, {}},
-                                                       {Tag::Collection, {}},
-                                                       {Tag::Status, {}}};
+                                                      {Tag::Multistatus, {Tag::Response}},
+                                                      {Tag::Response, {Tag::Href, Tag::PropStat}},
+                                                      {Tag::PropStat, {Tag::Prop, Tag::Status}},
+                                                      {Tag::Prop, {Tag::GetLastModified, Tag::ResourceType}},
+                                                      {Tag::ResourceType, {Tag::Collection}},
+                                                      {Tag::Href, {}},
+                                                      {Tag::GetLastModified, {}},
+                                                      {Tag::Collection, {}},
+                                                      {Tag::Status, {}}};
 
 #ifndef NDEBUG
 Parser::Parser() {
@@ -289,7 +289,7 @@ Parser::Parser() {
     time = FSObjectStruct::to_tm(QStringView(test_date));
     assert(time.tm_year == 2024 - 1900);
 
-    const QString current_dir = "/dav";
+    const QString current_dir = "/dav/";
     const QString test_responce =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 "<D:multistatus xmlns:D=\"DAV:\" xmlns:ns0=\"DAV:\">"
@@ -405,16 +405,12 @@ Parser::Parser() {
 }
 #endif
 
-Parser::CurrDirResultPair Parser::parse_propfind_reply(const QStringView& current_path, const QByteArray& data) const  {
-    assert(!current_path.empty());
-    QString final_curr_path = current_path.toString();
-    if (!final_curr_path.isEmpty() && final_curr_path.back() != '/')
-        final_curr_path += '/';
-
+Parser::CurrDirResultPair Parser::parse_propfind_reply(const QStringView& path, const QByteArray& data) const  {
+    assert(!path.empty());
     CurrDirResultPair ret;
     const auto first = _propfind_tag_order.find(Tag::None);
     assert(first != std::end(_propfind_tag_order));
-    CurrentState state(final_curr_path, first, ret);
+    CurrentState state(path, first, ret);
     QXmlStreamReader reader(data);
     while (!reader.atEnd()) {
         switch (reader.readNext()) {

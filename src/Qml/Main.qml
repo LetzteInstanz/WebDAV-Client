@@ -39,6 +39,7 @@ ApplicationWindow {
     // }
     CustomMsgBox {
         id: removeMsgDlg
+        standardButtons: Dialog.Yes | Dialog.No
         onAccepted: srvListView.model.removeRow(srvListView.currentIndex)
     }
     FolderDialog {
@@ -174,6 +175,37 @@ ApplicationWindow {
 
         TreeView {
             id: fileTreeView
+            model: fileItemModel
+            delegate: Item {
+                id: fileItemDelegate
+                implicitHeight: 96
+                //width: TreeView.width
+                //required property int index
+                //required property var model
+                required property string name
+                required property string extension
+                required property string datetime
+
+                Row {
+                    Image {
+                        id: fileImage
+                        //anchors.left: parent.left
+                        width: 96
+                        height: 96
+                        source: "image://icons/" + extension
+                    }
+                    ColumnLayout {
+                        Text {
+                            id: filenameText
+                            text: name;
+                        }
+                        Text {
+                            id: fileTimeText
+                            text: datetime;
+                        }
+                    }
+                }
+            }
         }
 
         ColumnLayout {

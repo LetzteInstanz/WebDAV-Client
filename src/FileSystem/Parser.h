@@ -26,7 +26,7 @@ public:
     Parser();
 #endif
 
-    CurrDirResultPair parse_propfind_reply(const QStringView& current_path, const QByteArray& data) const;
+    CurrDirResultPair parse_propfind_reply(const QStringView& path, const QByteArray& data) const;
 
 private:
     enum class Tag { None, Multistatus, Response, PropStat, Prop, Href, ResourceType, GetLastModified, Collection, Status };
@@ -64,7 +64,7 @@ private:
     };
 
     struct CurrentState {
-        CurrentState(const QString& current_path, TagOrderMap::const_iterator first, CurrDirResultPair& result);
+        CurrentState(const QStringView& path, TagOrderMap::const_iterator first, CurrDirResultPair& result);
 
         void update_if_start_tag(const Tag t);
         void update_if_end_tag(const Tag t);
@@ -78,7 +78,7 @@ private:
         void set_error(QString&& msg);
 
     private:
-        const QString& current_path;
+        const QStringView& current_path;
         FSObjectStruct obj;
         FSObjectStruct::Status status = FSObjectStruct::Status::None;
         CurrDirResultPair& result;

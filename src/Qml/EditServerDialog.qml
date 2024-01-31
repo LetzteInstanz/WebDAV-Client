@@ -117,7 +117,7 @@ Dialog {
             }
             TextField {
                 id: pathTxtField
-                placeholderText: qsTr("directory_1/directory_2/…")
+                placeholderText: qsTr("directory 1/directory 2/…")
                 Layout.fillWidth: true
                 onTextEdited: curData.enableOkButton()
                 onReleased: (event) => { textContextMenu.hanldeReleaseEvent(pathTxtField, event) }

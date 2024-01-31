@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "Qml/FileItemModel.h"
 #include "Qml/FileSystemModel.h"
+#include "Qml/IconProvider.h"
 #include "Qml/Logger.h"
 #include "Qml/ServerItemModel.h"
 #include "Qml/Settings.h"
@@ -26,7 +27,7 @@ App::~App() = default;
 
 void App::initialize_engine(QQmlApplicationEngine& engine) {
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, this, []() { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
-
+    engine.addImageProvider("icons", new Qml::IconProvider());
     QQmlContext* context = engine.rootContext();
     context->setContextProperty("srvItemModel", _srv_item_model.get());
     //engine.setInitialProperties({{"srvItemModel", QVariant::fromValue(static_cast<QObject*>(&_srv_item_model))}}); // note: Replace with this, when fixed https://bugreports.qt.io/browse/QTBUG-114403
@@ -34,4 +35,5 @@ void App::initialize_engine(QQmlApplicationEngine& engine) {
     context->setContextProperty("logger", _qml_logger.get());
     context->setContextProperty("logLevelModel", _qml_settings->get_level_desc_list());
     context->setContextProperty("fileSystemModel", _qml_fs_client.get());
+    context->setContextProperty("fileItemModel", _file_item_model.get());
 }

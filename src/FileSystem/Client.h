@@ -13,8 +13,9 @@
 class Client {
 public:
     using ReplyHandler = std::function<void(QByteArray&&)>;
+    using ErrorHandler = std::function<void(QNetworkReply::NetworkError)>;
 
-    Client(ReplyHandler&& handler) noexcept;
+    Client(ReplyHandler&& reply_handler, ErrorHandler&& error_handler) noexcept;
 
     void set_server_info(const QString& addr, const uint16_t port) noexcept;
     void request_file_list(const QString& path);
@@ -29,7 +30,8 @@ private:
                                                      "</D:prop>"
                                                  "</D:propfind>";
 
-    const ReplyHandler _handler;
+    const ReplyHandler _reply_handler;
+    const ErrorHandler _error_handler;
     QString _addr;
     uint16_t _port;
     QNetworkAccessManager _network_access_mgr;
