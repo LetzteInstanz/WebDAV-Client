@@ -30,7 +30,7 @@ void FileSystemModel::add_notification_func(const void* obj, NotifyAboutUpdateFu
 
 void FileSystemModel::remove_notification_func(const void* obj) {
     const auto it = _notify_func_by_obj_map.find(obj);
-    if (it != _notify_func_by_obj_map.end())
+    if (it != std::end(_notify_func_by_obj_map))
         _notify_func_by_obj_map.erase(it);
 }
 

@@ -411,7 +411,7 @@ IconProvider::IconProvider() : QQuickImageProvider(QQmlImageProviderBase::Pixmap
 QPixmap IconProvider::requestPixmap(const QString& id, QSize* size, const QSize& requestedSize) {
     QString path;
     const auto name_it = _icon_name_by_extension_map.find(id);
-    if (name_it == _icon_name_by_extension_map.end())
+    if (name_it == std::end(_icon_name_by_extension_map))
         path = _res_path + (id == QStringLiteral("folder") ? QStringLiteral("folder.png") : QStringLiteral("unknown.png"));
     else
         path = _res_path + name_it->second;

@@ -4,16 +4,16 @@ QString Parser::FSObjectStruct::remove_curr_path(const QStringView& data, const 
     if (data.isEmpty())
         return QString();
 
-    auto from = data.end();
+    auto from = std::end(data);
     const size_t cd_sz = path.size();
     const size_t sz = data.size();
     for (size_t i = 0; i < sz; ++i) {
         if (i == cd_sz || path[i] != data[i]) {
-            from = data.begin() + i;
+            from = std::begin(data) + i;
             break;
         }
     }
-    const auto end = data.end();
+    const auto end = std::end(data);
     if (from == end)
         return QString();
 
@@ -110,7 +110,7 @@ void Parser::FSObjectStruct::parse_lexem(std::tm& time, const QStringView& lexem
 
         case Token::Month: {
             const auto it = _month_map.find(lexem.toString());
-            if (it == _month_map.end())
+            if (it == std::end(_month_map))
                 throw std::runtime_error("month parse error");
 
             time.tm_mon = it->second;
@@ -364,7 +364,7 @@ Parser::Parser() {
     const std::deque<FileSystemObject>& children = pair.second;
     assert(children.size() == 3);
 
-    auto it = children.begin();
+    auto it = std::begin(children);
     assert(it->get_name() == QStringLiteral("Диск 1"));
     assert(it->get_type() == FileSystemObject::Type::Directory);
     assert(it->is_last_modified_valid());

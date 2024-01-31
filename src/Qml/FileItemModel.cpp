@@ -33,7 +33,7 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
             if (i == -1 || i == sz - 1)
                 return "unknown";
 
-            return QStringView(name.begin() + i, sz - 1 - i).toString().toLower();
+            return QStringView(std::begin(name) + i, sz - 1 - i).toString().toLower();
         }
 
         case Role::Datetime: {
