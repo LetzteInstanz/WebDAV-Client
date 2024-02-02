@@ -111,8 +111,8 @@ ApplicationWindow {
                     anchors.fill: parent
                     model: srvItemModel
                     clip: true
-                    spacing: 5
                     anchors.margins: 2
+                    spacing: 5
                     highlightFollowsCurrentItem: true
                     currentIndex: -1
 
@@ -120,11 +120,10 @@ ApplicationWindow {
                         width: ListView.view.width
                         color: "lightgray"
                     }
-                    delegate: Rectangle {
+                    delegate: Item {
                         id: srvItemDelegate
-                        color: "transparent"
                         width: ListView.view.width
-                        height: descText.height + paramText.height
+                        height: descText.contentHeight + paramText.contentHeight
                         required property int index
                         required property var model
                         required property string desc
@@ -136,11 +135,13 @@ ApplicationWindow {
                             id: descText
                             font.bold: true
                             font.pointSize: 14
+                            elide: Text.ElideRight
                             text: desc
                         }
                         Text {
                             id: paramText
                             anchors.top: descText.bottom
+                            elide: Text.ElideRight
                             text: "http://" + addr + ":" + port + "/" + path
                         }
                         MouseArea {
@@ -173,35 +174,57 @@ ApplicationWindow {
             }
         }
 
-        TreeView {
-            id: fileTreeView
-            model: fileItemModel
-            delegate: Item {
-                id: fileItemDelegate
-                implicitHeight: 96
-                //width: TreeView.width
-                //required property int index
-                //required property var model
-                required property string name
-                required property string extension
-                required property string datetime
+        BorderRectangle {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
 
-                Row {
-                    Image {
-                        id: fileImage
-                        //anchors.left: parent.left
-                        width: 96
-                        height: 96
-                        source: "image://icons/" + extension
-                    }
-                    ColumnLayout {
-                        Text {
-                            id: filenameText
-                            text: name;
+            ListView {
+                anchors.fill: parent
+                model: fileItemModel
+                clip: true
+                anchors.margins: 2
+                spacing: 5
+
+                delegate: BorderRectangle {
+                    height: (Math.max(fileImage.height, nameText.contentHeight + dateTimeText.contentHeight) + fileItemDelegateRowLayout.anchors.topMargin + fileItemDelegateRowLayout.anchors.bottomMargin)
+                    width: ListView.view.width
+                    required property string name
+                    required property string extension
+                    required property string datetime
+
+                    RowLayout {
+                        id: fileItemDelegateRowLayout
+                        anchors.fill: parent
+                        anchors.leftMargin: 2
+                        anchors.rightMargin: 2
+                        anchors.topMargin: 2
+
+                        Image {
+                            id: fileImage
+                            source: "image://icons/" + extension
                         }
-                        Text {
-                            id: fileTimeText
-                            text: datetime;
+                        ColumnLayout {
+                            Text {
+                                id: nameText
+                                Layout.fillHeight: true
+                                Layout.fillWidth: true
+                                Layout.verticalStretchFactor: 1
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignLeft
+                                font.bold: true
+                                font.pointSize: 14
+                                wrapMode: Text.Wrap
+                                text: name;
+                            }
+                            Text {
+                                id: dateTimeText
+                                Layout.fillHeight: true
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 16
+                                verticalAlignment: Text.AlignBottom
+                                horizontalAlignment: Text.AlignRight
+                                text: datetime;
+                            }
                         }
                     }
                 }
