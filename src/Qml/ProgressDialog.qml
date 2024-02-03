@@ -12,7 +12,7 @@ Dialog {
     standardButtons: Dialog.Cancel
     onRejected: fileSystemModel.stop()
 
-    CustomMsgBox {
+    CustomMessageBox {
         id: errorDlg
         standardButtons: Dialog.Ok
         onAccepted: progressDlg.reject()

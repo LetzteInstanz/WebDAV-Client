@@ -8,6 +8,7 @@ import QtQuick.Layouts
 import WebDavClient 1.0
 
 ApplicationWindow {
+    id: appWindow
     visible: true
     title: "WebDAVClient 1.0"
     background: BorderRectangle {}
@@ -32,16 +33,6 @@ ApplicationWindow {
             model.desc = desc(); model.addr = addr(); model.port = port(); model.path = path()
         }
     }
-    // MessageDialog { // note: Doesn't work under Android in Qt6.6 version: https://forum.qt.io/topic/142589/messagedialog-not-working-on-android-qt6-4-0
-    //     id: removeMsgDlg
-    //     buttons: MessageDialog.Yes | MessageDialog.No
-    //     onAccepted: srvListView.model.removeRow(srvListView.currentIndex)
-    // }
-    CustomMsgBox {
-        id: removeMsgDlg
-        standardButtons: Dialog.Yes | Dialog.No
-        onAccepted: srvListView.model.removeRow(srvListView.currentIndex)
-    }
     FolderDialog {
         id: pathDlg
         onAccepted: {
@@ -63,9 +54,30 @@ ApplicationWindow {
         }
         MenuItem {
             text: qsTr("Remove")
+            property Component msgBoxComponent
+            Component.onCompleted: msgBoxComponent = Qt.createComponent("CustomMessageBox.qml", Component.Asynchronous);
             onTriggered: {
-                removeMsgDlg.text = qsTr("Do you want to remove \"") + srvListView.currentItem.desc + qsTr("\"?")
-                removeMsgDlg.open()
+                function createDlg() {
+                    const comp = msgBoxComponent
+                    if (comp.status === Component.Error) {
+                        console.error("CustomMessageBox.qml component loading failed: ", comp.errorString());
+                        return;
+                    }
+                    const dlg = comp.createObject(appWindow, {"standardButtons": Dialog.Yes | Dialog.No, "text": qsTr("Do you want to remove \"") + srvListView.currentItem.desc + qsTr("\"?")});
+                    if (dlg === null) {
+                        console.error("CustomMessageBox object creation failed");
+                        return;
+                    }
+                    dlg.accepted.connect(() => { srvListView.model.removeRow(srvListView.currentIndex) })
+                    dlg.closed.connect(dlg.destroy)
+                    dlg.open()
+                }
+
+                const comp = msgBoxComponent
+                if (comp.status === Component.Ready)
+                    createDlg();
+                else
+                    comp.statusChanged.connect(createDlg);
             }
         }
     }
