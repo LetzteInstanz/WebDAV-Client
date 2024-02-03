@@ -15,12 +15,6 @@ ApplicationWindow {
 
     TextContextMenu { id: textContextMenu }
     EditServerDialog {
-        id: addSrvDlg
-        title: qsTr("Add server")
-        onOpened: setData("", "", 80, "")
-        onAccepted: srvListView.model.addServerInfo(desc(), addr(), port(), path())
-    }
-    EditServerDialog {
         id: editSrvDlg
         title: qsTr("Edit server")
         onOpened: {
@@ -96,7 +90,32 @@ ApplicationWindow {
                 Button {
                     id: addButton
                     text: qsTr("Add")
-                    onClicked: addSrvDlg.open()
+                    property Component editSrvDlgComponent
+                    Component.onCompleted: editSrvDlgComponent = Qt.createComponent("EditServerDialog.qml", Component.Asynchronous);
+                    onClicked: {
+                        function createDlg() {
+                            const comp = editSrvDlgComponent
+                            if (comp.status === Component.Error) {
+                                console.error("EditServerDialog.qml component loading failed: ", comp.errorString());
+                                return;
+                            }
+                            const dlg = comp.createObject(appWindow, {"title": qsTr("Add server")});
+                            if (dlg === null) {
+                                console.error("EditServerDialog object creation failed");
+                                return;
+                            }
+                            dlg.setData("", "", 80, "")
+                            dlg.accepted.connect(() => { srvListView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })
+                            dlg.closed.connect(dlg.destroy)
+                            dlg.open()
+                        }
+
+                        const comp = editSrvDlgComponent
+                        if (comp.status === Component.Ready)
+                            createDlg();
+                        else
+                            comp.statusChanged.connect(createDlg);
+                    }
                 }
                 Button {
                     id: settingsButton
