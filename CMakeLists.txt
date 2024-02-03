@@ -42,7 +42,7 @@ qt_add_qml_module(web_dav_client
     VERSION 1.0
     QML_FILES
         src/Qml/BorderRectangle.qml
-        src/Qml/CustomMsgBox.qml
+        src/Qml/CustomMessageBox.qml
         src/Qml/EditServerDialog.qml
         src/Qml/Main.qml
         src/Qml/ProgressDialog.qml
