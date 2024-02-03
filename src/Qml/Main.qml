@@ -14,19 +14,6 @@ ApplicationWindow {
     background: BorderRectangle {}
 
     TextContextMenu { id: textContextMenu }
-    EditServerDialog {
-        id: editSrvDlg
-        title: qsTr("Edit server")
-        onOpened: {
-            enableHasChangesFunc(true)
-            var item = srvListView.currentItem
-            setData(item.desc, item.addr, item.port, item.path)
-        }
-        onAccepted: {
-            var model = srvListView.currentItem.model
-            model.desc = desc(); model.addr = addr(); model.port = port(); model.path = path()
-        }
-    }
     FolderDialog {
         id: pathDlg
         onAccepted: {
@@ -44,7 +31,38 @@ ApplicationWindow {
 
         MenuItem {
             text: qsTr("Edit")
-            onTriggered: editSrvDlg.open()
+            property Component editSrvDlgComponent
+            Component.onCompleted: editSrvDlgComponent = Qt.createComponent("EditServerDialog.qml", Component.Asynchronous);
+            onTriggered: {
+                function createDlg() {
+                    const comp = editSrvDlgComponent
+                    if (comp.status === Component.Error) {
+                        console.error("EditServerDialog.qml component loading failed: ", comp.errorString());
+                        return;
+                    }
+                    const dlg = comp.createObject(appWindow, {"title": qsTr("Edit server")});
+                    if (dlg === null) {
+                        console.error("EditServerDialog object creation failed");
+                        return;
+                    }
+                    dlg.enableHasChangesFunc(true)
+                    const item = srvListView.currentItem
+                    dlg.setData(item.desc, item.addr, item.port, item.path)
+                    function writeIntoModel() {
+                        const model = srvListView.currentItem.model
+                        model.desc = dlg.desc(); model.addr = dlg.addr(); model.port = dlg.port(); model.path = dlg.path()
+                    }
+                    dlg.accepted.connect(writeIntoModel)
+                    dlg.closed.connect(dlg.destroy)
+                    dlg.open()
+                }
+
+                const comp = editSrvDlgComponent
+                if (comp.status === Component.Ready)
+                    createDlg();
+                else
+                    comp.statusChanged.connect(createDlg);
+            }
         }
         MenuItem {
             text: qsTr("Remove")
