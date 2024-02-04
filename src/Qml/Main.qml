@@ -14,17 +14,17 @@ ApplicationWindow {
     background: BorderRectangle {}
 
     TextContextMenu { id: textContextMenu }
-    FolderDialog {
-        id: pathDlg
-        onAccepted: {
-            var path = decodeURIComponent(pathDlg.selectedFolder)
-            const prefix = "file://"
-            if (path.startsWith(prefix))
-                path = path.substring(prefix.length)
+    // FolderDialog {
+    //     id: pathDlg
+    //     onAccepted: {
+    //         var path = decodeURIComponent(pathDlg.selectedFolder)
+    //         const prefix = "file://"
+    //         if (path.startsWith(prefix))
+    //             path = path.substring(prefix.length)
 
-            pathTxtField.text = path
-        }
-    }
+    //         pathTxtField.text = path
+    //     }
+    // }
     StackLayout {
         id: stackLayout
         anchors.fill: parent
@@ -67,7 +67,7 @@ ApplicationWindow {
                     id: settingsButton
                     text: qsTr("Settings")
                     onClicked: {
-                        pathTxtField.text = settings.getDownloadPath()
+                        //pathTxtField.text = settings.getDownloadPath()
                         logLevelComboBox.currentIndex = settings.getCurrentLogLevel()
                         saveSettingsButton.enabled = false
                         stackLayout.currentIndex = 2
@@ -251,7 +251,7 @@ ApplicationWindow {
                     anchors.right: parent.right
                     text: qsTr("Ok")
                     onClicked: {
-                        settings.setDownloadPath(pathTxtField.text)
+                        //settings.setDownloadPath(pathTxtField.text)
                         settings.setCurrentLogLevel(logLevelComboBox.currentIndex)
                         stackLayout.currentIndex = 0
                     }
@@ -266,31 +266,31 @@ ApplicationWindow {
                     anchors.fill: parent
                     anchors.margins: 5
                     spacing: 5
-                    function hasChanges() { return settings.getDownloadPath() !== pathTxtField.text || settings.getCurrentLogLevel() !== logLevelComboBox.currentIndex }
+                    function hasChanges() { return /*settings.getDownloadPath() !== pathTxtField.text || */settings.getCurrentLogLevel() !== logLevelComboBox.currentIndex }
 
-                    Label {
-                        text: qsTr("Path:")
-                    }
-                    Row {
-                        width: parent.width
-                        spacing: 5
+                    // Label {
+                    //     text: qsTr("Path:")
+                    // }
+                    // Row {
+                    //     width: parent.width
+                    //     spacing: 5
 
-                        TextField {
-                            id: pathTxtField
-                            width: parent.width - parent.spacing - pathButton.width
-                            readOnly: true
-                            onTextChanged: saveSettingsButton.enabled = settingsColumnLayout.hasChanges()
-                            onReleased: (event) => { textContextMenu.hanldeReleaseEvent(pathTxtField, event) }
-                        }
-                        Button {
-                            id: pathButton
-                            text: qsTr("Select")
-                            onClicked: {
-                                pathDlg.currentFolder = encodeURIComponent("file://" + pathTxtField.text)
-                                pathDlg.open()
-                            }
-                        }
-                    }
+                    //     TextField {
+                    //         id: pathTxtField
+                    //         width: parent.width - parent.spacing - pathButton.width
+                    //         readOnly: true
+                    //         onTextChanged: saveSettingsButton.enabled = settingsColumnLayout.hasChanges()
+                    //         onReleased: (event) => { textContextMenu.hanldeReleaseEvent(pathTxtField, event) }
+                    //     }
+                    //     Button {
+                    //         id: pathButton
+                    //         text: qsTr("Select")
+                    //         onClicked: {
+                    //             pathDlg.currentFolder = encodeURIComponent("file://" + pathTxtField.text)
+                    //             pathDlg.open()
+                    //         }
+                    //     }
+                    // }
                     Label {
                         text: qsTr("Maximum log level:")
                     }
