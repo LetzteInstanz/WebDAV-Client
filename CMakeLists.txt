@@ -44,6 +44,7 @@ qt_add_qml_module(web_dav_client
         src/Qml/BorderRectangle.qml
         src/Qml/CustomMessageBox.qml
         src/Qml/EditServerDialog.qml
+        src/Qml/EditServerItemMenu.qml
         src/Qml/Main.qml
         src/Qml/ProgressDialog.qml
         src/Qml/TextContextMenu.qml
