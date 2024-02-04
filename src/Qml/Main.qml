@@ -25,10 +25,6 @@ ApplicationWindow {
             pathTxtField.text = path
         }
     }
-    ProgressDialog {
-        id: progressDlg
-        onRejected: stackLayout.currentIndex = 0
-    }
     StackLayout {
         id: stackLayout
         anchors.fill: parent
@@ -144,13 +140,38 @@ ApplicationWindow {
                             Timer {
                                 id: delayTimer
                                 interval: 100
-                                repeat: false;
+                                repeat: false
+                                property Component progressDlgComponent
+                                Component.onCompleted: progressDlgComponent = Qt.createComponent("ProgressDialog.qml", Component.Asynchronous);
                                 onTriggered: {
-                                    var item = srvListView.currentItem
-                                    fileSystemModel.setServerInfo(item.addr, item.port, item.path)
-                                    fileSystemModel.requestFileList()
-                                    progressDlg.open()
-                                    stackLayout.currentIndex = 1
+                                    function createDlg() {
+                                        const comp = progressDlgComponent
+                                        if (comp.status === Component.Error) {
+                                            console.error("ProgressDialog.qml component loading failed: ", comp.errorString());
+                                            return;
+                                        }
+                                        const dlg = comp.createObject(appWindow);
+                                        if (dlg === null) {
+                                            console.error("ProgressDialog object creation failed");
+                                            return;
+                                        }
+                                        function requestFileList() {
+                                            stackLayout.currentIndex = 1
+                                            const item = srvListView.currentItem
+                                            fileSystemModel.setServerInfo(item.addr, item.port, item.path)
+                                            fileSystemModel.requestFileList()
+                                        }
+                                        dlg.onOpened.connect(requestFileList)
+                                        dlg.rejected.connect(() => { stackLayout.currentIndex = 0 })
+                                        dlg.closed.connect(dlg.destroy)
+                                        dlg.open()
+                                    }
+
+                                    const comp = progressDlgComponent
+                                    if (comp.status === Component.Ready)
+                                        createDlg();
+                                    else
+                                        comp.statusChanged.connect(createDlg);
                                 }
                             }
                         }
