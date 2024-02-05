@@ -41,34 +41,6 @@ ApplicationWindow {
             id: settingsPageColumnLayout
         }
 
-        ColumnLayout {
-            Item {
-                Layout.fillWidth: true
-                Layout.preferredHeight: backButton2.height
-
-                Button {
-                    id: backButton2
-                    text: qsTr("Back")
-                    onClicked: stackLayout.currentIndex = 0
-                }
-            }
-            ScrollView {
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-
-                TextArea {
-                    id: logTxtArea
-                    background: BorderRectangle {}
-                    text: logger.getLog()
-                    readOnly: true
-                    onReleased: (event) => { textContextMenu.hanldeReleaseEvent(logTxtArea, event) }
-
-                    Connections {
-                        target: logger
-                        function onMsgReceived(msg) { logTxtArea.insert(logTxtArea.length, msg + "\n") }
-                    }
-                }
-            }
-        }
+        LogPageColumnLayout {}
     }
 }
