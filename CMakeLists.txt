@@ -49,6 +49,7 @@ qt_add_qml_module(web_dav_client
         src/Qml/Main.qml
         src/Qml/ProgressDialog.qml
         src/Qml/ServerListPageColumnLayout.qml
+        src/Qml/SettingsPageColumnLayout.qml
         src/Qml/TextContextMenu.qml
     SOURCES
         src/Qml/FileItemModel.cpp

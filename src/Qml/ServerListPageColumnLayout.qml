@@ -3,6 +3,8 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 ColumnLayout {
+    property SettingsPageColumnLayout settingsPage
+
     RowLayout {
         Button {
             text: qsTr("Add")
@@ -36,9 +38,7 @@ ColumnLayout {
         Button {
             text: qsTr("Settings")
             onClicked: {
-                //pathTxtField.text = settings.getDownloadPath()
-                logLevelComboBox.currentIndex = settings.getCurrentLogLevel()
-                saveSettingsButton.enabled = false
+                settingsPage.prepare()
                 stackLayout.currentIndex = 2
             }
         }
