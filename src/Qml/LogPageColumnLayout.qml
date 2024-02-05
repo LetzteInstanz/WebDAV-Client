@@ -1,3 +1,4 @@
+import QtQml
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -5,10 +6,10 @@ import QtQuick.Layouts
 ColumnLayout {
     Item {
         Layout.fillWidth: true
-        Layout.preferredHeight: backButton2.height
+        Layout.preferredHeight: backButton.height
 
         Button {
-            id: backButton2
+            id: backButton
             text: qsTr("Back")
             onClicked: stackLayout.currentIndex = 0
         }
