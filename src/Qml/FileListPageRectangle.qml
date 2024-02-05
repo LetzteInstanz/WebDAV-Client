@@ -13,21 +13,21 @@ BorderRectangle {
         spacing: 5
 
         delegate: BorderRectangle {
-            height: (Math.max(fileImage.height, nameText.contentHeight + dateTimeText.contentHeight) + fileItemDelegateRowLayout.anchors.topMargin + fileItemDelegateRowLayout.anchors.bottomMargin)
+            height: (Math.max(image.height, nameText.contentHeight + dateTimeText.contentHeight) + rowLayout.anchors.topMargin + rowLayout.anchors.bottomMargin)
             width: ListView.view.width
             required property string name
             required property string extension
             required property string datetime
 
             RowLayout {
-                id: fileItemDelegateRowLayout
+                id: rowLayout
                 anchors.fill: parent
                 anchors.leftMargin: 2
                 anchors.rightMargin: 2
                 anchors.topMargin: 2
 
                 Image {
-                    id: fileImage
+                    id: image
                     source: "image://icons/" + extension
                 }
                 ColumnLayout {
