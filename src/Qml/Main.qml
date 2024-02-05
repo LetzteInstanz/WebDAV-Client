@@ -1,7 +1,5 @@
-import QtQml
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Dialogs
 import QtQuick.Layouts
 //import Qt.labs.platform
 
