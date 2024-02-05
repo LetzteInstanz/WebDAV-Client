@@ -5,7 +5,6 @@ import QtQuick.Layouts
 ColumnLayout {
     RowLayout {
         Button {
-            id: addButton
             text: qsTr("Add")
             property Component editSrvDlgComponent
             Component.onCompleted: editSrvDlgComponent = Qt.createComponent("EditServerDialog.qml", Component.Asynchronous);
@@ -35,7 +34,6 @@ ColumnLayout {
             }
         }
         Button {
-            id: settingsButton
             text: qsTr("Settings")
             onClicked: {
                 //pathTxtField.text = settings.getDownloadPath()
@@ -45,7 +43,6 @@ ColumnLayout {
             }
         }
         Button {
-            id: logButton
             text: qsTr("Log")
             onClicked: stackLayout.currentIndex = 3
         }
@@ -73,7 +70,7 @@ ColumnLayout {
                 color: "lightgray"
             }
             delegate: Item {
-                id: srvItemDelegate
+                id: delegate
                 width: ListView.view.width
                 height: descText.contentHeight + paramText.contentHeight
                 required property int index
@@ -99,11 +96,11 @@ ColumnLayout {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        srvItemDelegate.ListView.view.currentIndex = index
+                        delegate.ListView.view.currentIndex = index
                         delayTimer.start()
                     }
                     onPressAndHold: (mouse) => {
-                        var view = srvItemDelegate.ListView.view
+                        const view = delegate.ListView.view
                         view.currentIndex = index
                         editItemMenu.popup(view.currentItem, mouse.x, mouse.y)
                     }
