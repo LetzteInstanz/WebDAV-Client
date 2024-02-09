@@ -23,7 +23,7 @@ namespace Qml {
         Q_INVOKABLE QString getDownloadPath() const;
         Q_INVOKABLE void setDownloadPath(const QString& path);
         Q_INVOKABLE int getCurrentLogLevel() const;
-        Q_INVOKABLE void setCurrentLogLevel(const int index);
+        Q_INVOKABLE void setCurrentLogLevel(int index);
         QStringList get_level_desc_list() const;
 
     private:

@@ -17,9 +17,9 @@ public:
 
     static std::shared_ptr<Logger> get_instance();
     QtMsgType get_max_level() const { return _max_level.load(std::memory_order::relaxed); }
-    void set_max_level(const QtMsgType level);
+    void set_max_level(QtMsgType level);
     QString get_log() const;
-    void append_msg(const QtMsgType type, const QString& msg);
+    void append_msg(QtMsgType type, const QString& msg);
     void set_notification_func(std::function<void (const QString&)>&& func);
 
 private:

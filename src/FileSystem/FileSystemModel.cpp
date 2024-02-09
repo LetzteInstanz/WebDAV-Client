@@ -33,7 +33,7 @@ bool FileSystemModel::is_cur_dir_root_path() const noexcept {
     return _root_path == abs_path;
 }
 
-void FileSystemModel::set_server_info(const QStringView& addr, const uint16_t port) { _client->set_server_info(addr, port); }
+void FileSystemModel::set_server_info(const QStringView& addr, uint16_t port) { _client->set_server_info(addr, port); }
 
 void FileSystemModel::set_root_path(const QStringView& absolute_path) {
     QString final_path = absolute_path.toString();
@@ -74,7 +74,7 @@ FileSystemObject FileSystemModel::get_curr_dir_object() const noexcept {
     return *_curr_dir_obj;
 }
 
-FileSystemObject FileSystemModel::get_object(const size_t index) const noexcept { return _objects[index]; }
+FileSystemObject FileSystemModel::get_object(size_t index) const noexcept { return _objects[index]; }
 
 size_t FileSystemModel::size() const noexcept { return _objects.size(); }
 

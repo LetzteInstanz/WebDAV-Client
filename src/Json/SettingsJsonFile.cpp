@@ -35,7 +35,7 @@ void SettingsJsonFile::set_download_path(const QString& path) {
 
 QtMsgType SettingsJsonFile::get_max_log_level() const { return _log_level; }
 
-void SettingsJsonFile::set_max_log_level(const QtMsgType level) {
+void SettingsJsonFile::set_max_log_level(QtMsgType level) {
     if (_log_level == level)
         return;
 
@@ -45,7 +45,7 @@ void SettingsJsonFile::set_max_log_level(const QtMsgType level) {
 }
 
 template<typename T>
-void SettingsJsonFile::set_value(const char* const key, const T value) {
+void SettingsJsonFile::set_value(const char* key, T value) {
     QJsonObject obj = get_root_obj();
     obj[key] = value;
     set_root_obj(obj);

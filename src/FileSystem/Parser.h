@@ -50,7 +50,7 @@ private:
         static std::tm to_tm(const QStringView& str);
         static Status to_status(const QStringView& str);
 
-        void replace_status(const Status s);
+        void replace_status(Status s);
 
         QString name;
         std::pair<Status, Type> type = std::make_pair(Status::None, Type::File);
@@ -71,9 +71,9 @@ private:
     struct CurrentState {
         CurrentState(TagOrderMap::const_iterator first, Result& result);
 
-        void update_if_start_tag(const Tag t);
-        void update_if_end_tag(const Tag t);
-        void update_if_data(const Tag t, const QStringView& data);
+        void update_if_start_tag(Tag t);
+        void update_if_end_tag(Tag t);
+        void update_if_data(Tag t, const QStringView& data);
 
         std::pair<bool, QString> errorMsgPair = std::make_pair(false, QString());
         std::stack<TagOrderMap::const_iterator, std::vector<TagOrderMap::const_iterator>> stack;

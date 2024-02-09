@@ -17,11 +17,11 @@ public:
     QString get_download_path() const;
     void set_download_path(const QString& path);
     QtMsgType get_max_log_level() const;
-    void set_max_log_level(const QtMsgType level);
+    void set_max_log_level(QtMsgType level);
 
 private:
     template <typename T>
-    void set_value(const char* const key, const T value);
+    void set_value(const char* key, T value);
 
 private:
     static const char* const _dl_path_key;

@@ -34,7 +34,7 @@ std::shared_ptr<Logger> Logger::get_instance() {
 #endif
 }
 
-void Logger::set_max_level(const QtMsgType level) {
+void Logger::set_max_level(QtMsgType level) {
     const auto old = _max_level.load(std::memory_order::relaxed);
     if (old == level)
         return;
@@ -65,7 +65,7 @@ QString Logger::get_log() const {
     return log;
 }
 
-void Logger::append_msg(const QtMsgType type, const QString& msg) {
+void Logger::append_msg(QtMsgType type, const QString& msg) {
     const std::lock_guard<std::mutex> locker(_mutex);
     if (type < get_max_level()) // note: The value of _max_level may change in the main thread between calls get_max_level() and append_msg() in message_handler() in another thread
         return;

@@ -71,7 +71,7 @@ Parser::FSObjectStruct::Status Parser::FSObjectStruct::to_status(const QStringVi
     return Status::None;
 }
 
-void Parser::FSObjectStruct::replace_status(const Status s) {
+void Parser::FSObjectStruct::replace_status(Status s) {
     type.first = ret_second_if_first_is_unknown(type.first, s);
     last_modified.first = ret_second_if_first_is_unknown(last_modified.first, s);
 }
@@ -161,7 +161,7 @@ const std::vector<std::pair<QString, Parser::FSObjectStruct::Status>> Parser::FS
 
 Parser::CurrentState::CurrentState(TagOrderMap::const_iterator first, Result& result) : _result(result) { stack.push(first); }
 
-void Parser::CurrentState::update_if_start_tag(const Tag t) {
+void Parser::CurrentState::update_if_start_tag(Tag t) {
     switch (t) {
         case Tag::Response:
             _obj = {};
@@ -188,7 +188,7 @@ void Parser::CurrentState::update_if_start_tag(const Tag t) {
     }
 }
 
-void Parser::CurrentState::update_if_end_tag(const Tag t) {
+void Parser::CurrentState::update_if_end_tag(Tag t) {
     switch (t) {
         case Tag::PropStat: {
             _obj.replace_status(_status);
@@ -228,7 +228,7 @@ void Parser::CurrentState::update_if_end_tag(const Tag t) {
     }
 }
 
-void Parser::CurrentState::update_if_data(const Tag t, const QStringView& data) {
+void Parser::CurrentState::update_if_data(Tag t, const QStringView& data) {
     switch (t) {
         case Tag::Href: {
             QString abs_path = QUrl::fromPercentEncoding(data.toLatin1());

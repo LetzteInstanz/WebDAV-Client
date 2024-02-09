@@ -18,7 +18,7 @@ public:
 
     Client(ReplyHandler&& reply_handler, ErrorHandler&& error_handler) noexcept;
 
-    void set_server_info(const QStringView& addr, const uint16_t port) noexcept;
+    void set_server_info(const QStringView& addr, uint16_t port) noexcept;
     void request_file_list(const QStringView& path);
     void stop();
 

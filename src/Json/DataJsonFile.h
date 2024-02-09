@@ -16,8 +16,8 @@ public:
 
     std::vector<ServerInfo> read_servers() const;
     void add(const ServerInfo& srv);
-    void edit(const size_t index, const ServerInfo& srv);
-    void remove(const size_t row, const size_t count);
+    void edit(size_t index, const ServerInfo& srv);
+    void remove(size_t row, size_t count);
 
 private:
     static const char* const _server_key;

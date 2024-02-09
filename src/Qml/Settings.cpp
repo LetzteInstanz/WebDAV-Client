@@ -20,7 +20,7 @@ int Settings::getCurrentLogLevel() const {
     return it->second;
 }
 
-void Settings::setCurrentLogLevel(const int index) {
+void Settings::setCurrentLogLevel(int index) {
     const std::pair<QString, QtMsgType>& pair = _desc_level_pairs[index];
     _settings->set_max_log_level(pair.second);
 }

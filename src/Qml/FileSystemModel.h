@@ -17,15 +17,15 @@ namespace Qml {
         explicit FileSystemModel(std::shared_ptr<::FileSystemModel> model);
         ~FileSystemModel();
 
-        Q_INVOKABLE void setServerInfo(const QString& addr, const uint16_t port);
+        Q_INVOKABLE void setServerInfo(const QString& addr, uint16_t port);
         Q_INVOKABLE void setRootPath(const QString& absolute_path);
         Q_INVOKABLE void requestFileList(const QString& relative_path);
         Q_INVOKABLE void stop();
 
     signals:
-        void maxProgressEnabled(const bool enabled);
-        void progressChanged(const float value);
-        void maxProgressChanged(const float max);
+        void maxProgressEnabled(bool enabled);
+        void progressChanged(float value);
+        void maxProgressChanged(float max);
         void progressTextChanged(const QString& text);
         void errorOccurred(const QString& text);
         void replyGot();

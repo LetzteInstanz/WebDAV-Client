@@ -5,13 +5,13 @@ const char* const ServerInfo::_desc_key = "description",
           * const ServerInfo::_port_key = "port",
           * const ServerInfo::_path_key = "path";
 
-ServerInfo::ServerInfo(const QString& description, const QString& addr, const uint16_t port, const QString& path) noexcept : _description(description), _addr(addr), _port(port), _path(path) {}
+ServerInfo::ServerInfo(const QString& description, const QString& addr, uint16_t port, const QString& path) noexcept : _description(description), _addr(addr), _port(port), _path(path) {}
 
 ServerInfo ServerInfo::from_json(const QJsonObject& obj) {
-    const auto log_1 = [](const char* const key) { qWarning(qUtf8Printable(QObject::tr("The value of the key \"%s\" doesn't exist")), key); };
-    const auto log_2 = [](const char* const key, const QString& value_type) { qWarning(qUtf8Printable(QObject::tr("The value of the key \"%s\" isn't %s")), key, qUtf8Printable(value_type)); };
+    const auto log_1 = [](const char* key) { qWarning(qUtf8Printable(QObject::tr("The value of the key \"%s\" doesn't exist")), key); };
+    const auto log_2 = [](const char* key, const QString& value_type) { qWarning(qUtf8Printable(QObject::tr("The value of the key \"%s\" isn't %s")), key, qUtf8Printable(value_type)); };
     const auto throw_ = []() { throw std::runtime_error("JSON parsing error for ServerInfo object"); };
-    const auto to_str = [log_1, log_2, throw_](const QJsonObject& obj, const char* const key) {
+    const auto to_str = [log_1, log_2, throw_](const QJsonObject& obj, const char* key) {
         const auto it = obj.find(key);
         if (it == std::end(obj)) {
             log_1(key);
@@ -23,7 +23,7 @@ ServerInfo ServerInfo::from_json(const QJsonObject& obj) {
         }
         return it->toString();
     };
-    const auto to_uint16 = [log_1, log_2, throw_](const QJsonObject& obj, const char* const key) {
+    const auto to_uint16 = [log_1, log_2, throw_](const QJsonObject& obj, const char* key) {
         const auto it = obj.find(key);
         if (it == std::end(obj) || !it->isDouble()) {
             log_1(key);

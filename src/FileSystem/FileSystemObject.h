@@ -10,7 +10,7 @@ public:
     enum class Status { None, Unknown, Ok, Unauthorized, Forbidden, NotFound };
     enum class Type { Directory, File };
 
-    FileSystemObject(QString&& name, const Type type, std::pair<Status, std::tm>&& last_modified_pair) noexcept;
+    FileSystemObject(QString&& name, Type type, std::pair<Status, std::tm>&& last_modified_pair) noexcept;
 
     QString get_name() const noexcept { return _name; }
     Type get_type() const noexcept { return _type; }
