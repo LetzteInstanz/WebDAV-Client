@@ -1,8 +1,12 @@
 #include "ServerInfoManager.h"
 
+#include "ServerInfo.h"
+
 ServerInfoManager::ServerInfoManager() { _infos = _json_file.read_servers(); }
 
-ServerInfo ServerInfoManager::get(const size_t row) const { return _infos[row]; }
+ServerInfo ServerInfoManager::get(const size_t row) const noexcept { return _infos[row]; }
+
+size_t ServerInfoManager::amount() const noexcept { return _infos.size(); }
 
 void ServerInfoManager::add(ServerInfo&& info) {
     _json_file.add(info);

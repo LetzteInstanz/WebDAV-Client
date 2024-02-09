@@ -11,6 +11,7 @@
 #include <Qt>
 
 class FileSystemModel;
+class FileSystemObject;
 
 namespace Qml {
     class FileItemModel : public QAbstractListModel {
@@ -27,11 +28,13 @@ namespace Qml {
         QHash<int, QByteArray> roleNames() const override;
 
     private:
+        FileSystemObject get_object(bool root_path, int row) const;
         void update();
 
     private:
-        enum class Role { Name = Qt::UserRole, Extension, Datetime };
+        enum class Role { Name = Qt::UserRole, Extension, Datetime, FileFlag };
 
-        std::shared_ptr<FileSystemModel> _fs_model;
+        std::shared_ptr<::FileSystemModel> _fs_model;
+        bool _root;
     };
 }

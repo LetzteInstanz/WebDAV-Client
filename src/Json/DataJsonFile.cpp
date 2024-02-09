@@ -1,5 +1,7 @@
 #include "DataJsonFile.h"
 
+#include "../ServerInfo.h"
+
 const char* const DataJsonFile::_server_key = "servers";
 
 DataJsonFile::DataJsonFile() : JsonFile("data.json") {

@@ -5,8 +5,9 @@
 
 #include <QJsonArray>
 
-#include "../ServerInfo.h"
 #include "JsonFile.h"
+
+class ServerInfo;
 
 class DataJsonFile final : public JsonFile {
 public:

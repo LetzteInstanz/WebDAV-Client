@@ -3,6 +3,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import "Util.js" as Util
+
 Dialog {
     id: progressDlg
     anchors.centerIn: parent
@@ -26,35 +28,22 @@ Dialog {
         }
         Connections {
             target: fileSystemModel
-            property Component msgBoxComponent
-            Component.onCompleted: msgBoxComponent = Qt.createComponent("CustomMessageBox.qml", Component.Asynchronous);
 
             function onMaxProgressEnabled(enabled) { progressBar.indeterminate = !enabled }
             function onProgressChanged(value) { progressBar.value = value }
             function onMaxProgressChanged(max) { progressBar.to = max }
             function onProgressTextChanged(text) { textLabel.text = text }
             function onErrorOccurred(text) {
-                function createDlg() {
-                    const comp = msgBoxComponent
-                    if (comp.status === Component.Error) {
-                        console.error("CustomMessageBox.qml component loading failed: ", comp.errorString());
-                        return;
-                    }
-                    const dlg = comp.createObject(appWindow, {"standardButtons": Dialog.Ok, "text": text});
-                    if (dlg === null) {
-                        console.error("CustomMessageBox object creation failed");
-                        return;
-                    }
-                    dlg.accepted.connect(progressDlg.reject)
-                    dlg.closed.connect(dlg.destroy)
+                function createDlg(comp) {
+                    const dlg = Util.createDlg(comp, appWindow, "CustomMessageBox", {"standardButtons": Dialog.Ok, "text": text})
+                    if (dlg === null)
+                        return
+
+                    dlg.accepted.connect(reject)
                     dlg.open()
                 }
 
-                const comp = msgBoxComponent
-                if (comp.status === Component.Ready)
-                    createDlg();
-                else
-                    comp.statusChanged.connect(createDlg);
+                Util.createDlgAsync(msgBoxComponent, createDlg)
             }
             function onReplyGot() { close(); }
         }

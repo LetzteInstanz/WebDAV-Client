@@ -52,6 +52,7 @@ qt_add_qml_module(web_dav_client
         src/Qml/ServerListPageColumnLayout.qml
         src/Qml/SettingsPageColumnLayout.qml
         src/Qml/TextContextMenu.qml
+        src/Qml/Util.js
     SOURCES
         src/Qml/FileItemModel.cpp
         src/Qml/FileItemModel.h

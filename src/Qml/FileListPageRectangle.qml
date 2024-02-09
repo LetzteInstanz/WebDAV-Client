@@ -1,34 +1,41 @@
+import QtQml
 import QtQuick
 import QtQuick.Layouts
+
+import "Util.js" as Util
 
 BorderRectangle {
     Layout.fillHeight: true
     Layout.fillWidth: true
 
     ListView {
+        id: view
         anchors.fill: parent
+        anchors.margins: 2
         model: fileItemModel
         clip: true
-        anchors.margins: 2
         spacing: 5
-
+        highlightFollowsCurrentItem: true
+        highlight: Rectangle {
+            width: ListView.view.width
+            color: "lightgray"
+        }
         delegate: BorderRectangle {
+            id: delegate
             height: (Math.max(image.height, nameText.contentHeight + dateTimeText.contentHeight) + rowLayout.anchors.topMargin + rowLayout.anchors.bottomMargin)
             width: ListView.view.width
-            required property string name
-            required property string extension
-            required property string datetime
+            color: "transparent"
+            required property int index
+            required property var model
 
             RowLayout {
                 id: rowLayout
                 anchors.fill: parent
-                anchors.leftMargin: 2
-                anchors.rightMargin: 2
-                anchors.topMargin: 2
+                anchors.margins: 2
 
                 Image {
                     id: image
-                    source: "image://icons/" + extension
+                    source: "image://icons/" + model.extension
                 }
                 ColumnLayout {
                     Text {
@@ -41,7 +48,7 @@ BorderRectangle {
                         font.bold: true
                         font.pointSize: 14
                         wrapMode: Text.Wrap
-                        text: name;
+                        text: model.name;
                     }
                     Text {
                         id: dateTimeText
@@ -50,10 +57,43 @@ BorderRectangle {
                         Layout.preferredHeight: 16
                         verticalAlignment: Text.AlignBottom
                         horizontalAlignment: Text.AlignRight
-                        text: datetime;
+                        text: model.datetime;
                     }
                 }
             }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    delegate.ListView.view.currentIndex = index
+                    if (model.isFile)
+                        return
+
+                    delayTimer.start()
+                }
+
+                Timer {
+                    id: delayTimer
+                    interval: 100
+                    repeat: false
+                    onTriggered: {
+                        function createDlg(comp) {
+                            const dlg = Util.createDlg(comp, appWindow, "ProgressDialog", {})
+                            if (dlg === null)
+                                return
+
+                            dlg.onOpened.connect(() => { fileSystemModel.requestFileList(model.name) })
+                            dlg.open()
+                        }
+
+                        Util.createDlgAsync(progressDlgComponent, createDlg)
+                    }
+                }
+            }
+        }
+        Connections {
+            target: view.model
+
+            function onModelReset() { view.currentIndex = -1 }
         }
     }
 }

@@ -5,6 +5,7 @@
 #include <deque>
 #include <memory>
 #include <stack>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -20,13 +21,16 @@
 
 class Parser {
 public:
-    using CurrDirResultPair = std::pair<std::unique_ptr<FileSystemObject>, std::deque<FileSystemObject>>;
+    using ParentPath = QString;
+    using CurrDirObj = std::unique_ptr<FileSystemObject>;
+    using Objects = std::deque<FileSystemObject>;
+    using Result = std::tuple<ParentPath, CurrDirObj, Objects>;
 
 #ifndef NDEBUG
     Parser();
 #endif
 
-    CurrDirResultPair parse_propfind_reply(const QStringView& path, const QByteArray& data) const;
+    Result parse_propfind_reply(const QByteArray& data) const;
 
 private:
     enum class Tag { None, Multistatus, Response, PropStat, Prop, Href, ResourceType, GetLastModified, Collection, Status };
@@ -41,7 +45,8 @@ private:
         using Status = FileSystemObject::Status;
         using Type = FileSystemObject::Type;
 
-        static QString remove_curr_path(const QStringView& data, const QStringView& path);
+        static void drop_curr_dir_name(QString& path);
+        static QString extract_name(const QStringView& data);
         static std::tm to_tm(const QStringView& str);
         static Status to_status(const QStringView& str);
 
@@ -64,7 +69,7 @@ private:
     };
 
     struct CurrentState {
-        CurrentState(const QStringView& path, TagOrderMap::const_iterator first, CurrDirResultPair& result);
+        CurrentState(TagOrderMap::const_iterator first, Result& result);
 
         void update_if_start_tag(const Tag t);
         void update_if_end_tag(const Tag t);
@@ -78,10 +83,9 @@ private:
         void set_error(QString&& msg);
 
     private:
-        const QStringView& current_path;
-        FSObjectStruct obj;
-        FSObjectStruct::Status status = FSObjectStruct::Status::None;
-        CurrDirResultPair& result;
+        FSObjectStruct _obj;
+        FSObjectStruct::Status _status = FSObjectStruct::Status::None;
+        Result& _result;
     };
 
     static const std::unordered_map<QString, Tag> _propfind_tag_by_str_map;

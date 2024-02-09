@@ -17,8 +17,9 @@ namespace Qml {
         explicit FileSystemModel(std::shared_ptr<::FileSystemModel> model);
         ~FileSystemModel();
 
-        Q_INVOKABLE void setServerInfo(const QString& addr, const uint16_t port, const QString& path);
-        Q_INVOKABLE void requestFileList();
+        Q_INVOKABLE void setServerInfo(const QString& addr, const uint16_t port);
+        Q_INVOKABLE void setRootPath(const QString& absolute_path);
+        Q_INVOKABLE void requestFileList(const QString& relative_path);
         Q_INVOKABLE void stop();
 
     signals:

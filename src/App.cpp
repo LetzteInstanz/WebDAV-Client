@@ -9,6 +9,7 @@
 #include "Qml/Logger.h"
 #include "Qml/ServerItemModel.h"
 #include "Qml/Settings.h"
+#include "ServerInfo.h"
 #include "ServerInfoManager.h"
 
 App::App(int& argc, char** argv) : QGuiApplication(argc, argv) {

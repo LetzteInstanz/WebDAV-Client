@@ -4,14 +4,15 @@
 #include <vector>
 
 #include "Json/DataJsonFile.h"
-#include "ServerInfo.h"
+
+class ServerInfo;
 
 class ServerInfoManager {
 public:
     ServerInfoManager();
 
-    ServerInfo get(const size_t row) const;
-    size_t amount() const { return _infos.size(); }
+    ServerInfo get(const size_t row) const noexcept;
+    size_t amount() const noexcept;
 
     void add(ServerInfo&& info);
     void edit(const size_t row, const ServerInfo& info);

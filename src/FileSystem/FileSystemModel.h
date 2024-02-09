@@ -8,15 +8,15 @@
 #include <QByteArray>
 #include <QNetworkReply>
 #include <QString>
-
-#include "FileSystemObject.h"
+#include <QStringView>
 
 class Client;
+class FileSystemObject;
 class Parser;
 
 class FileSystemModel {
 public:
-    enum class Error {ReplyParseError, NetworkError};
+    enum class Error {ReplyParseError, NetworkError, UncorrectPath};
 
     using NotifyAboutUpdateFunc = std::function<void()>;
     using NotifyAboutErrorFunc = std::function<void(Error, QNetworkReply::NetworkError)>;
@@ -24,24 +24,33 @@ public:
     FileSystemModel();
     ~FileSystemModel();
 
-    void set_server_info(const QString& addr, const uint16_t port, const QString& path);
-    void request_file_list();
+    bool is_initialized() const noexcept { return _curr_dir_obj != nullptr; }
+    bool is_cur_dir_root_path() const noexcept;
+    void set_server_info(const QStringView& addr, const uint16_t port);
+    void set_root_path(const QStringView& absolute_path);
+    void request_file_list(const QStringView& relative_path);
     void stop();
     void add_notification_func(const void* obj, NotifyAboutUpdateFunc&& func) noexcept;
     void remove_notification_func(const void* obj);
     void set_error_func(NotifyAboutErrorFunc&& func) noexcept;
-    FileSystemObject get_object(const size_t index) const noexcept { return _objects[index]; }
-    size_t size() const noexcept { return _objects.size(); }
+    FileSystemObject get_curr_dir_object() const noexcept;
+    FileSystemObject get_object(const size_t index) const noexcept;
+    size_t size() const noexcept;
 
 private:
+    static void add_slash_to_start(QString& path);
+    static void add_slash_to_end(QString& path);
+    static QString handle_double_dots(const QStringView& path);
     void handle_reply(QByteArray&& data);
     void handle_error(QNetworkReply::NetworkError error);
 
 private:
     std::unique_ptr<Client> _client;
     std::unique_ptr<Parser> _parser;
-    QString _current_dir;
+    QString _root_path;
     std::unordered_map<const void*, const NotifyAboutUpdateFunc> _notify_func_by_obj_map;
     NotifyAboutErrorFunc _error_func;
+    QString _parent_path;
+    std::unique_ptr<FileSystemObject> _curr_dir_obj;
     std::deque<FileSystemObject> _objects;
 };

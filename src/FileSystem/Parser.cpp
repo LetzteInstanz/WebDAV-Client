@@ -1,24 +1,28 @@
 #include "Parser.h"
 
-QString Parser::FSObjectStruct::remove_curr_path(const QStringView& data, const QStringView& path) {
-    if (data.isEmpty())
-        return QString();
+void Parser::FSObjectStruct::drop_curr_dir_name(QString& path) {
+    assert(!path.isEmpty());
 
-    auto from = std::end(data);
-    const size_t cd_sz = path.size();
-    const size_t sz = data.size();
-    for (size_t i = 0; i < sz; ++i) {
-        if (i == cd_sz || path[i] != data[i]) {
-            from = std::begin(data) + i;
-            break;
-        }
+    if (path == QStringLiteral("/")) {
+        path.clear();
+        return;
     }
-    const auto end = std::end(data);
-    if (from == end)
-        return QString();
+    const qsizetype from = path.back() == '/' ? -2 : -1;
+    const qsizetype pos = path.lastIndexOf('/', from);
+    assert(pos != -1);
+    path.resize(pos + 1);
+}
 
-    const QStringView ret(from, data.back() == '/' ? end - 1 : end);
-    return ret.toString();
+QString Parser::FSObjectStruct::extract_name(const QStringView& data) {
+    assert(!data.empty());
+
+    if (data == QStringLiteral("/"))
+        return data.toString();
+
+    const qsizetype from = data.back() == '/' ? -2 : -1;
+    const qsizetype pos = data.lastIndexOf('/', from);
+    assert(pos != -1);
+    return QStringView(std::begin(data) + pos + 1, std::end(data) + from + 1).toString();
 }
 
 std::tm Parser::FSObjectStruct::to_tm(const QStringView& str) {
@@ -155,29 +159,28 @@ const std::vector<std::pair<QString, Parser::FSObjectStruct::Status>> Parser::FS
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Parser::CurrentState::CurrentState(const QStringView& path, TagOrderMap::const_iterator first, CurrDirResultPair& result)
-    : current_path(path), result(result) { stack.push(first); }
+Parser::CurrentState::CurrentState(TagOrderMap::const_iterator first, Result& result) : _result(result) { stack.push(first); }
 
 void Parser::CurrentState::update_if_start_tag(const Tag t) {
     switch (t) {
         case Tag::Response:
-            obj = {};
+            _obj = {};
             break;
 
         case Tag::PropStat:
-            status = FSObjectStruct::Status::Unknown;
+            _status = FSObjectStruct::Status::Unknown;
             break;
 
         case Tag::ResourceType:
-            obj.type.first = status;
+            _obj.type.first = _status;
             break;
 
         case Tag::GetLastModified:
-            obj.last_modified.first = status;
+            _obj.last_modified.first = _status;
             break;
 
         case Tag::Collection:
-            obj.type = std::make_pair(status, FileSystemObject::Type::Directory);
+            _obj.type = std::make_pair(_status, FileSystemObject::Type::Directory);
             break;
 
         default:
@@ -188,23 +191,35 @@ void Parser::CurrentState::update_if_start_tag(const Tag t) {
 void Parser::CurrentState::update_if_end_tag(const Tag t) {
     switch (t) {
         case Tag::PropStat: {
-            obj.replace_status(status);
-            status = FSObjectStruct::Status::None;
+            _obj.replace_status(_status);
+            _status = FSObjectStruct::Status::None;
             break;
         }
 
         case Tag::Response: {
-            if (obj.type.first != FileSystemObject::Status::Ok) {
+            if (_obj.type.first != FileSystemObject::Status::Ok) {
                 set_error(QObject::tr("a type property in the reply hasn't ok status"));
                 break;
             }
-            const auto is_curr_dir = obj.name.isEmpty();
-            auto new_obj = FileSystemObject(std::move(obj.name), obj.type.second, std::move(obj.last_modified));
-            if (is_curr_dir)
-                result.first = std::make_unique<FileSystemObject>(std::move(new_obj));
-            else
-                result.second.emplace_back(std::move(new_obj));
+            Objects& objects = std::get<2>(_result);
+            objects.emplace_back(FileSystemObject(std::move(_obj.name), _obj.type.second, std::move(_obj.last_modified)));
+            break;
+        }
 
+        case Tag::Multistatus: {
+            QString& parent_path = std::get<0>(_result);
+            Objects& objects = std::get<2>(_result);
+            for (auto it = std::begin(objects); it != std::end(objects);) {
+                const QString name = it->get_name();
+                if (!parent_path.isEmpty() && parent_path.lastIndexOf(name) == -1) {
+                    ++it;
+                } else {
+                    CurrDirObj& obj = std::get<1>(_result);
+                    obj = std::make_unique<FileSystemObject>(std::move(*it));
+                    it = objects.erase(it);
+                }
+            }
+            FSObjectStruct::drop_curr_dir_name(parent_path);
             break;
         }
 
@@ -216,13 +231,18 @@ void Parser::CurrentState::update_if_end_tag(const Tag t) {
 void Parser::CurrentState::update_if_data(const Tag t, const QStringView& data) {
     switch (t) {
         case Tag::Href: {
-            obj.name = QUrl::fromPercentEncoding(FSObjectStruct::remove_curr_path(data, current_path).toLatin1());
+            QString abs_path = QUrl::fromPercentEncoding(data.toLatin1());
+            _obj.name = FSObjectStruct::extract_name(abs_path);
+            QString& parent_path = std::get<0>(_result);
+            if (parent_path.size() > abs_path.size() || parent_path.isEmpty())
+                parent_path = std::move(abs_path);
+
             break;
         }
 
         case Tag::GetLastModified: {
             try {
-                obj.last_modified = std::make_pair(status, FSObjectStruct::to_tm(data));
+                _obj.last_modified = std::make_pair(_status, FSObjectStruct::to_tm(data));
             } catch (const std::runtime_error& e) {
                 set_error(QObject::tr(e.what()));
             }
@@ -230,7 +250,7 @@ void Parser::CurrentState::update_if_data(const Tag t, const QStringView& data) 
         }
 
         case Tag::Status: {
-            status = FSObjectStruct::to_status(data);
+            _status = FSObjectStruct::to_status(data);
             break;
         }
 
@@ -274,7 +294,7 @@ Parser::Parser() {
     for (const auto& date : test_dates) {
         time = {};
         time.tm_isdst = -1;
-        time = FSObjectStruct::to_tm(QStringView(date));
+        time = FSObjectStruct::to_tm(date);
         assert(time.tm_sec == 37);
         assert(time.tm_min == 49);
         assert(time.tm_hour == 8);
@@ -286,10 +306,9 @@ Parser::Parser() {
     const QString test_date = "Sun, 06 Nov 2024 08:49:37 GMT";
     time = {};
     time.tm_isdst = -1;
-    time = FSObjectStruct::to_tm(QStringView(test_date));
+    time = FSObjectStruct::to_tm(test_date);
     assert(time.tm_year == 2024 - 1900);
 
-    const QString current_dir = "/dav/";
     const QString test_responce =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 "<D:multistatus xmlns:D=\"DAV:\" xmlns:ns0=\"DAV:\">"
@@ -354,18 +373,18 @@ Parser::Parser() {
         "<D:href>/dav/%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9%20%D1%84%D0%B0%D0%B9%D0%BB.txt</D:href>"
     "</D:response>"
 "</D:multistatus>";
-    const CurrDirResultPair pair = parse_propfind_reply(current_dir, test_responce.toLatin1());
-    assert(pair.first != nullptr);
-    const FileSystemObject* const curr_dir_obj = pair.first.get();
-    assert(curr_dir_obj->get_name().isEmpty());
+    const Result result = parse_propfind_reply(test_responce.toLatin1());
+    assert(std::get<1>(result) != nullptr);
+    const FileSystemObject* const curr_dir_obj = std::get<1>(result).get();
+    assert(curr_dir_obj->get_name() == "dav");
     assert(curr_dir_obj->get_type() == FileSystemObject::Type::Directory);
     assert(curr_dir_obj->is_last_modified_valid() == false);
 
-    const std::deque<FileSystemObject>& children = pair.second;
+    const Objects& children = std::get<2>(result);
     assert(children.size() == 3);
 
     auto it = std::begin(children);
-    assert(it->get_name() == QStringLiteral("Диск 1"));
+    assert(it->get_name() == "Диск 1");
     assert(it->get_type() == FileSystemObject::Type::Directory);
     assert(it->is_last_modified_valid());
     time = it->get_last_modified();
@@ -378,7 +397,7 @@ Parser::Parser() {
     assert(time.tm_isdst == 0);
 
     ++it;
-    assert(it->get_name() == QStringLiteral("Диск 2"));
+    assert(it->get_name() == "Диск 2");
     assert(it->get_type() == FileSystemObject::Type::Directory);
     assert(it->is_last_modified_valid());
     time = it->get_last_modified();
@@ -391,7 +410,7 @@ Parser::Parser() {
     assert(time.tm_isdst == 0);
 
     ++it;
-    assert(it->get_name() == QStringLiteral("Тестовый файл.txt"));
+    assert(it->get_name() == "Тестовый файл.txt");
     assert(it->get_type() == FileSystemObject::Type::File);
     assert(it->is_last_modified_valid());
     time = it->get_last_modified();
@@ -405,12 +424,11 @@ Parser::Parser() {
 }
 #endif
 
-Parser::CurrDirResultPair Parser::parse_propfind_reply(const QStringView& path, const QByteArray& data) const  {
-    assert(!path.empty());
-    CurrDirResultPair ret;
+Parser::Result Parser::parse_propfind_reply(const QByteArray& data) const  {
+    Result result;
     const auto first = _propfind_tag_order.find(Tag::None);
     assert(first != std::end(_propfind_tag_order));
-    CurrentState state(path, first, ret);
+    CurrentState state(first, result);
     QXmlStreamReader reader(data);
     while (!reader.atEnd()) {
         switch (reader.readNext()) {
@@ -474,5 +492,5 @@ Parser::CurrDirResultPair Parser::parse_propfind_reply(const QStringView& path, 
     if (state.errorMsgPair.first)
         qWarning(qUtf8Printable(QObject::tr("An error has occured during reply parse: %s. The reply text: \n%s")), qUtf8Printable(state.errorMsgPair.second), qUtf8Printable(data));
 
-    return ret;
+    return result;
 }

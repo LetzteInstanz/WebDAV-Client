@@ -10,12 +10,14 @@ Qml::FileSystemModel::~FileSystemModel() {
     _fs_model->set_error_func(nullptr);
 }
 
-void Qml::FileSystemModel::setServerInfo(const QString& addr, const uint16_t port, const QString& path) { _fs_model->set_server_info(addr, port, path); }
+void Qml::FileSystemModel::setRootPath(const QString& absolute_path) { _fs_model->set_root_path(absolute_path); }
 
-void Qml::FileSystemModel::requestFileList() {
+void Qml::FileSystemModel::setServerInfo(const QString& addr, const uint16_t port) { _fs_model->set_server_info(addr, port); }
+
+void Qml::FileSystemModel::requestFileList(const QString& relative_path) {
     maxProgressEnabled(false);
     progressTextChanged(tr("Getting the list of files…"));
-    _fs_model->request_file_list();
+    _fs_model->request_file_list(relative_path);
 }
 
 void Qml::FileSystemModel::stop() { _fs_model->stop(); }

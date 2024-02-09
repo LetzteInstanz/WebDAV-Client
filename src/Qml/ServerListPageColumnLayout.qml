@@ -1,6 +1,9 @@
+import QtQml
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+
+import "Util.js" as Util
 
 ColumnLayout {
     property SettingsPageColumnLayout settingsPage
@@ -8,31 +11,18 @@ ColumnLayout {
     RowLayout {
         Button {
             text: qsTr("Add")
-            property Component editSrvDlgComponent
-            Component.onCompleted: editSrvDlgComponent = Qt.createComponent("EditServerDialog.qml", Component.Asynchronous);
             onClicked: {
-                function createDlg() {
-                    const comp = editSrvDlgComponent
-                    if (comp.status === Component.Error) {
-                        console.error("EditServerDialog.qml component loading failed: ", comp.errorString());
+                function createDlg(comp) {
+                    const dlg = Util.createDlg(comp, appWindow, "EditServerDialog", {"title": qsTr("Add server")})
+                    if (dlg === null)
                         return;
-                    }
-                    const dlg = comp.createObject(appWindow, {"title": qsTr("Add server")});
-                    if (dlg === null) {
-                        console.error("EditServerDialog object creation failed");
-                        return;
-                    }
+
                     dlg.setData("", "", 80, "")
                     dlg.accepted.connect(() => { srvListView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })
-                    dlg.closed.connect(dlg.destroy)
                     dlg.open()
                 }
 
-                const comp = editSrvDlgComponent
-                if (comp.status === Component.Ready)
-                    createDlg();
-                else
-                    comp.statusChanged.connect(createDlg);
+                Util.createDlgAsync(editSrvDlgComponent, createDlg)
             }
         }
         Button {
@@ -58,13 +48,12 @@ ColumnLayout {
         ListView {
             id: srvListView
             anchors.fill: parent
-            model: srvItemModel
-            clip: true
             anchors.margins: 2
             spacing: 5
-            highlightFollowsCurrentItem: true
+            model: srvItemModel
+            clip: true
             currentIndex: -1
-
+            highlightFollowsCurrentItem: true
             highlight: Rectangle {
                 width: ListView.view.width
                 color: "lightgray"
@@ -109,37 +98,25 @@ ColumnLayout {
                         id: delayTimer
                         interval: 100
                         repeat: false
-                        property Component progressDlgComponent
-                        Component.onCompleted: progressDlgComponent = Qt.createComponent("ProgressDialog.qml", Component.Asynchronous);
                         onTriggered: {
-                            function createDlg() {
-                                const comp = progressDlgComponent
-                                if (comp.status === Component.Error) {
-                                    console.error("ProgressDialog.qml component loading failed: ", comp.errorString());
-                                    return;
-                                }
-                                const dlg = comp.createObject(appWindow);
-                                if (dlg === null) {
-                                    console.error("ProgressDialog object creation failed");
-                                    return;
-                                }
+                            function createDlg(comp) {
+                                const dlg = Util.createDlg(comp, appWindow, "ProgressDialog", {})
+                                if (dlg === null)
+                                    return
+
                                 function requestFileList() {
                                     stackLayout.currentIndex = 1
                                     const item = srvListView.currentItem
-                                    fileSystemModel.setServerInfo(item.addr, item.port, item.path)
-                                    fileSystemModel.requestFileList()
+                                    fileSystemModel.setServerInfo(item.addr, item.port)
+                                    fileSystemModel.setRootPath(item.path)
+                                    fileSystemModel.requestFileList("")
                                 }
                                 dlg.onOpened.connect(requestFileList)
                                 dlg.rejected.connect(() => { stackLayout.currentIndex = 0 })
-                                dlg.closed.connect(dlg.destroy)
                                 dlg.open()
                             }
 
-                            const comp = progressDlgComponent
-                            if (comp.status === Component.Ready)
-                                createDlg();
-                            else
-                                comp.statusChanged.connect(createDlg);
+                            Util.createDlgAsync(progressDlgComponent, createDlg)
                         }
                     }
                 }
