@@ -18,7 +18,7 @@ ColumnLayout {
                         return;
 
                     dlg.setData("", "", 80, "")
-                    dlg.accepted.connect(() => { srvListView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })
+                    dlg.accepted.connect(() => { console.debug("QML: A new item was added to the server view model"); srvListView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })
                     dlg.open()
                 }
 
@@ -105,6 +105,7 @@ ColumnLayout {
                                     return
 
                                 function requestFileList() {
+                                    console.debug("QML: The first file list was requested")
                                     stackLayout.currentIndex = 1
                                     const item = srvListView.currentItem
                                     fileSystemModel.setServerInfo(item.addr, item.port)
@@ -112,7 +113,7 @@ ColumnLayout {
                                     fileSystemModel.requestFileList("")
                                 }
                                 dlg.onOpened.connect(requestFileList)
-                                dlg.rejected.connect(() => { stackLayout.currentIndex = 0 })
+                                dlg.rejected.connect(() => { console.debug("QML: The current request was canceled"); stackLayout.currentIndex = 0 })
                                 dlg.open()
                             }
 

@@ -11,14 +11,15 @@ function createDlgAsync(comp, customFunc) {
 
 function createDlg(comp, parent, typeName, properties) {
     if (comp.status === QtQml.Component.Error) {
-        console.error(typeName + ".qml component loading failed: ", comp.errorString());
+        console.error("QML: " + typeName + ".qml component loading failed: ", comp.errorString());
         return;
     }
     const dlg = comp.createObject(parent, properties);
     if (dlg === null) {
-        console.error(typeName + " object creation failed");
+        console.error("QML: " + typeName + " object creation failed");
         return;
     }
-    dlg.closed.connect(dlg.destroy)
+    console.debug("QML: " + typeName + " object was created")
+    dlg.closed.connect(() => { console.debug("QML: " + typeName + " object was destroyed"); dlg.destroy() })
     return dlg
 }

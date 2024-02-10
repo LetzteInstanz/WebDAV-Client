@@ -81,7 +81,7 @@ BorderRectangle {
                             if (dlg === null)
                                 return
 
-                            dlg.onOpened.connect(() => { fileSystemModel.requestFileList(model.name) })
+                            dlg.onOpened.connect(() => { console.debug("QML: A new file list was requested"); fileSystemModel.requestFileList(model.name) })
                             dlg.open()
                         }
 

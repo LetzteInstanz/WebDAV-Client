@@ -6,7 +6,6 @@ import QtQuick.Layouts
 import "Util.js" as Util
 
 Dialog {
-    id: progressDlg
     anchors.centerIn: parent
     width: parent.width / 2
     modal: true
@@ -34,18 +33,19 @@ Dialog {
             function onMaxProgressChanged(max) { progressBar.to = max }
             function onProgressTextChanged(text) { textLabel.text = text }
             function onErrorOccurred(text) {
+                console.debug("QML: An error occurred")
                 function createDlg(comp) {
                     const dlg = Util.createDlg(comp, appWindow, "CustomMessageBox", {"standardButtons": Dialog.Ok, "text": text})
                     if (dlg === null)
                         return
 
-                    dlg.accepted.connect(reject)
+                    dlg.closed.connect(reject)
                     dlg.open()
                 }
 
                 Util.createDlgAsync(msgBoxComponent, createDlg)
             }
-            function onReplyGot() { close(); }
+            function onReplyGot() { console.debug("QML: A reply was received"); accept(); }
         }
     }
 }
