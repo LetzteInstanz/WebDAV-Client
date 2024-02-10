@@ -7,12 +7,22 @@ import "Util.js" as Util
 BorderRectangle {
     Layout.fillHeight: true
     Layout.fillWidth: true
+    function setViewModelAsync() {
+        function setModel() {
+            console.debug("QML: The file view model was set")
+            view.model = fileItemModel
+            view.model.modelReset.connect(() => { view.currentIndex = -1 })
+            fileSystemModel.replyGot.disconnect(setModel)
+        }
+        fileSystemModel.replyGot.connect(setModel)
+        fileSystemModel.errorOccurred.connect(() => { fileSystemModel.replyGot.disconnect(setModel) })
+    }
 
     ListView {
         id: view
         anchors.fill: parent
         anchors.margins: 2
-        model: fileItemModel
+        model: null
         clip: true
         spacing: 5
         highlightFollowsCurrentItem: true
@@ -89,11 +99,6 @@ BorderRectangle {
                     }
                 }
             }
-        }
-        Connections {
-            target: view.model
-
-            function onModelReset() { view.currentIndex = -1 }
         }
     }
 }

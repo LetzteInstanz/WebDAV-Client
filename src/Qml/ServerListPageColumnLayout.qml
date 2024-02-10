@@ -6,6 +6,7 @@ import QtQuick.Layouts
 import "Util.js" as Util
 
 ColumnLayout {
+    property FileListPageRectangle fileListPage
     property SettingsPageColumnLayout settingsPage
 
     RowLayout {
@@ -107,6 +108,7 @@ ColumnLayout {
                                 function requestFileList() {
                                     console.debug("QML: The first file list was requested")
                                     stackLayout.currentIndex = 1
+                                    fileListPage.setViewModelAsync()
                                     const item = srvListView.currentItem
                                     fileSystemModel.setServerInfo(item.addr, item.port)
                                     fileSystemModel.setRootPath(item.path)

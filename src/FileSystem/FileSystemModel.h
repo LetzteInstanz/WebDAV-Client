@@ -24,7 +24,6 @@ public:
     FileSystemModel();
     ~FileSystemModel();
 
-    bool is_initialized() const noexcept { return _curr_dir_obj != nullptr; }
     bool is_cur_dir_root_path() const noexcept;
     void set_server_info(const QStringView& addr, uint16_t port);
     void set_root_path(const QStringView& absolute_path);

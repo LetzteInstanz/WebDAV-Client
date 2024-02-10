@@ -12,12 +12,7 @@ FileItemModel::FileItemModel(std::shared_ptr<::FileSystemModel> model, QObject* 
 
 FileItemModel::~FileItemModel() { _fs_model->remove_notification_func(this); }
 
-int FileItemModel::rowCount(const QModelIndex& parent) const {
-    if (parent.isValid() || !_fs_model->is_initialized())
-        return 0;
-
-    return _fs_model->size() + (_root ? 0 : 1);
-}
+int FileItemModel::rowCount(const QModelIndex& parent) const { return parent.isValid() ? 0 : _fs_model->size() + (_root ? 0 : 1); }
 
 QVariant FileItemModel::data(const QModelIndex& index, int role) const {
     if (role < to_int(Role::Name) || role > to_int(Role::FileFlag))
