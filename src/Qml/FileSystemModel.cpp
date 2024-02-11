@@ -20,7 +20,9 @@ void Qml::FileSystemModel::requestFileList(const QString& relative_path) {
     _fs_model->request_file_list(relative_path);
 }
 
-void Qml::FileSystemModel::stop() { _fs_model->stop(); }
+void Qml::FileSystemModel::abortRequest() { _fs_model->abort_request(); }
+
+void Qml::FileSystemModel::disconnect() { _fs_model->disconnect(); }
 
 void Qml::FileSystemModel::handle_error(::FileSystemModel::Error custom_error, QNetworkReply::NetworkError qt_error) {
     if (custom_error == ::FileSystemModel::Error::ReplyParseError) {

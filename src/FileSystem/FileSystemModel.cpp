@@ -57,7 +57,15 @@ void FileSystemModel::request_file_list(const QStringView& relative_path) {
     _client->request_file_list(handle_double_dots(abs_path));
 }
 
-void FileSystemModel::stop() { _client->stop(); }
+void FileSystemModel::abort_request() { _client->abort(); }
+
+void FileSystemModel::disconnect() {
+    abort_request();
+    qDebug(qUtf8Printable(QObject::tr("The file system model is being reset")));
+    _objects.clear();
+    _curr_dir_obj.reset();
+    _parent_path.clear();
+}
 
 void FileSystemModel::add_notification_func(const void* obj, NotifyAboutUpdateFunc&& func) noexcept { _notify_func_by_obj_map.emplace(obj, std::move(func)); }
 

@@ -11,7 +11,6 @@ Dialog {
     modal: true
     //closePolicy: Popup.CloseOnEscape
     standardButtons: Dialog.Cancel
-    onRejected: fileSystemModel.stop()
 
     ColumnLayout {
         anchors.fill: parent
