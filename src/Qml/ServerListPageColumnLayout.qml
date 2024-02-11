@@ -118,7 +118,12 @@ ColumnLayout {
                                     fileSystemModel.requestFileList("")
                                 }
                                 dlg.onOpened.connect(requestFileList)
-                                dlg.rejected.connect(() => { console.debug("QML: The current request was canceled"); stackLayout.currentIndex = 0 })
+                                function disconnect() {
+                                    stackLayout.currentIndex = 0
+                                    console.debug("QML: The file system model is being disconnected")
+                                    fileSystemModel.disconnect()
+                                }
+                                dlg.rejected.connect(disconnect)
                                 dlg.open()
                             }
 

@@ -20,7 +20,8 @@ namespace Qml {
         Q_INVOKABLE void setServerInfo(const QString& addr, uint16_t port);
         Q_INVOKABLE void setRootPath(const QString& absolute_path);
         Q_INVOKABLE void requestFileList(const QString& relative_path);
-        Q_INVOKABLE void stop();
+        Q_INVOKABLE void abortRequest();
+        Q_INVOKABLE void disconnect();
 
     signals:
         void maxProgressEnabled(bool enabled);

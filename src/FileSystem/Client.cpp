@@ -10,7 +10,9 @@ void Client::set_server_info(const QStringView& addr, uint16_t port) noexcept {
 
 void Client::request_file_list(const QStringView& path) {
     QNetworkRequest req;
-    req.setUrl(QUrl("http://" + _addr + ':' + QString::number(_port) + path.toString())); // todo: set username and password
+    const QString url = "http://" + _addr + ':' + QString::number(_port) + path.toString();
+    req.setUrl(QUrl(url)); // todo: set username and password
+    qInfo(qUtf8Printable(QObject::tr("The request is occurring: %s")), qUtf8Printable(url));
     req.setRawHeader("Depth", "1");
     const QByteArray data = _file_list_request;
     req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
@@ -26,7 +28,11 @@ void Client::request_file_list(const QStringView& path) {
     QObject::connect(_reply.get(), &QNetworkReply::finished, read);
 }
 
-void Client::stop() {
-    if (_reply != nullptr)
-        _reply->abort();
+void Client::abort() {
+    if (!_reply)
+        return;
+
+    qDebug(qUtf8Printable(QObject::tr("The request is being aborted")));
+    _reply->abort();
+    _reply.reset();
 }

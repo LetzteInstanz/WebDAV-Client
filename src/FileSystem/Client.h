@@ -20,7 +20,7 @@ public:
 
     void set_server_info(const QStringView& addr, uint16_t port) noexcept;
     void request_file_list(const QStringView& path);
-    void stop();
+    void abort();
 
 private:
     constexpr static char _file_list_request[] = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"

@@ -28,7 +28,8 @@ public:
     void set_server_info(const QStringView& addr, uint16_t port);
     void set_root_path(const QStringView& absolute_path);
     void request_file_list(const QStringView& relative_path);
-    void stop();
+    void abort_request();
+    void disconnect();
     void add_notification_func(const void* obj, NotifyAboutUpdateFunc&& func) noexcept;
     void remove_notification_func(const void* obj);
     void set_error_func(NotifyAboutErrorFunc&& func) noexcept;

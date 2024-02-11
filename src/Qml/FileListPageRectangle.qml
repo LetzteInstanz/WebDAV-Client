@@ -12,6 +12,7 @@ BorderRectangle {
             console.debug("QML: The file view model was set")
             view.model = fileItemModel
             view.model.modelReset.connect(() => { view.currentIndex = -1 })
+            view.currentIndex = -1
             fileSystemModel.replyGot.disconnect(setModel)
         }
         fileSystemModel.replyGot.connect(setModel)
@@ -22,14 +23,16 @@ BorderRectangle {
         id: view
         anchors.fill: parent
         anchors.margins: 2
+        spacing: 5
         model: null
         clip: true
-        spacing: 5
         highlightFollowsCurrentItem: true
         highlight: Rectangle {
             width: ListView.view.width
             color: "lightgray"
         }
+        property Component menuComponent
+        Component.onCompleted: menuComponent = Qt.createComponent("FileItemMenu.qml", Component.Asynchronous)
         delegate: BorderRectangle {
             id: delegate
             height: (Math.max(image.height, nameText.contentHeight + dateTimeText.contentHeight) + rowLayout.anchors.topMargin + rowLayout.anchors.bottomMargin)
@@ -80,6 +83,16 @@ BorderRectangle {
 
                     delayTimer.start()
                 }
+                onPressAndHold: (mouse) => {
+                    const attached = delegate.ListView.view
+                    attached.currentIndex = index
+
+                    function createMenu(comp) {
+                        const menu = Util.createPopup(comp, view, "FileItemMenu", {"view": view})
+                        menu.popup(attached.currentItem, mouse.x, mouse.y)
+                    }
+                    Util.createObjAsync(view.menuComponent, createMenu)
+                }
 
                 Timer {
                     id: delayTimer
@@ -92,6 +105,7 @@ BorderRectangle {
                                 return
 
                             dlg.onOpened.connect(() => { console.debug("QML: A new file list was requested"); fileSystemModel.requestFileList(model.name) })
+                            dlg.rejected.connect(() => { console.debug("QML: The request is being aborted"); fileSystemModel.abortRequest() })
                             dlg.open()
                         }
 
