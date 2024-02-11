@@ -4,6 +4,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QtLogging>
 
 class Logger;
 
@@ -16,10 +17,13 @@ namespace Qml {
         ~Logger();
 
         Q_INVOKABLE QString getLog() const;
-        void emit_signal(const QString& msg);
 
     signals:
         void msgReceived(const QString& msg);
+
+    private:
+        static QString wrap(QtMsgType type, QString&& msg);
+        void emit_signal(QtMsgType type, const QString& msg);
 
     private:
         std::shared_ptr<::Logger> _logger;
