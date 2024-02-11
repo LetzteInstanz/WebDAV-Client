@@ -35,7 +35,7 @@ Dialog {
             function onErrorOccurred(text) {
                 console.debug("QML: An error occurred")
                 function createDlg(comp) {
-                    const dlg = Util.createDlg(comp, appWindow, "CustomMessageBox", {"standardButtons": Dialog.Ok, "text": text})
+                    const dlg = Util.createPopup(comp, appWindow, "CustomMessageBox", {"standardButtons": Dialog.Ok, "text": text})
                     if (dlg === null)
                         return
 
@@ -43,7 +43,7 @@ Dialog {
                     dlg.open()
                 }
 
-                Util.createDlgAsync(msgBoxComponent, createDlg)
+                Util.createObjAsync(msgBoxComponent, createDlg)
             }
             function onReplyGot() { console.debug("QML: A reply was received"); accept(); }
         }

@@ -87,7 +87,7 @@ BorderRectangle {
                     repeat: false
                     onTriggered: {
                         function createDlg(comp) {
-                            const dlg = Util.createDlg(comp, appWindow, "ProgressDialog", {})
+                            const dlg = Util.createPopup(comp, appWindow, "ProgressDialog", {})
                             if (dlg === null)
                                 return
 
@@ -95,7 +95,7 @@ BorderRectangle {
                             dlg.open()
                         }
 
-                        Util.createDlgAsync(progressDlgComponent, createDlg)
+                        Util.createObjAsync(progressDlgComponent, createDlg)
                     }
                 }
             }
