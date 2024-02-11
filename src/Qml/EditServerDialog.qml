@@ -3,6 +3,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import "Util.js" as Util
+
 Dialog {
     anchors.centerIn: parent
     width: parent.width - 20
@@ -86,7 +88,7 @@ Dialog {
                 Layout.fillWidth: true
                 placeholderText: qsTr("Description")
                 onTextEdited: curData.enableOkButton()
-                onReleased: (event) => { textContextMenu.hanldeReleaseEvent(descTxtField, event) }
+                onReleased: (event) => { Util.showTextContextMenu(appWindow, descTxtField, event) }
             }
             /*RowLayout {
                 RadioButton {
@@ -106,7 +108,7 @@ Dialog {
                 Layout.fillWidth: true
                 placeholderText: "example.com" + qsTr(" or IP address")
                 onTextEdited: curData.enableOkButton()
-                onReleased: (event) => { textContextMenu.hanldeReleaseEvent(addressTxtField, event) }
+                onReleased: (event) => { Util.showTextContextMenu(appWindow, addressTxtField, event) }
             }
             SpinBox {
                 id: portSpinBox
@@ -120,7 +122,7 @@ Dialog {
                 placeholderText: qsTr("directory 1/directory 2/…")
                 Layout.fillWidth: true
                 onTextEdited: curData.enableOkButton()
-                onReleased: (event) => { textContextMenu.hanldeReleaseEvent(pathTxtField, event) }
+                onReleased: (event) => { Util.showTextContextMenu(appWindow, pathTxtField, event) }
             }
         }
     }

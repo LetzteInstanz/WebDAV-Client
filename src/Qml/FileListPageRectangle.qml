@@ -58,7 +58,7 @@ BorderRectangle {
                         font.bold: true
                         font.pointSize: 14
                         wrapMode: Text.Wrap
-                        text: model.name;
+                        text: model.name
                     }
                     Text {
                         id: dateTimeText
@@ -67,7 +67,7 @@ BorderRectangle {
                         Layout.preferredHeight: 16
                         verticalAlignment: Text.AlignBottom
                         horizontalAlignment: Text.AlignRight
-                        text: model.datetime;
+                        text: model.datetime
                     }
                 }
             }
@@ -87,7 +87,7 @@ BorderRectangle {
                     repeat: false
                     onTriggered: {
                         function createDlg(comp) {
-                            const dlg = Util.createDlg(comp, appWindow, "ProgressDialog", {})
+                            const dlg = Util.createPopup(comp, appWindow, "ProgressDialog", {})
                             if (dlg === null)
                                 return
 
@@ -95,7 +95,7 @@ BorderRectangle {
                             dlg.open()
                         }
 
-                        Util.createDlgAsync(progressDlgComponent, createDlg)
+                        Util.createObjAsync(progressDlgComponent, createDlg)
                     }
                 }
             }

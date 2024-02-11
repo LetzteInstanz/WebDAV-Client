@@ -14,16 +14,16 @@ ColumnLayout {
             text: qsTr("Add")
             onClicked: {
                 function createDlg(comp) {
-                    const dlg = Util.createDlg(comp, appWindow, "EditServerDialog", {"title": qsTr("Add server")})
+                    const dlg = Util.createPopup(comp, appWindow, "EditServerDialog", {"title": qsTr("Add server")})
                     if (dlg === null)
-                        return;
+                        return
 
                     dlg.setData("", "", 80, "")
                     dlg.accepted.connect(() => { console.debug("QML: A new item was added to the server view model"); srvListView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })
                     dlg.open()
                 }
 
-                Util.createDlgAsync(editSrvDlgComponent, createDlg)
+                Util.createObjAsync(editSrvDlgComponent, createDlg)
             }
         }
         Button {
@@ -42,10 +42,6 @@ ColumnLayout {
         Layout.fillHeight: true
         Layout.fillWidth: true
 
-        EditServerItemMenu {
-            id: editItemMenu
-            view: srvListView
-        }
         ListView {
             id: srvListView
             anchors.fill: parent
@@ -59,6 +55,8 @@ ColumnLayout {
                 width: ListView.view.width
                 color: "lightgray"
             }
+            property Component menuComponent
+            Component.onCompleted: menuComponent = Qt.createComponent("EditServerItemMenu.qml", Component.Asynchronous)
             delegate: Item {
                 id: delegate
                 width: ListView.view.width
@@ -92,7 +90,12 @@ ColumnLayout {
                     onPressAndHold: (mouse) => {
                         const view = delegate.ListView.view
                         view.currentIndex = index
-                        editItemMenu.popup(view.currentItem, mouse.x, mouse.y)
+
+                        function createMenu(comp) {
+                            const menu = Util.createPopup(comp, appWindow, "EditServerItemMenu", {"view": srvListView})
+                            menu.popup(view.currentItem, mouse.x, mouse.y)
+                        }
+                        Util.createObjAsync(srvListView.menuComponent, createMenu)
                     }
 
                     Timer {
@@ -101,7 +104,7 @@ ColumnLayout {
                         repeat: false
                         onTriggered: {
                             function createDlg(comp) {
-                                const dlg = Util.createDlg(comp, appWindow, "ProgressDialog", {})
+                                const dlg = Util.createPopup(comp, appWindow, "ProgressDialog", {})
                                 if (dlg === null)
                                     return
 
@@ -119,7 +122,7 @@ ColumnLayout {
                                 dlg.open()
                             }
 
-                            Util.createDlgAsync(progressDlgComponent, createDlg)
+                            Util.createObjAsync(progressDlgComponent, createDlg)
                         }
                     }
                 }
