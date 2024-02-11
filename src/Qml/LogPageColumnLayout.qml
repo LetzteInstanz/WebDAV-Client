@@ -25,11 +25,12 @@ ColumnLayout {
             background: BorderRectangle {}
             text: logger.getLog()
             readOnly: true
+            textFormat: TextEdit.RichText
             onReleased: (event) => { Util.showTextContextMenu(appWindow, logTxtArea, event) }
 
             Connections {
                 target: logger
-                function onMsgReceived(msg) { logTxtArea.insert(logTxtArea.length, msg + "\n") }
+                function onMsgReceived(msg) { logTxtArea.insert(logTxtArea.length, msg) }
             }
         }
     }

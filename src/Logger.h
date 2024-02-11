@@ -12,15 +12,19 @@
 
 class Logger {
 public:
+    using Message = std::pair<QtMsgType, QString>;
+    using Log = std::vector<Message>;
+    using NotificationFunc = std::function<void(QtMsgType, const QString&)>;
+
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
 
     static std::shared_ptr<Logger> get_instance();
     QtMsgType get_max_level() const { return _max_level.load(std::memory_order::relaxed); }
     void set_max_level(QtMsgType level);
-    QString get_log() const;
+    Log get_log() const;
     void append_msg(QtMsgType type, const QString& msg);
-    void set_notification_func(std::function<void (const QString&)>&& func);
+    void set_notification_func(NotificationFunc&& func);
 
 private:
     Logger();
@@ -32,7 +36,7 @@ private:
     bool _filtered = false;
     mutable bool _enable_signal = false;
     std::atomic<QtMsgType> _max_level = QtDebugMsg;
-    std::vector<std::pair<QtMsgType, QString>> _log;
+    Log _log;
     mutable std::mutex _mutex;
-    std::function<void(const QString&)> _notification_func;
+    NotificationFunc _notification_func;
 };

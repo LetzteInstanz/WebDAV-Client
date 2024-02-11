@@ -52,17 +52,10 @@ void Logger::set_max_level(QtMsgType level) {
     _filtered = true;
 }
 
-QString Logger::get_log() const {
-    QString log;
-    QTextStream stream(&log);
-    {
-        const std::lock_guard<std::mutex> locker(_mutex);
-        for (const std::pair<QtMsgType, QString>& pair : _log)
-            stream << pair.second << Qt::endl;
-
-        _enable_signal = true;
-    }
-    return log;
+Logger::Log Logger::get_log() const {
+    const std::lock_guard<std::mutex> locker(_mutex);
+    _enable_signal = true;
+    return _log;
 }
 
 void Logger::append_msg(QtMsgType type, const QString& msg) {
@@ -72,10 +65,10 @@ void Logger::append_msg(QtMsgType type, const QString& msg) {
 
     _log.emplace_back(std::make_pair(type, msg));
     if (_enable_signal && _notification_func) // note: A message was passed from the QML engine 2 times into the TextArea in QML: signal call _notification_func was posted into the event loop, then get_log() was called.
-        _notification_func(msg);              // _enable_signal enables signal sending only after get_log() call.
+        _notification_func(type, msg);        // _enable_signal enables signal sending only after get_log() call.
 }
 
-void Logger::set_notification_func(std::function<void (const QString&)>&& func) {
+void Logger::set_notification_func(NotificationFunc&& func) {
     const std::lock_guard<std::mutex> locker(_mutex);
     _notification_func = func;
 }
