@@ -56,7 +56,7 @@ ColumnLayout {
                 color: "lightgray"
             }
             property Component menuComponent
-            Component.onCompleted: menuComponent = Qt.createComponent("EditServerItemMenu.qml", Component.Asynchronous)
+            Component.onCompleted: menuComponent = Qt.createComponent("ServerItemMenu.qml", Component.Asynchronous)
             delegate: Item {
                 id: delegate
                 width: ListView.view.width
@@ -92,7 +92,7 @@ ColumnLayout {
                         view.currentIndex = index
 
                         function createMenu(comp) {
-                            const menu = Util.createPopup(comp, appWindow, "EditServerItemMenu", {"view": srvListView})
+                            const menu = Util.createPopup(comp, appWindow, "ServerItemMenu", {"view": srvListView})
                             menu.popup(view.currentItem, mouse.x, mouse.y)
                         }
                         Util.createObjAsync(srvListView.menuComponent, createMenu)
