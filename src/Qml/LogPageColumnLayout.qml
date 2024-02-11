@@ -3,6 +3,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import "Util.js" as Util
+
 ColumnLayout {
     Item {
         Layout.fillWidth: true
@@ -23,7 +25,7 @@ ColumnLayout {
             background: BorderRectangle {}
             text: logger.getLog()
             readOnly: true
-            onReleased: (event) => { textContextMenu.hanldeReleaseEvent(logTxtArea, event) }
+            onReleased: (event) => { Util.showTextContextMenu(appWindow, logTxtArea, event) }
 
             Connections {
                 target: logger

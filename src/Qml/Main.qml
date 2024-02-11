@@ -19,8 +19,8 @@ ApplicationWindow {
         editSrvDlgComponent = Qt.createComponent("EditServerDialog.qml", Component.Asynchronous)
         progressDlgComponent = Qt.createComponent("ProgressDialog.qml", Component.Asynchronous)
     }
+    property Component textContextMenuComponent
 
-    TextContextMenu { id: textContextMenu }
     // FolderDialog {
     //     id: pathDlg
     //     onAccepted: {

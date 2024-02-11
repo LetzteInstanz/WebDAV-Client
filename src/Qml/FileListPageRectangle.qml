@@ -58,7 +58,7 @@ BorderRectangle {
                         font.bold: true
                         font.pointSize: 14
                         wrapMode: Text.Wrap
-                        text: model.name;
+                        text: model.name
                     }
                     Text {
                         id: dateTimeText
@@ -67,7 +67,7 @@ BorderRectangle {
                         Layout.preferredHeight: 16
                         verticalAlignment: Text.AlignBottom
                         horizontalAlignment: Text.AlignRight
-                        text: model.datetime;
+                        text: model.datetime
                     }
                 }
             }

@@ -14,7 +14,7 @@ Menu {
             function createDlg(comp) {
                 const dlg = Util.createPopup(comp, appWindow, "EditServerDialog", {"title": qsTr("Edit server")})
                 if (dlg === null)
-                    return;
+                    return
 
                 dlg.enableHasChangesFunc(true)
                 const item = view.currentItem

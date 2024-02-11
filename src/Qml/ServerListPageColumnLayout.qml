@@ -16,7 +16,7 @@ ColumnLayout {
                 function createDlg(comp) {
                     const dlg = Util.createPopup(comp, appWindow, "EditServerDialog", {"title": qsTr("Add server")})
                     if (dlg === null)
-                        return;
+                        return
 
                     dlg.setData("", "", 80, "")
                     dlg.accepted.connect(() => { console.debug("QML: A new item was added to the server view model"); srvListView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })

@@ -45,7 +45,7 @@ Dialog {
 
                 Util.createObjAsync(msgBoxComponent, createDlg)
             }
-            function onReplyGot() { console.debug("QML: A reply was received"); accept(); }
+            function onReplyGot() { console.debug("QML: A reply was received"); accept() }
         }
     }
 }
