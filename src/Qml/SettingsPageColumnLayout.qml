@@ -67,7 +67,7 @@ ColumnLayout {
             }
             ComboBox {
                 id: logLevelComboBox
-                model: logLevelModel
+                model: logLevelItemModel
                 delegate: ItemDelegate {
                     id: logLevelDelegate
                     text: modelData
