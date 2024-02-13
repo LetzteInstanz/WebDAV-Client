@@ -10,6 +10,7 @@ Dialog {
     id: dlg
     anchors.centerIn: parent
     modal: true
+    background: BorderRectangle {}
     property string text
 
     Label {
