@@ -118,10 +118,12 @@ ColumnLayout {
                                     fileSystemModel.requestFileList("")
                                 }
                                 dlg.onOpened.connect(requestFileList)
+                                const mainStackLayout = stackLayout
+                                const fsModel = fileSystemModel // note: An error occurs during closing the main window, if not to use the local variables
                                 function disconnect() {
-                                    stackLayout.currentIndex = 0
+                                    mainStackLayout.currentIndex = 0
                                     console.debug("QML: The file system model is being disconnected")
-                                    fileSystemModel.disconnect()
+                                    fsModel.disconnect()
                                 }
                                 dlg.rejected.connect(disconnect)
                                 dlg.open()
