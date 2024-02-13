@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import "Core" as Core
+
 ColumnLayout {
     function prepare() {
         //pathTxtField.text = settings.getDownloadPath()
@@ -28,7 +30,7 @@ ColumnLayout {
             }
         }
     }
-    BorderRectangle {
+    Core.BorderRectangle {
         Layout.fillHeight: true
         Layout.fillWidth: true
 

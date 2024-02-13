@@ -14,7 +14,7 @@ Dialog {
     standardButtons: Dialog.Ok | Dialog.Cancel
     onOpened: { view.model.resetChanges(); enableEditButtons(); enableOkButton() }
     onAccepted: { view.model.save() }
-    background: BorderRectangle {}
+    background: Core.BorderRectangle {}
     function enableOkButton() { standardButton(Dialog.Ok).enabled = view.model.hasChanges() }
     function enableEditButtons() {
         const index = view.currentIndex
@@ -31,7 +31,7 @@ Dialog {
                 Layout.alignment: Qt.AlignHCenter
                 text: qsTr("Higher priority")
             }
-            BorderRectangle {
+            Core.BorderRectangle {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 Layout.verticalStretchFactor: 1

@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import "Core" as Core
 import "Util.js" as Util
 
 ColumnLayout {
@@ -22,7 +23,7 @@ ColumnLayout {
 
         TextArea {
             id: logTxtArea
-            background: BorderRectangle {}
+            background: Core.BorderRectangle {}
             text: logger.getLog()
             readOnly: true
             textFormat: TextEdit.RichText

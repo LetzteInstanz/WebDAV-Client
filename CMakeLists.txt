@@ -41,7 +41,7 @@ qt_add_qml_module(web_dav_client
     URI WebDavClient
     VERSION 1.0
     QML_FILES
-        src/Qml/BorderRectangle.qml
+        src/Qml/Core/BorderRectangle.qml
         src/Qml/Core/CustomListView.qml
         src/Qml/CustomMessageBox.qml
         src/Qml/EditServerDialog.qml

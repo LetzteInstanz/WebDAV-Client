@@ -4,13 +4,14 @@ import QtQuick.Controls
 import QtQuick.Layouts
 //import Qt.labs.platform
 
+import "Core" as Core
 import WebDavClient 1.0
 
 ApplicationWindow {
     id: appWindow
     visible: true
     title: "WebDAVClient 1.0"
-    background: BorderRectangle {}
+    background: Core.BorderRectangle {}
     property Component msgBoxComponent
     property Component editSrvDlgComponent
     property Component progressDlgComponent

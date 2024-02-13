@@ -2,9 +2,10 @@ import QtQml
 import QtQuick
 import QtQuick.Layouts
 
+import "Core" as Core
 import "Util.js" as Util
 
-BorderRectangle {
+Core.BorderRectangle {
     Layout.fillHeight: true
     Layout.fillWidth: true
     function setViewModelAsync() {
@@ -37,7 +38,7 @@ BorderRectangle {
             menuComponent = Qt.createComponent("FileItemMenu.qml", Component.Asynchronous)
             sortDlgComponent = Qt.createComponent("Sort/SortDialog.qml", Component.Asynchronous)
         }
-        delegate: BorderRectangle {
+        delegate: Core.BorderRectangle {
             id: delegate
             height: (Math.max(image.height, nameText.contentHeight + dateTimeText.contentHeight) + rowLayout.anchors.topMargin + rowLayout.anchors.bottomMargin)
             width: ListView.view.width
