@@ -6,11 +6,12 @@
 #include <QQmlApplicationEngine>
 
 namespace Qml {
-    class FileItemModel;
+    class FileSortFilterItemModel;
     class FileSystemModel;
     class Logger;
     class ServerItemModel;
     class Settings;
+    class SortParamItemModel;
 }
 
 class App : public QGuiApplication {
@@ -25,5 +26,6 @@ private:
     std::unique_ptr<Qml::Settings> _qml_settings;
     std::unique_ptr<Qml::ServerItemModel> _srv_item_model;
     std::unique_ptr<Qml::FileSystemModel> _qml_fs_client;
-    std::unique_ptr<Qml::FileItemModel> _file_item_model;
+    std::shared_ptr<Qml::FileSortFilterItemModel> _file_item_model;
+    std::unique_ptr<Qml::SortParamItemModel> _sort_param_item_model;
 };

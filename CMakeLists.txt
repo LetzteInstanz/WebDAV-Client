@@ -42,6 +42,7 @@ qt_add_qml_module(web_dav_client
     VERSION 1.0
     QML_FILES
         src/Qml/BorderRectangle.qml
+        src/Qml/Core/CustomListView.qml
         src/Qml/CustomMessageBox.qml
         src/Qml/EditServerDialog.qml
         src/Qml/FileItemMenu.qml
@@ -52,11 +53,13 @@ qt_add_qml_module(web_dav_client
         src/Qml/ServerItemMenu.qml
         src/Qml/ServerListPageColumnLayout.qml
         src/Qml/SettingsPageColumnLayout.qml
+        src/Qml/Sort/SortDialog.qml
         src/Qml/TextContextMenu.qml
         src/Qml/Util.js
     SOURCES
         src/Qml/FileItemModel.cpp
         src/Qml/FileItemModel.h
+        src/Qml/FileItemModel/Role.h
         src/Qml/FileSystemModel.cpp
         src/Qml/FileSystemModel.h
         src/Qml/IconProvider.cpp
@@ -67,6 +70,12 @@ qt_add_qml_module(web_dav_client
         src/Qml/Settings.h
         src/Qml/ServerItemModel.cpp
         src/Qml/ServerItemModel.h
+        src/Qml/Sort/FileSortFilterItemModel.cpp
+        src/Qml/Sort/FileSortFilterItemModel.h
+        src/Qml/Sort/SortParam.cpp
+        src/Qml/Sort/SortParam.h
+        src/Qml/Sort/SortParamItemModel.cpp
+        src/Qml/Sort/SortParamItemModel.h
 )
 
 qt_add_resources(web_dav_client "images"

@@ -4,7 +4,7 @@
 
 using namespace Qml;
 
-Settings::Settings(std::unique_ptr<SettingsJsonFile>&& settings, QObject* parent) : QObject(parent), _settings(std::move(settings)) {
+Settings::Settings(std::shared_ptr<SettingsJsonFile> settings, QObject* parent) : QObject(parent), _settings(settings) {
     for (size_t i = 0, sz = _desc_level_pairs.size(); i < sz; ++i)
         _indexByLogLevel.emplace(_desc_level_pairs[i].second, i);
 }

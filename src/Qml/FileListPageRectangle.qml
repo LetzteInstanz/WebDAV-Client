@@ -32,7 +32,11 @@ BorderRectangle {
             color: "lightgray"
         }
         property Component menuComponent
-        Component.onCompleted: menuComponent = Qt.createComponent("FileItemMenu.qml", Component.Asynchronous)
+        property Component sortDlgComponent
+        Component.onCompleted: {
+            menuComponent = Qt.createComponent("FileItemMenu.qml", Component.Asynchronous)
+            sortDlgComponent = Qt.createComponent("Sort/SortDialog.qml", Component.Asynchronous)
+        }
         delegate: BorderRectangle {
             id: delegate
             height: (Math.max(image.height, nameText.contentHeight + dateTimeText.contentHeight) + rowLayout.anchors.topMargin + rowLayout.anchors.bottomMargin)
@@ -48,7 +52,7 @@ BorderRectangle {
 
                 Image {
                     id: image
-                    source: "image://icons/" + model.extension
+                    source: "image://icons/" + model.iconName
                 }
                 ColumnLayout {
                     Text {
@@ -70,7 +74,7 @@ BorderRectangle {
                         Layout.preferredHeight: 16
                         verticalAlignment: Text.AlignBottom
                         horizontalAlignment: Text.AlignRight
-                        text: model.datetime
+                        text: model.modificationTime
                     }
                 }
             }

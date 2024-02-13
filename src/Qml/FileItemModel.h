@@ -32,8 +32,6 @@ namespace Qml {
         void update();
 
     private:
-        enum class Role { Name = Qt::UserRole, Extension, Datetime, FileFlag };
-
         std::shared_ptr<::FileSystemModel> _fs_model;
         bool _root;
     };
