@@ -7,8 +7,8 @@
 
 class FileSystemObject {
 public:
-    enum class Status { None, Unknown, Ok, Unauthorized, Forbidden, NotFound };
-    enum class Type { Directory, File };
+    enum class Status {None, Unknown, Ok, Unauthorized, Forbidden, NotFound};
+    enum class Type {Directory, File};
 
     FileSystemObject(QString&& name, Type type, std::pair<Status, std::tm>&& last_modified_pair) noexcept;
 
