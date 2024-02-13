@@ -3,7 +3,7 @@
 #include "FileSystem/FileSystemModel.h"
 #include "Json/SettingsJsonFile.h"
 #include "Logger.h"
-#include "Qml/FileItemModel.h"
+#include "Qml/FileItemModel/FileItemModel.h"
 #include "Qml/FileSystemModel.h"
 #include "Qml/IconProvider.h"
 #include "Qml/Logger.h"

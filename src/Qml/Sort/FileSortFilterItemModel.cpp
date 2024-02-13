@@ -1,7 +1,7 @@
 #include "FileSortFilterItemModel.h"
 
 #include "../../Json/SettingsJsonFile.h"
-#include "../FileItemModel.h"
+#include "../FileItemModel/FileItemModel.h"
 #include "../FileItemModel/Role.h"
 #include "../Util.h"
 #include "SortParam.h"

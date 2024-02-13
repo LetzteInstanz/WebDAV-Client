@@ -57,8 +57,8 @@ qt_add_qml_module(web_dav_client
         src/Qml/TextContextMenu.qml
         src/Qml/Util.js
     SOURCES
-        src/Qml/FileItemModel.cpp
-        src/Qml/FileItemModel.h
+        src/Qml/FileItemModel/FileItemModel.cpp
+        src/Qml/FileItemModel/FileItemModel.h
         src/Qml/FileItemModel/Role.h
         src/Qml/FileSystemModel.cpp
         src/Qml/FileSystemModel.h
