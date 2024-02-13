@@ -1,5 +1,7 @@
 #include "ServerInfo.h"
 
+#include "Util.h"
+
 const char* const ServerInfo::_desc_key = "description",
           * const ServerInfo::_addr_key = "address",
           * const ServerInfo::_port_key = "port",
@@ -8,29 +10,27 @@ const char* const ServerInfo::_desc_key = "description",
 ServerInfo::ServerInfo(const QString& description, const QString& addr, uint16_t port, const QString& path) noexcept : _description(description), _addr(addr), _port(port), _path(path) {}
 
 ServerInfo ServerInfo::from_json(const QJsonObject& obj) {
-    const auto log_1 = [](const char* key) { qWarning(qUtf8Printable(QObject::tr("The value of the key \"%s\" doesn't exist")), key); };
-    const auto log_2 = [](const char* key, const QString& value_type) { qWarning(qUtf8Printable(QObject::tr("The value of the key \"%s\" isn't %s")), key, qUtf8Printable(value_type)); };
     const auto throw_ = []() { throw std::runtime_error("JSON parsing error for ServerInfo object"); };
-    const auto to_str = [log_1, log_2, throw_](const QJsonObject& obj, const char* key) {
+    const auto to_str = [throw_](const QJsonObject& obj, const char* key) {
         const auto it = obj.find(key);
         if (it == std::end(obj)) {
-            log_1(key);
+            json_value_exist_warning(key);
             throw_();
         }
         if (!it->isString()) {
-            log_2(key, QObject::tr("a string"));
+            json_value_type_warning(key, QObject::tr("a string"));
             throw_();
         }
         return it->toString();
     };
-    const auto to_uint16 = [log_1, log_2, throw_](const QJsonObject& obj, const char* key) {
+    const auto to_uint16 = [throw_](const QJsonObject& obj, const char* key) {
         const auto it = obj.find(key);
-        if (it == std::end(obj) || !it->isDouble()) {
-            log_1(key);
+        if (it == std::end(obj)) {
+            json_value_exist_warning(key);
             throw_();
         }
         if (!it->isDouble()) {
-            log_2(key, QObject::tr("a number"));
+            json_value_type_warning(key, QObject::tr("a number"));
             throw_();
         }
         return it->toInteger();
