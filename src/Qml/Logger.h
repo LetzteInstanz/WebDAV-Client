@@ -14,7 +14,7 @@ namespace Qml {
 
     public:
         explicit Logger(std::shared_ptr<::Logger> logger, QObject* parent = nullptr);
-        ~Logger();
+        ~Logger() override;
 
         Q_INVOKABLE QString getLog() const;
 

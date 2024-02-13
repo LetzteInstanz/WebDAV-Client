@@ -19,7 +19,7 @@ namespace Qml {
 
     public:
         explicit ServerItemModel(std::unique_ptr<ServerInfoManager>&& manager, QObject* parent = nullptr);
-        ~ServerItemModel();
+        ~ServerItemModel() override;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 

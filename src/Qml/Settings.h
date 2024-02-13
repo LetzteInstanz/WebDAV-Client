@@ -18,7 +18,7 @@ namespace Qml {
 
     public:
         explicit Settings(std::shared_ptr<SettingsJsonFile> settings, QObject* parent = nullptr);
-        ~Settings();
+        ~Settings() override;
 
         Q_INVOKABLE QString getDownloadPath() const;
         Q_INVOKABLE void setDownloadPath(const QString& path);

@@ -17,7 +17,7 @@ namespace Qml {
 class App : public QGuiApplication {
 public:
     App(int& argc, char** argv);
-    ~App();
+    ~App() override;
 
     void initialize_engine(QQmlApplicationEngine& engine);
 

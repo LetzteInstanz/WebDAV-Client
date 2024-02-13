@@ -19,7 +19,7 @@ namespace Qml {
 
     public:
         explicit FileItemModel(std::shared_ptr<::FileSystemModel> model, QObject* parent = nullptr);
-        ~FileItemModel();
+        ~FileItemModel() override;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 

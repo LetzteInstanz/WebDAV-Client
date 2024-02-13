@@ -15,7 +15,7 @@ namespace Qml {
 
     public:
         explicit FileSystemModel(std::shared_ptr<::FileSystemModel> model);
-        ~FileSystemModel();
+        ~FileSystemModel() override;
 
         Q_INVOKABLE void setServerInfo(const QString& addr, uint16_t port);
         Q_INVOKABLE void setRootPath(const QString& absolute_path);
