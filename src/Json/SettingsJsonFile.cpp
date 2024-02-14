@@ -26,7 +26,7 @@ const std::vector<QString> SettingsJsonFile::_default_sort_param_order{QStringLi
 
 std::unordered_map<Qml::Role, QString> SettingsJsonFile::_sort_param_json_id_by_role_map;
 
-SettingsJsonFile::SettingsJsonFile(std::shared_ptr<Logger> logger) : JsonFile("config.json"), _logger(logger) {
+SettingsJsonFile::SettingsJsonFile(std::shared_ptr<Logger> logger) : JsonFile("config.json"), _logger(std::move(logger)) {
     auto& out_map = _sort_param_json_id_by_role_map;
     if (out_map.empty())
         std::transform(std::begin(_supported_sort_params), std::end(_supported_sort_params), std::inserter(out_map, std::end(out_map)), [](const auto& pair) { return std::make_pair(pair.second.role, pair.first); });

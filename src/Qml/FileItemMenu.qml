@@ -22,8 +22,7 @@ Menu {
     MenuItem {
         text: qsTr("Disconnect")
         onTriggered: {
-            console.debug("QML: The file view model property is null now")
-            view.model = null
+            view.destroyModel()
             console.debug("QML: The file system model is being disconnected")
             fileSystemModel.disconnect()
             stackLayout.currentIndex = 0

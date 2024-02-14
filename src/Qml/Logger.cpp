@@ -2,7 +2,7 @@
 
 #include "../Logger.h"
 
-Qml::Logger::Logger(std::shared_ptr<::Logger> logger, QObject* parent) : QObject(parent), _logger(logger) {
+Qml::Logger::Logger(std::shared_ptr<::Logger> logger, QObject* parent) : QObject(parent), _logger(std::move(logger)) {
     _logger->set_notification_func(std::bind(&Logger::emit_signal, this, std::placeholders::_1, std::placeholders::_2));
 }
 

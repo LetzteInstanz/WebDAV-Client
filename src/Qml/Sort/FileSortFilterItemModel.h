@@ -4,6 +4,7 @@
 
 #include <QModelIndex>
 #include <QObject>
+#include <QScopedPointer>
 #include <QSortFilterProxyModel>
 
 class SettingsJsonFile;
@@ -15,7 +16,7 @@ namespace Qml {
         Q_OBJECT
 
     public:
-        FileSortFilterItemModel(std::shared_ptr<SettingsJsonFile> settings, std::unique_ptr<FileItemModel>&& source, QObject* parent = nullptr);
+        FileSortFilterItemModel(std::shared_ptr<SettingsJsonFile> settings, std::unique_ptr<FileItemModel, QScopedPointerDeleteLater>&& source, QObject* parent = nullptr);
         ~FileSortFilterItemModel() override;
 
     protected:
@@ -23,6 +24,6 @@ namespace Qml {
 
     private:
         std::shared_ptr<SettingsJsonFile> _settings;
-        std::unique_ptr<FileItemModel> _source;
+        std::unique_ptr<FileItemModel, QScopedPointerDeleteLater> _source;
     };
 }

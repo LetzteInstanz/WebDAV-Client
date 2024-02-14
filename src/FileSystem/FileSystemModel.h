@@ -10,8 +10,9 @@
 #include <QString>
 #include <QStringView>
 
+#include "FileSystemObject.h" // note: Building under Android fails with forward declaration
+
 class Client;
-class FileSystemObject;
 class Parser;
 
 class FileSystemModel {

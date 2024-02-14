@@ -64,6 +64,8 @@ qt_add_qml_module(web_dav_client
         src/Qml/FileSystemModel.h
         src/Qml/IconProvider.cpp
         src/Qml/IconProvider.h
+        src/Qml/ItemModelManager.cpp
+        src/Qml/ItemModelManager.h
         src/Qml/Logger.cpp
         src/Qml/Logger.h
         src/Qml/Settings.cpp

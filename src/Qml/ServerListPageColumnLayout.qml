@@ -5,6 +5,7 @@ import QtQuick.Layouts
 
 import "Core" as Core
 import "Util.js" as Util
+import WebDavClient
 
 ColumnLayout {
     property FileListPageRectangle fileListPage
@@ -20,7 +21,7 @@ ColumnLayout {
                         return
 
                     dlg.setData("", "", 80, "")
-                    dlg.accepted.connect(() => { console.debug("QML: A new item was added to the server view model"); srvListView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })
+                    dlg.accepted.connect(() => { console.debug("QML: A new item was added to the server item model"); srvListView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })
                     dlg.open()
                 }
 
@@ -48,7 +49,7 @@ ColumnLayout {
             anchors.fill: parent
             anchors.margins: 2
             spacing: 5
-            model: srvItemModel
+            model: itemModelManager.createModel(ItemModel.Server)
             clip: true
             currentIndex: -1
             highlightFollowsCurrentItem: true

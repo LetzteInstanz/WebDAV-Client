@@ -17,7 +17,7 @@
 #include <stack>
 #include <stdexcept>
 #include <string>
-#include <time.h>
+#include <time.h> // note: Only for to_time_t(std::tm& tm)
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>

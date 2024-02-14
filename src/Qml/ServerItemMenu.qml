@@ -20,7 +20,7 @@ Menu {
                 dlg.setData(item.desc, item.addr, item.port, item.path)
                 const model = item.model
                 function writeIntoModel() {
-                    console.debug("QML: An item in the server view model was edited")
+                    console.debug("QML: An item in the server item model was edited")
                     model.desc = dlg.desc(); model.addr = dlg.addr(); model.port = dlg.port(); model.path = dlg.path()
                 }
                 dlg.accepted.connect(writeIntoModel)
@@ -40,7 +40,7 @@ Menu {
 
                 const model = view.model
                 const index = view.currentIndex
-                dlg.accepted.connect(() => { console.debug("QML: An item was removed from the server view model"); model.removeRow(index) })
+                dlg.accepted.connect(() => { console.debug("QML: An item was removed from the server item model"); model.removeRow(index) })
                 dlg.open()
             }
 
