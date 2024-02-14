@@ -23,6 +23,7 @@ ColumnLayout {
 
         TextArea {
             id: logTxtArea
+            anchors.fill: parent
             background: Core.BorderRectangle {}
             text: logger.getLog()
             readOnly: true
