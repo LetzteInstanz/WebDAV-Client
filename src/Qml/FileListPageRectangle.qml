@@ -4,14 +4,14 @@ import QtQuick.Layouts
 
 import "Core" as Core
 import "Util.js" as Util
+import WebDavClient
 
 Core.BorderRectangle {
     Layout.fillHeight: true
     Layout.fillWidth: true
     function setViewModelAsync() {
         function setModel() {
-            console.debug("QML: The file view model was set")
-            view.model = fileItemModel
+            view.model = itemModelManager.createModel(ItemModel.File)
             view.model.modelReset.connect(() => { view.currentIndex = -1 })
             view.currentIndex = -1
             fileSystemModel.replyGot.disconnect(setModel)
@@ -37,6 +37,11 @@ Core.BorderRectangle {
         Component.onCompleted: {
             menuComponent = Qt.createComponent("FileItemMenu.qml", Component.Asynchronous)
             sortDlgComponent = Qt.createComponent("Sort/SortDialog.qml", Component.Asynchronous)
+        }
+        function destroyModel() {
+            const model = view.model
+            view.model = null
+            model.destroy()
         }
         delegate: Core.BorderRectangle {
             id: delegate

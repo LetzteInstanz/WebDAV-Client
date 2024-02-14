@@ -8,14 +8,18 @@
 
 using namespace Qml;
 
-FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<SettingsJsonFile> settings, std::unique_ptr<FileItemModel>&& source, QObject* parent)
+FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<SettingsJsonFile> settings, std::unique_ptr<FileItemModel, QScopedPointerDeleteLater>&& source, QObject* parent)
     : QSortFilterProxyModel(parent), _settings(settings), _source(std::move(source))
 {
+    qDebug(qUtf8Printable(QObject::tr("The file sort filter item model is being created")));
     setSourceModel(_source.get());
     sort(0);
 }
 
-FileSortFilterItemModel::~FileSortFilterItemModel() { setSourceModel(nullptr); }
+FileSortFilterItemModel::~FileSortFilterItemModel() {
+    qDebug(qUtf8Printable(QObject::tr("The file sort filter item model is being destroyed")));
+    setSourceModel(nullptr);
+}
 
 bool FileSortFilterItemModel::lessThan(const QModelIndex& source_left, const QModelIndex& source_right) const {
     using Role = FileItemModelRole;

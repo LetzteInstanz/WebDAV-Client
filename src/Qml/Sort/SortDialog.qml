@@ -5,6 +5,7 @@ import QtQuick.Layouts
 
 import "../"
 import "../Core" as Core
+import WebDavClient
 
 Dialog {
     anchors.centerIn: parent
@@ -12,8 +13,17 @@ Dialog {
     height: 250
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
-    onOpened: { view.model.resetChanges(); enableEditButtons(); enableOkButton() }
-    onAccepted: { view.model.save() }
+    onOpened: {
+        view.model = itemModelManager.createModel(ItemModel.SortParam)
+        enableEditButtons()
+        enableOkButton()
+    }
+    onClosed: {
+        const model = view.model
+        view.model = null
+        model.destroy()
+    }
+    onAccepted: view.model.save()
     background: Core.BorderRectangle {}
     function enableOkButton() { standardButton(Dialog.Ok).enabled = view.model.hasChanges() }
     function enableEditButtons() {
@@ -38,7 +48,7 @@ Dialog {
 
                 Core.CustomListView {
                     id: view
-                    model: sortParamItemModel
+                    model: null
                     delegate: Item {
                         id: delegate
                         width: ListView.view.width

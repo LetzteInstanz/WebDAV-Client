@@ -5,6 +5,7 @@ import QtQuick.Layouts
 
 import "Core" as Core
 import "Util.js" as Util
+import WebDavClient
 
 ColumnLayout {
     property FileListPageRectangle fileListPage
@@ -48,7 +49,7 @@ ColumnLayout {
             anchors.fill: parent
             anchors.margins: 2
             spacing: 5
-            model: srvItemModel
+            model: itemModelManager.createModel(ItemModel.Server)
             clip: true
             currentIndex: -1
             highlightFollowsCurrentItem: true

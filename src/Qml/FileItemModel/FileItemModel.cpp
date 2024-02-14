@@ -26,10 +26,15 @@ namespace {
 }
 
 FileItemModel::FileItemModel(std::shared_ptr<::FileSystemModel> model, QObject* parent) : QAbstractListModel(parent), _fs_model(model) {
+    qDebug(qUtf8Printable(QObject::tr("The source file item model is being created")));
     _fs_model->add_notification_func(this, std::bind(&FileItemModel::update, this));
+    _root = _fs_model->is_cur_dir_root_path();
 }
 
-FileItemModel::~FileItemModel() { _fs_model->remove_notification_func(this); }
+FileItemModel::~FileItemModel() {
+    qDebug(qUtf8Printable(QObject::tr("The source file item model is being destroyed")));
+    _fs_model->remove_notification_func(this);
+}
 
 int FileItemModel::rowCount(const QModelIndex& parent) const { return parent.isValid() ? 0 : _fs_model->size() + (_root ? 0 : 1); }
 

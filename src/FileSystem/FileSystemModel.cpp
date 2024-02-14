@@ -1,7 +1,6 @@
 #include "FileSystemModel.h"
 
 #include "Client.h"
-#include "FileSystemObject.h"
 #include "Parser.h"
 
 FileSystemModel::FileSystemModel()

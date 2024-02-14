@@ -5,7 +5,7 @@ import QtQuick.Layouts
 //import Qt.labs.platform
 
 import "Core" as Core
-import WebDavClient 1.0
+import WebDavClient
 
 ApplicationWindow {
     id: appWindow

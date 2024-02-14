@@ -21,7 +21,7 @@ namespace Qml {
         Q_OBJECT
 
     public:
-        explicit SortParamItemModel(std::shared_ptr<SettingsJsonFile> settings, std::shared_ptr<Qml::FileSortFilterItemModel> file_model, QObject* parent = nullptr);
+        explicit SortParamItemModel(std::shared_ptr<SettingsJsonFile> settings, FileSortFilterItemModel* file_model, QObject* parent = nullptr);
         ~SortParamItemModel() override;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -36,13 +36,15 @@ namespace Qml {
         Q_INVOKABLE void invert();
         Q_INVOKABLE void moveDown(int row);
         Q_INVOKABLE void save();
-        Q_INVOKABLE void resetChanges();
+
+    private:
+        void resetChanges();
 
     private:
         enum class Role {Descending = Qt::UserRole};
 
         std::shared_ptr<SettingsJsonFile> _settings;
-        std::shared_ptr<Qml::FileSortFilterItemModel> _file_model;
+        FileSortFilterItemModel* _file_model;
         std::vector<SortParam> _data;
     };
 }
