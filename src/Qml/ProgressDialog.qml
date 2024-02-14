@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import "Core" as Core
 import "Util.js" as Util
 
 Dialog {
@@ -11,6 +12,7 @@ Dialog {
     modal: true
     //closePolicy: Popup.CloseOnEscape
     standardButtons: Dialog.Cancel
+    background: Core.BorderRectangle {}
 
     ColumnLayout {
         anchors.fill: parent
