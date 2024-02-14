@@ -9,7 +9,7 @@
 using namespace Qml;
 
 FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<SettingsJsonFile> settings, std::unique_ptr<FileItemModel, QScopedPointerDeleteLater>&& source, QObject* parent)
-    : QSortFilterProxyModel(parent), _settings(settings), _source(std::move(source))
+    : QSortFilterProxyModel(parent), _settings(std::move(settings)), _source(std::move(source))
 {
     qDebug(qUtf8Printable(QObject::tr("The file sort filter item model is being created")));
     setSourceModel(_source.get());

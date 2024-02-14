@@ -7,7 +7,7 @@
 
 using namespace Qml;
 
-SortParamItemModel::SortParamItemModel(std::shared_ptr<SettingsJsonFile> settings, FileSortFilterItemModel* file_model, QObject* parent) : QAbstractListModel(parent), _settings(settings), _file_model(file_model) {
+SortParamItemModel::SortParamItemModel(std::shared_ptr<SettingsJsonFile> settings, FileSortFilterItemModel* file_model, QObject* parent) : QAbstractListModel(parent), _settings(std::move(settings)), _file_model(file_model) {
     qDebug(qUtf8Printable(QObject::tr("The sort parameter item model is being created")));
     resetChanges();
 }

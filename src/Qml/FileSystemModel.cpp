@@ -1,6 +1,6 @@
 #include "FileSystemModel.h"
 
-Qml::FileSystemModel::FileSystemModel(std::shared_ptr<::FileSystemModel> model) : _fs_model(model) {
+Qml::FileSystemModel::FileSystemModel(std::shared_ptr<::FileSystemModel> model) : _fs_model(std::move(model)) {
     _fs_model->set_error_func(std::bind(&FileSystemModel::handle_error, this, std::placeholders::_1, std::placeholders::_2));
     _fs_model->add_notification_func(this, std::bind(&FileSystemModel::replyGot, this));
 }
