@@ -33,7 +33,7 @@ public:
     Result parse_propfind_reply(const QByteArray& data) const;
 
 private:
-    enum class Tag { None, Multistatus, Response, PropStat, Prop, Href, ResourceType, GetLastModified, Collection, Status };
+    enum class Tag {None, Multistatus, Response, PropStat, Prop, Href, ResourceType, GetLastModified, Collection, Status};
 
     struct TagHasher {
         size_t operator()(Tag t) const noexcept { return to_type<size_t>(t); }
@@ -57,7 +57,7 @@ private:
         std::pair<Status, std::tm> last_modified = std::make_pair(Status::None, std::tm{});
 
     private:
-        enum class Token { DayName, Day, Month, Year, Hours, Minutes, Seconds };
+        enum class Token {DayName, Day, Month, Year, Hours, Minutes, Seconds};
 
         constexpr static Status ret_second_if_first_is_unknown(Status first, Status second);
         static void parse_lexem(std::tm& time, const QStringView& lexem, bool& ok, Token token);

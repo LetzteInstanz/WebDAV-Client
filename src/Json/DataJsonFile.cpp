@@ -14,7 +14,7 @@ DataJsonFile::DataJsonFile() : JsonFile("data.json") {
 DataJsonFile::~DataJsonFile() {
     QJsonObject obj = get_root_obj();
     obj[_server_key] = _json_servers;
-    set_root_obj(obj);
+    set_root_obj(std::move(obj));
 }
 
 std::vector<ServerInfo> DataJsonFile::read_servers() const {

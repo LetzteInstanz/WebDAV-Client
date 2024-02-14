@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import "Core" as Core
 import "Util.js" as Util
 
 Dialog {
@@ -14,7 +15,7 @@ Dialog {
         descTxtField.focus = true
         standardButton(Dialog.Ok).enabled = false
     }
-    background: BorderRectangle {}
+    background: Core.BorderRectangle {}
     function desc() { return descTxtField.text.trim() }
     function addr() {
         var addr = addressTxtField.text

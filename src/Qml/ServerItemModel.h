@@ -19,7 +19,7 @@ namespace Qml {
 
     public:
         explicit ServerItemModel(std::unique_ptr<ServerInfoManager>&& manager, QObject* parent = nullptr);
-        ~ServerItemModel();
+        ~ServerItemModel() override;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
@@ -35,7 +35,7 @@ namespace Qml {
         Q_INVOKABLE void addServerInfo(const QString& description, const QString& addr, uint16_t port, const QString& path);
 
     private:
-        enum class Role { Desc = Qt::UserRole, Addr, Port, Path };
+        enum class Role {Desc = Qt::UserRole, Addr, Port, Path};
 
         std::unique_ptr<ServerInfoManager> _srv_manager;
     };

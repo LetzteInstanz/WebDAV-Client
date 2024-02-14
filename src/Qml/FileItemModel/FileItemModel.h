@@ -19,7 +19,7 @@ namespace Qml {
 
     public:
         explicit FileItemModel(std::shared_ptr<::FileSystemModel> model, QObject* parent = nullptr);
-        ~FileItemModel();
+        ~FileItemModel() override;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
@@ -32,8 +32,6 @@ namespace Qml {
         void update();
 
     private:
-        enum class Role { Name = Qt::UserRole, Extension, Datetime, FileFlag };
-
         std::shared_ptr<::FileSystemModel> _fs_model;
         bool _root;
     };

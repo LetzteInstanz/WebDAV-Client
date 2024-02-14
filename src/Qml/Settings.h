@@ -17,8 +17,8 @@ namespace Qml {
         Q_OBJECT
 
     public:
-        explicit Settings(std::unique_ptr<SettingsJsonFile>&& settings, QObject* parent = nullptr);
-        ~Settings();
+        explicit Settings(std::shared_ptr<SettingsJsonFile> settings, QObject* parent = nullptr);
+        ~Settings() override;
 
         Q_INVOKABLE QString getDownloadPath() const;
         Q_INVOKABLE void setDownloadPath(const QString& path);
@@ -27,7 +27,7 @@ namespace Qml {
         QStringList get_level_desc_list() const;
 
     private:
-        std::unique_ptr<SettingsJsonFile> _settings;
+        std::shared_ptr<SettingsJsonFile> _settings;
         const std::vector<std::pair<QString, QtMsgType>> _desc_level_pairs{{tr("Debug"), QtDebugMsg}, {tr("Information"), QtInfoMsg},
                                                                            {tr("Warning"), QtWarningMsg}, {tr("Critical"), QtCriticalMsg},
                                                                            {tr("Fatal"), QtFatalMsg}};

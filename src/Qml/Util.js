@@ -28,7 +28,14 @@ function createPopup(comp, parent, typeName, properties) {
     if (popup === null)
         return popup
 
-    popup.closed.connect(() => { console.debug("QML: " + typeName + " object was destroyed"); popup.destroy() })
+    function destroy() {
+        if (!popup.parent) // note: If the popup is opened, an error occurs during closing the main window. This is a fix.
+            return
+
+        console.debug("QML: " + typeName + " object was destroyed");
+        popup.destroy()
+    }
+    popup.closed.connect(destroy)
     return popup
 }
 

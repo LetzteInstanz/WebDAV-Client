@@ -11,7 +11,7 @@ public:
 
 protected:
     QJsonObject get_root_obj() const { return _obj; }
-    void set_root_obj(const QJsonObject& obj) { _obj = obj; }
+    void set_root_obj(QJsonObject&& obj) { _obj = std::move(obj); }
 
 private:
     QFile _file;
