@@ -60,7 +60,7 @@ void FileSystemModel::abort_request() { _client->abort(); }
 
 void FileSystemModel::disconnect() {
     abort_request();
-    qDebug(qUtf8Printable(QObject::tr("The file system model is being reset")));
+    qDebug().noquote() << QObject::tr("The file system model is being reset");
     _objects.clear();
     _curr_dir_obj.reset();
     _parent_path.clear();
