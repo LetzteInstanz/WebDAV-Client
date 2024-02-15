@@ -118,7 +118,7 @@ bool SettingsJsonFile::read_sort_params(const QJsonArray& array) {
     for (auto it = std::begin(array), end = std::end(array); it != end; ++it) {
         const QJsonValue& val = *it;
         if (!val.isObject()) {
-            qWarning(qUtf8Printable(QObject::tr("An element of the sort parameter array isn't a object")));
+            qWarning().noquote() << QObject::tr("An element of the sort parameter array isn't a object");
             return false;
         }
         const QJsonObject obj = val.toObject();

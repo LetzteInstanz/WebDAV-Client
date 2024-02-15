@@ -32,7 +32,7 @@ void Client::abort() {
     if (!_reply)
         return;
 
-    qDebug(qUtf8Printable(QObject::tr("The request is being aborted")));
+    qDebug().noquote() << QObject::tr("The request is being aborted");
     _reply->abort();
     _reply.reset();
 }

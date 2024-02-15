@@ -7,10 +7,10 @@
 using namespace Qml;
 
 ServerItemModel::ServerItemModel(std::shared_ptr<ServerInfoManager> manager, QObject* parent) : QAbstractListModel(parent), _srv_manager(std::move(manager)) {
-    qDebug(qUtf8Printable(QObject::tr("The server item model is being created")));
+    qDebug().noquote() << QObject::tr("The server item model is being created");
 }
 
-ServerItemModel::~ServerItemModel() { qDebug(qUtf8Printable(QObject::tr("The server item model is being destroyed"))); }
+ServerItemModel::~ServerItemModel() { qDebug().noquote() << QObject::tr("The server item model is being destroyed"); }
 
 int ServerItemModel::rowCount(const QModelIndex& parent) const { return to_int(_srv_manager->amount()); }
 

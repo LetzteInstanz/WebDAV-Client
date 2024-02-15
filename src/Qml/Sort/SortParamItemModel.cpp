@@ -8,11 +8,11 @@
 using namespace Qml;
 
 SortParamItemModel::SortParamItemModel(std::shared_ptr<SettingsJsonFile> settings, FileSortFilterItemModel* file_model, QObject* parent) : QAbstractListModel(parent), _settings(std::move(settings)), _file_model(file_model) {
-    qDebug(qUtf8Printable(QObject::tr("The sort parameter item model is being created")));
+    qDebug().noquote() << QObject::tr("The sort parameter item model is being created");
     resetChanges();
 }
 
-SortParamItemModel::~SortParamItemModel() { qDebug(qUtf8Printable(QObject::tr("The sort parameter item model is being destroyed"))); }
+SortParamItemModel::~SortParamItemModel() { qDebug().noquote() << QObject::tr("The sort parameter item model is being destroyed"); }
 
 int SortParamItemModel::rowCount(const QModelIndex& parent) const { return parent.isValid() ? 0 : _data.size(); }
 
