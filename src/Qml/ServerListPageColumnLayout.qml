@@ -8,7 +8,7 @@ import "Util.js" as Util
 import WebDavClient
 
 ColumnLayout {
-    property FileListPageRectangle fileListPage
+    property FileListPageColumnLayout fileListPage
     property SettingsPageColumnLayout settingsPage
 
     RowLayout {

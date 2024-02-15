@@ -40,12 +40,12 @@ ApplicationWindow {
         currentIndex: 0
 
         ServerListPageColumnLayout {
-            fileListPage: fileListPageRectangle
+            fileListPage: fileListPageColumnLayout
             settingsPage: settingsPageColumnLayout
         }
 
-        FileListPageRectangle {
-            id: fileListPageRectangle
+        FileListPageColumnLayout {
+            id: fileListPageColumnLayout
         }
 
         SettingsPageColumnLayout {
