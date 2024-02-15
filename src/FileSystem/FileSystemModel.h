@@ -26,6 +26,7 @@ public:
     ~FileSystemModel();
 
     bool is_cur_dir_root_path() const noexcept;
+    QString get_current_path() const;
     void set_server_info(const QStringView& addr, uint16_t port);
     void set_root_path(const QStringView& absolute_path);
     void request_file_list(const QStringView& relative_path);

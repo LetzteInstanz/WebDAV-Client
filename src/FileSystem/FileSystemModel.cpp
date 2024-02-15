@@ -25,11 +25,13 @@ FileSystemModel::FileSystemModel()
 
 FileSystemModel::~FileSystemModel() = default;
 
-bool FileSystemModel::is_cur_dir_root_path() const noexcept {
+bool FileSystemModel::is_cur_dir_root_path() const noexcept { return _root_path == get_current_path(); }
+
+QString FileSystemModel::get_current_path() const {
     assert(_curr_dir_obj);
     QString abs_path = _parent_path + _curr_dir_obj->get_name();
     add_slash_to_end(abs_path);
-    return _root_path == abs_path;
+    return abs_path;
 }
 
 void FileSystemModel::set_server_info(const QStringView& addr, uint16_t port) { _client->set_server_info(addr, port); }
