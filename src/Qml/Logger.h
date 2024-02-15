@@ -1,7 +1,9 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 
+#include <QChar>
 #include <QObject>
 #include <QString>
 #include <QtLogging>
@@ -22,10 +24,12 @@ namespace Qml {
         void msgReceived(const QString& msg);
 
     private:
+        static QString escape(const QString& text);
         static QString wrap(QtMsgType type, QString&& msg);
         void emit_signal(QtMsgType type, const QString& msg);
 
     private:
+        static const std::unordered_map<QChar, QString> _escaped_by_char_map;
         std::shared_ptr<::Logger> _logger;
     };
 }

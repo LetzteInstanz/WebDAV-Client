@@ -2,6 +2,8 @@
 
 #include "../Logger.h"
 
+const std::unordered_map<QChar, QString> Qml::Logger::_escaped_by_char_map{{'&', "&amp;"}, {'<', "&lt;"}, {'>', "&gt;"}, {'"', "&quot;"}, {'\'', "&#39;"}, {'\n', "<br/>&nbsp;&nbsp;&nbsp;&nbsp;"}};
+
 Qml::Logger::Logger(std::shared_ptr<::Logger> logger, QObject* parent) : QObject(parent), _logger(std::move(logger)) {
     _logger->set_notification_func(std::bind(&Logger::emit_signal, this, std::placeholders::_1, std::placeholders::_2));
 }
@@ -13,9 +15,24 @@ QString Qml::Logger::getLog() const {
     QTextStream stream(&html);
     const ::Logger::Log log = _logger->get_log();
     for (const ::Logger::Message& pair : log)
-        stream << wrap(pair.first, pair.second.toHtmlEscaped());
+        stream << wrap(pair.first, escape(pair.second));
 
     return html;
+}
+
+QString Qml::Logger::escape(const QString& text) {
+    QString result;
+    result.reserve(text.size());
+    const auto end = std::end(_escaped_by_char_map);
+    for (const auto& ch : text) {
+        auto it = _escaped_by_char_map.find(ch);
+        if (it == end) {
+            result += ch;
+            continue;
+        }
+        result += it->second;
+    }
+    return result;
 }
 
 QString Qml::Logger::wrap(QtMsgType type, QString&& msg) {
