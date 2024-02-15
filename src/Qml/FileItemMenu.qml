@@ -5,7 +5,8 @@ import "Util.js" as Util
 
 Menu {
     implicitWidth: 100 // todo: Find a solution to resize to the content.
-    property ListView view
+    property Component sortDlgComponent
+    property var backFunc
 
     MenuItem {
         text: qsTr("Sort")
@@ -16,16 +17,11 @@ Menu {
                     dlg.open()
             }
 
-            Util.createObjAsync(view.sortDlgComponent, createDlg)
+            Util.createObjAsync(sortDlgComponent, createDlg)
         }
     }
     MenuItem {
         text: qsTr("Disconnect")
-        onTriggered: {
-            view.destroyModel()
-            console.debug("QML: The file system model is being disconnected")
-            fileSystemModel.disconnect()
-            stackLayout.currentIndex = 0
-        }
+        onTriggered: backFunc()
     }
 }
