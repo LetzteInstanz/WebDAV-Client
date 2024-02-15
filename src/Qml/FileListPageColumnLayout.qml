@@ -20,6 +20,12 @@ ColumnLayout {
         fileSystemModel.replyGot.connect(setModel)
         fileSystemModel.errorOccurred.connect(() => { fileSystemModel.replyGot.disconnect(setModel) })
     }
+    function back() {
+        view.destroyModel()
+        console.debug("QML: The file system model is being disconnected")
+        fileSystemModel.disconnect()
+        stackLayout.currentIndex = 0
+    }
 
     Connections {
         target: fileSystemModel
@@ -139,7 +145,7 @@ ColumnLayout {
                         attached.currentIndex = index
 
                         function createMenu(comp) {
-                            const menu = Util.createPopup(comp, view, "FileItemMenu", {"view": view})
+                            const menu = Util.createPopup(comp, view, "FileItemMenu", {"sortDlgComponent": view.sortDlgComponent, "backFunc": back})
                             menu.popup(attached.currentItem, mouse.x, mouse.y)
                         }
                         Util.createObjAsync(view.menuComponent, createMenu)
