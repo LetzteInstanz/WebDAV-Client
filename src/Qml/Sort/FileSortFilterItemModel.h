@@ -5,7 +5,9 @@
 #include <QModelIndex>
 #include <QObject>
 #include <QScopedPointer>
+#include <QString>
 #include <QSortFilterProxyModel>
+#include <QTimer>
 
 class SettingsJsonFile;
 
@@ -19,11 +21,20 @@ namespace Qml {
         FileSortFilterItemModel(std::shared_ptr<SettingsJsonFile> settings, std::unique_ptr<FileItemModel, QScopedPointerDeleteLater>&& source, QObject* parent = nullptr);
         ~FileSortFilterItemModel() override;
 
+        Q_INVOKABLE void search(const QString& text);
+        Q_INVOKABLE void searchWithTimer(const QString& text);
+        Q_INVOKABLE void repeatSearch(int msec);
+
     protected:
+        bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override;
         bool lessThan(const QModelIndex& source_left, const QModelIndex& source_right) const override;
 
     private:
         std::shared_ptr<SettingsJsonFile> _settings;
         std::unique_ptr<FileItemModel, QScopedPointerDeleteLater> _source;
+
+        QTimer _timer;
+        QString _text;
+        bool _case_sensitive;
     };
 }
