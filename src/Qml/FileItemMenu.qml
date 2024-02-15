@@ -4,7 +4,7 @@ import QtQuick.Controls
 import "Util.js" as Util
 
 Menu {
-    implicitWidth: 100 // todo: Find a solution to resize to the content.
+    implicitWidth: 120 // todo: Find a solution to resize to the content.
     property Component sortDlgComponent
     property var backFunc
 

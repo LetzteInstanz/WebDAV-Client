@@ -8,7 +8,7 @@ import "Util.js" as Util
 
 Dialog {
     anchors.centerIn: parent
-    width: parent.width - 20
+    width: parent.width
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
     onOpened: {
