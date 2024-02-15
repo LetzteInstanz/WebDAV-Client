@@ -9,8 +9,8 @@ import WebDavClient
 
 Dialog {
     anchors.centerIn: parent
-    width: 300
-    height: 250
+    width: parent.width
+    height: 370
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
     onOpened: {
@@ -98,7 +98,7 @@ Dialog {
 
             Button {
                 id: moveUpButton
-                width: 30
+                width: 50
                 text: "↑"
                 onClicked: {
                     view.model.moveUp(view.currentIndex)
@@ -109,8 +109,8 @@ Dialog {
             }
             Button {
                 id: invertButton
-                width: 30
-                text: "↕"
+                width: 50
+                text: "⇅"
                 onClicked: {
                     view.model.invert()
                     view.currentIndex = view.count - 1 - view.currentIndex
@@ -120,7 +120,7 @@ Dialog {
             }
             Button {
                 id: moveDownButton
-                width: 30
+                width: 50
                 text: "↓"
                 onClicked: {
                     view.model.moveDown(view.currentIndex)

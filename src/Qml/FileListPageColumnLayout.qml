@@ -42,12 +42,13 @@ ColumnLayout {
                 anchors.right: parent.right
                 height: parent.height
                 width: height
+                background: Item {}
                 text: "×"
                 onClicked: { searchTextField.clear(); view.model.search(searchTextField.text) }
             }
         }
         CheckBox {
-            text: qsTr("Case sensitive")
+            text: qsTr("Case\nsensitive")
             checkState: settings.getSearchCSFlag() ? Qt.Checked : Qt.Unchecked
             onClicked: {
                 const cs = settings.getSearchCSFlag()

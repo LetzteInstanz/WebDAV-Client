@@ -19,12 +19,13 @@ Dialog {
 
         ProgressBar {
             id: progressBar
+            Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter
         }
         Label {
             id: textLabel
+            Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter
-            text: "textLabel"
         }
         Connections {
             target: fileSystemModel
