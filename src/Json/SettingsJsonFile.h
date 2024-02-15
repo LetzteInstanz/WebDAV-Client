@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -31,6 +32,7 @@ public:
     void set_sort_params(const std::vector<Qml::SortParam>& params);
     bool get_search_cs_flag() const noexcept;
     void set_search_cs_flag(bool case_sensitive);
+    void set_notification_func(std::function<void ()>&& func) noexcept;
 
 private:
     using SortParamVector = std::vector<Qml::SortParam>;
@@ -56,4 +58,5 @@ private:
     QtMsgType _log_level;
     SortParamVector _sort_params;
     bool _case_sensitive;
+    std::function<void ()> _sort_param_changed_signal;
 };

@@ -114,6 +114,8 @@ void SettingsJsonFile::set_sort_params(const std::vector<Qml::SortParam>& params
 
     _sort_params = params;
     set_value(_sort_param_array_key, to_json_array(_sort_params));
+    if (_sort_param_changed_signal)
+        _sort_param_changed_signal();
 }
 
 bool SettingsJsonFile::get_search_cs_flag() const noexcept { return _case_sensitive; }
@@ -125,6 +127,8 @@ void SettingsJsonFile::set_search_cs_flag(bool case_sensitive) {
     _case_sensitive = case_sensitive;
     set_value(_cs_key, std::remove_reference_t<bool>(_case_sensitive));
 }
+
+void SettingsJsonFile::set_notification_func(std::function<void ()>&& func) noexcept { _sort_param_changed_signal = std::move(func); }
 
 SettingsJsonFile::SortParamVector SettingsJsonFile::get_default_sort_params() {
     SortParamVector result;

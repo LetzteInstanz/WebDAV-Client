@@ -21,13 +21,11 @@ QAbstractItemModel* Qml::ItemModelManager::createModel(ItemModel::Model model) {
 
         case ItemModel::Model::File: {
             std::unique_ptr<Qml::FileItemModel, QScopedPointerDeleteLater> source(new Qml::FileItemModel(_fs_model));
-            _file_item_model = new Qml::FileSortFilterItemModel(_settings, std::move(source));
-            return _file_item_model;
+            return new Qml::FileSortFilterItemModel(_settings, std::move(source));
         }
 
         case ItemModel::Model::SortParam: {
-            assert(_file_item_model);
-            return new Qml::SortParamItemModel(_settings, _file_item_model);
+            return new Qml::SortParamItemModel(_settings);
         }
 
         default: {

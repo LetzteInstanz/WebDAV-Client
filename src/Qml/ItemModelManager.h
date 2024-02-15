@@ -11,8 +11,6 @@ class ServerInfoManager;
 class SettingsJsonFile;
 
 namespace Qml {
-    class FileSortFilterItemModel;
-
     struct ItemModel {
         Q_GADGET
         QML_ELEMENT
@@ -34,7 +32,5 @@ namespace Qml {
         std::shared_ptr<SettingsJsonFile> _settings;
         std::shared_ptr<ServerInfoManager> _srv_mgr;
         std::shared_ptr<::FileSystemModel> _fs_model;
-
-        Qml::FileSortFilterItemModel* _file_item_model = nullptr;
     };
 }

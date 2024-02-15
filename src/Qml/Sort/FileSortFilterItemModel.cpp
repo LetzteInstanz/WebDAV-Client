@@ -12,6 +12,8 @@ FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<SettingsJsonFil
     : QSortFilterProxyModel(parent), _settings(std::move(settings)), _source(std::move(source))
 {
     qDebug().noquote() << QObject::tr("The file sort filter item model is being created");
+    _settings->set_notification_func([this](){ update(); });
+    _params = _settings->get_sort_params();
     setSourceModel(_source.get());
     sort(0);
     _timer.setSingleShot(true);
@@ -25,6 +27,7 @@ FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<SettingsJsonFil
 FileSortFilterItemModel::~FileSortFilterItemModel() {
     qDebug().noquote() << QObject::tr("The file sort filter item model is being destroyed");
     setSourceModel(nullptr);
+    _settings->set_notification_func(nullptr);
 }
 
 void FileSortFilterItemModel::search(const QString& text) {
@@ -73,9 +76,8 @@ bool FileSortFilterItemModel::lessThan(const QModelIndex& source_left, const QMo
     if (left_is_exit || source_right.data(to_int(Role::IsExit)).toBool())
         return left_is_exit;
 
-    const std::vector<SortParam> params = _settings->get_sort_params();
-    assert(!params.empty());
-    for (const auto& param : params) {
+    assert(!_params.empty());
+    for (const auto& param : _params) {
         const QVariant left_data = source_left.data(to_int(param.role));
         const QVariant right_data = source_right.data(to_int(param.role));
         assert(param.comp_func);
@@ -84,4 +86,9 @@ bool FileSortFilterItemModel::lessThan(const QModelIndex& source_left, const QMo
             return result == SortParam::CompResult::Less;
     }
     return false;
+}
+
+void FileSortFilterItemModel::update() {
+    _params = _settings->get_sort_params();
+    invalidate();
 }
