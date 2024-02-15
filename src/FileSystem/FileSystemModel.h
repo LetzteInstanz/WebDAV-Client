@@ -19,8 +19,8 @@ class FileSystemModel {
 public:
     enum class Error {ReplyParseError, NetworkError, UncorrectPath};
 
-    using NotifyAboutUpdateFunc = std::function<void()>;
-    using NotifyAboutErrorFunc = std::function<void(Error, QNetworkReply::NetworkError)>;
+    using NotifyAboutUpdateFunc = std::function<void ()>;
+    using NotifyAboutErrorFunc = std::function<void (Error, QNetworkReply::NetworkError)>;
 
     FileSystemModel();
     ~FileSystemModel();

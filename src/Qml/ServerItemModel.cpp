@@ -41,7 +41,7 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
 
     ServerInfo info = _srv_manager->get(index.row());
     std::function<QString()> get;
-    std::function<void(const QString&)> set;
+    std::function<void (const QString&)> set;
     auto is_port = false;
     switch (to_type<Role>(role)) {
         case Role::Desc: {

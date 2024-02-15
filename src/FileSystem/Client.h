@@ -13,8 +13,8 @@
 
 class Client {
 public:
-    using ReplyHandler = std::function<void(QByteArray&&)>;
-    using ErrorHandler = std::function<void(QNetworkReply::NetworkError)>;
+    using ReplyHandler = std::function<void (QByteArray&&)>;
+    using ErrorHandler = std::function<void (QNetworkReply::NetworkError)>;
 
     Client(ReplyHandler&& reply_handler, ErrorHandler&& error_handler) noexcept;
 
