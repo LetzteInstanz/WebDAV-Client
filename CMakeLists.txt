@@ -46,7 +46,7 @@ qt_add_qml_module(web_dav_client
         src/Qml/Core/CustomMessageBox.qml
         src/Qml/EditServerDialog.qml
         src/Qml/FileItemMenu.qml
-        src/Qml/FileListPageRectangle.qml
+        src/Qml/FileListPageColumnLayout.qml
         src/Qml/LogPageColumnLayout.qml
         src/Qml/Main.qml
         src/Qml/ProgressDialog.qml

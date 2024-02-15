@@ -14,11 +14,54 @@ FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<SettingsJsonFil
     qDebug().noquote() << QObject::tr("The file sort filter item model is being created");
     setSourceModel(_source.get());
     sort(0);
+    _timer.setSingleShot(true);
+    const auto search = [this]() {
+        _case_sensitive = _settings->get_search_cs_flag();
+        invalidateRowsFilter();
+    };
+    connect(&_timer, &QTimer::timeout, this, search);
 }
 
 FileSortFilterItemModel::~FileSortFilterItemModel() {
     qDebug().noquote() << QObject::tr("The file sort filter item model is being destroyed");
     setSourceModel(nullptr);
+}
+
+void FileSortFilterItemModel::search(const QString& text) {
+    if (_text == text)
+        return;
+
+    _text = text;
+    repeatSearch(0);
+}
+
+void FileSortFilterItemModel::searchWithTimer(const QString& text) {
+    if (_text == text)
+        return;
+
+    _text = text;
+    repeatSearch(600);
+}
+
+void FileSortFilterItemModel::repeatSearch(int msec) {
+    _timer.stop();
+    _timer.start(msec);
+}
+
+bool FileSortFilterItemModel::filterAcceptsRow(int source_row, const QModelIndex& source_parent) const {
+    if (_text.isEmpty())
+        return true;
+
+    const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
+    auto role = to_int(FileItemModelRole::IsExit);
+    assert(index.data(role).canConvert<bool>());
+    if (index.data(role).toBool())
+        return false;
+
+    role = to_int(FileItemModelRole::Name);
+    assert(index.data(role).canConvert<QString>());
+    const auto name = index.data(to_int(FileItemModelRole::Name)).toString();
+    return name.indexOf(_text, 0, _case_sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive) != -1;
 }
 
 bool FileSortFilterItemModel::lessThan(const QModelIndex& source_left, const QModelIndex& source_right) const {

@@ -25,10 +25,12 @@ public:
 
     QString get_download_path() const;
     void set_download_path(const QStringView& path);
-    QtMsgType get_max_log_level() const;
+    QtMsgType get_max_log_level() const noexcept;
     void set_max_log_level(QtMsgType level);
     std::vector<Qml::SortParam> get_sort_params() const;
     void set_sort_params(const std::vector<Qml::SortParam>& params);
+    bool get_search_cs_flag() const noexcept;
+    void set_search_cs_flag(bool case_sensitive);
 
 private:
     using SortParamVector = std::vector<Qml::SortParam>;
@@ -45,6 +47,7 @@ private:
     static const char* const _sort_param_array_key;
     static const char* const _sort_param_id_key;
     static const char* const _sort_param_desc_key;
+    static const char* const _cs_key;
     static const std::unordered_map<QString, Qml::SortParam> _supported_sort_params;
     static const std::vector<QString> _default_sort_param_order;
     static std::unordered_map<Qml::FileItemModelRole, QString> _sort_param_json_id_by_role_map;
@@ -52,4 +55,5 @@ private:
     QString _download_path;
     QtMsgType _log_level;
     SortParamVector _sort_params;
+    bool _case_sensitive;
 };

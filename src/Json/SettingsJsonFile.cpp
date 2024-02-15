@@ -14,6 +14,7 @@ const char* const SettingsJsonFile::_log_level_key = "log_level";
 const char* const SettingsJsonFile::_sort_param_array_key = "sort";
 const char* const SettingsJsonFile::_sort_param_id_key = "id";
 const char* const SettingsJsonFile::_sort_param_desc_key = "descending";
+const char* const SettingsJsonFile::_cs_key = "case_sensitive";
 
 const std::unordered_map<QString, Qml::SortParam> SettingsJsonFile::_supported_sort_params{
     {QStringLiteral("type"),              {Qml::Role::FileFlag,  QObject::tr("Type (directories are higher)"), false, Qml::SortParam::compare_file_flag}},
@@ -68,6 +69,18 @@ SettingsJsonFile::SettingsJsonFile(std::shared_ptr<Logger> logger) : JsonFile("c
         _sort_params = get_default_sort_params();
         obj[_sort_param_array_key] = to_json_array(_sort_params);
     }
+
+    it = obj.find(_cs_key);
+    exists = it != std::end(obj);
+    ok = exists && it->isBool();
+    all_is_ok &= ok;
+    if (exists && !ok)
+        json_value_type_warning(_cs_key, QObject::tr("a boolean value"));
+
+    _case_sensitive = ok ? it->toBool() : true;
+    if (!ok)
+        obj[_cs_key] = _case_sensitive;
+
     if (!all_is_ok)
         set_root_obj(std::move(obj));
 }
@@ -82,7 +95,7 @@ void SettingsJsonFile::set_download_path(const QStringView& path) {
     set_value(_dl_path_key, std::as_const(_download_path));
 }
 
-QtMsgType SettingsJsonFile::get_max_log_level() const { return _log_level; }
+QtMsgType SettingsJsonFile::get_max_log_level() const noexcept { return _log_level; }
 
 void SettingsJsonFile::set_max_log_level(QtMsgType level) {
     if (_log_level == level)
@@ -101,6 +114,16 @@ void SettingsJsonFile::set_sort_params(const std::vector<Qml::SortParam>& params
 
     _sort_params = params;
     set_value(_sort_param_array_key, to_json_array(_sort_params));
+}
+
+bool SettingsJsonFile::get_search_cs_flag() const noexcept { return _case_sensitive; }
+
+void SettingsJsonFile::set_search_cs_flag(bool case_sensitive) {
+    if (_case_sensitive == case_sensitive)
+        return;
+
+    _case_sensitive = case_sensitive;
+    set_value(_cs_key, std::remove_reference_t<bool>(_case_sensitive));
 }
 
 SettingsJsonFile::SortParamVector SettingsJsonFile::get_default_sort_params() {

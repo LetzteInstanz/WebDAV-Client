@@ -25,6 +25,10 @@ void Settings::setCurrentLogLevel(int index) {
     _settings->set_max_log_level(pair.second);
 }
 
+bool Settings::getSearchCSFlag() const { return _settings->get_search_cs_flag(); }
+
+void Settings::setSearchCSFlag(bool caseSensitive) { _settings->set_search_cs_flag(caseSensitive); }
+
 QStringList Settings::get_level_desc_list() const {
     QStringList dataList;
     std::transform(std::begin(_desc_level_pairs), std::end(_desc_level_pairs), std::back_inserter(dataList), [](const std::pair<QString, QtMsgType>& pair) { return pair.first; });
