@@ -161,11 +161,14 @@ ColumnLayout {
                                 if (dlg === null)
                                     return
 
+                                const mainStackLayout = stackLayout
                                 dlg.onOpened.connect(() => { console.debug("QML: A new file list was requested"); fileSystemModel.requestFileList(model.name) })
                                 dlg.rejected.connect(() => { console.debug("QML: The request is being aborted"); fileSystemModel.abortRequest() })
+                                dlg.closed.connect(() => { mainStackLayout.enabled = true })
                                 dlg.open()
                             }
 
+                            stackLayout.enabled = false
                             Util.createObjAsync(progressDlgComponent, createDlg)
                         }
                     }

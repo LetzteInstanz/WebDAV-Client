@@ -128,9 +128,11 @@ ColumnLayout {
                                     fsModel.disconnect()
                                 }
                                 dlg.rejected.connect(disconnect)
+                                dlg.closed.connect(() => { mainStackLayout.enabled = true })
                                 dlg.open()
                             }
 
+                            stackLayout.enabled = false
                             Util.createObjAsync(progressDlgComponent, createDlg)
                         }
                     }
