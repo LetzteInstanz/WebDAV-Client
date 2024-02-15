@@ -110,17 +110,17 @@ ColumnLayout {
                                 if (dlg === null)
                                     return
 
+                                const mainStackLayout = stackLayout
                                 function requestFileList() {
                                     console.debug("QML: The first file list was requested")
-                                    stackLayout.currentIndex = 1
-                                    fileListPage.setViewModelAsync()
+                                    mainStackLayout.currentIndex = 1
+                                    fileListPage.prepare()
                                     const item = srvListView.currentItem
                                     fileSystemModel.setServerInfo(item.addr, item.port)
                                     fileSystemModel.setRootPath(item.path)
                                     fileSystemModel.requestFileList("")
                                 }
                                 dlg.onOpened.connect(requestFileList)
-                                const mainStackLayout = stackLayout
                                 const fsModel = fileSystemModel // note: An error occurs during closing the main window, if not to use the local variables
                                 function disconnect() {
                                     mainStackLayout.currentIndex = 0

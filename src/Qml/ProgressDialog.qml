@@ -28,7 +28,6 @@ Dialog {
         }
         Connections {
             target: fileSystemModel
-
             function onMaxProgressEnabled(enabled) { progressBar.indeterminate = !enabled }
             function onProgressChanged(value) { progressBar.value = value }
             function onMaxProgressChanged(max) { progressBar.to = max }

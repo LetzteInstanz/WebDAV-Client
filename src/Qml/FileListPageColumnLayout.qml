@@ -8,7 +8,7 @@ import "Util.js" as Util
 import WebDavClient
 
 ColumnLayout {
-    function setViewModelAsync() {
+    function prepare() {
         function setModel() {
             view.model = itemModelManager.createModel(ItemModel.File)
             view.model.modelReset.connect(() => { view.currentIndex = -1 })
