@@ -10,6 +10,7 @@ Dialog {
     id: dlg
     anchors.centerIn: parent
     modal: true
+    closePolicy: Popup.CloseOnEscape
     background: BorderRectangle {}
     property string text
 

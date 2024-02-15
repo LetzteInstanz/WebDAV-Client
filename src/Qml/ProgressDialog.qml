@@ -10,7 +10,7 @@ Dialog {
     anchors.centerIn: parent
     width: parent.width / 2
     modal: true
-    //closePolicy: Popup.CloseOnEscape
+    closePolicy: Popup.CloseOnEscape
     standardButtons: Dialog.Cancel
     background: Core.BorderRectangle {}
 
