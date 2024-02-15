@@ -27,6 +27,7 @@ ColumnLayout {
             background: Core.BorderRectangle {}
             text: logger.getLog()
             readOnly: true
+            wrapMode: TextEdit.Wrap
             textFormat: TextEdit.RichText
             onReleased: (event) => { Util.showTextContextMenu(appWindow, logTxtArea, event) }
 

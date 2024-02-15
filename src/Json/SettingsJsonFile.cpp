@@ -79,7 +79,7 @@ void SettingsJsonFile::set_download_path(const QStringView& path) {
         return;
 
     _download_path = path.toString();
-    set_value(_dl_path_key, _download_path);
+    set_value(_dl_path_key, std::as_const(_download_path));
 }
 
 QtMsgType SettingsJsonFile::get_max_log_level() const { return _log_level; }
@@ -90,7 +90,7 @@ void SettingsJsonFile::set_max_log_level(QtMsgType level) {
 
     _log_level = level;
     _logger->set_max_level(_log_level);
-    set_value(_log_level_key, _log_level);
+    set_value(_log_level_key, std::remove_reference_t<QtMsgType>(_log_level));
 }
 
 std::vector<Qml::SortParam> SettingsJsonFile::get_sort_params() const { return _sort_params; }

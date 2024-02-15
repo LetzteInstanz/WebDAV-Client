@@ -19,6 +19,7 @@
 #include <string>
 #include <time.h> // note: Only for to_time_t(std::tm& tm)
 #include <tuple>
+#include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
