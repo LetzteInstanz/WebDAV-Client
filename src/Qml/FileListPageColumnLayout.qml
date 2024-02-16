@@ -31,6 +31,30 @@ ColumnLayout {
         target: fileSystemModel
         function onReplyGot() { currPathLabel.text = fileSystemModel.getCurrentPath() }
     }
+    Core.SelectionSequentialAnimation {
+        id: animation
+        obj: null
+    }
+    Core.Timer {
+        id: delayTimer
+        property var model: null
+        onTriggered: {
+            function createDlg(comp) {
+                const dlg = Util.createPopup(comp, appWindow, "ProgressDialog", {})
+                if (dlg === null)
+                    return
+
+                const mainStackLayout = stackLayout
+                dlg.onOpened.connect(() => { console.debug(qsTr("QML: A new file list was requested")); fileSystemModel.requestFileList(model.name) })
+                dlg.rejected.connect(() => { console.debug(qsTr("QML: The request is being aborted")); fileSystemModel.abortRequest() })
+                dlg.closed.connect(() => { mainStackLayout.enabled = true })
+                dlg.open()
+            }
+
+            stackLayout.enabled = false
+            Util.createObjAsync(progressDlgComponent, createDlg)
+        }
+    }
     RowLayout {
         TextField {
             id: searchTextField
@@ -126,43 +150,25 @@ ColumnLayout {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        delegate.ListView.view.currentIndex = index
+                        const view = delegate.ListView.view
+                        animation.obj = view.itemAtIndex(delegate.index)
+                        animation.start()
                         if (model.isFile)
                             return
 
+                        delayTimer.model = model
                         delayTimer.start()
                     }
                     onPressAndHold: (mouse) => {
-                        const attached = delegate.ListView.view
-                        attached.currentIndex = index
+                        const view = delegate.ListView.view
+                        //animation.obj = view.itemAtIndex(delegate.index)
+                        //animation.start()
 
                         function createMenu(comp) {
                             const menu = Util.createPopup(comp, listView, "FileItemMenu", {"sortDlgComponent": listView.sortDlgComponent, "backFunc": back})
-                            menu.popup(attached.currentItem, mouse.x, mouse.y)
+                            menu.popup(view.currentItem, mouse.x, mouse.y)
                         }
                         Util.createObjAsync(listView.menuComponent, createMenu)
-                    }
-
-                    Timer {
-                        id: delayTimer
-                        interval: 100
-                        repeat: false
-                        onTriggered: {
-                            function createDlg(comp) {
-                                const dlg = Util.createPopup(comp, appWindow, "ProgressDialog", {})
-                                if (dlg === null)
-                                    return
-
-                                const mainStackLayout = stackLayout
-                                dlg.onOpened.connect(() => { console.debug(qsTr("QML: A new file list was requested")); fileSystemModel.requestFileList(model.name) })
-                                dlg.rejected.connect(() => { console.debug(qsTr("QML: The request is being aborted")); fileSystemModel.abortRequest() })
-                                dlg.closed.connect(() => { mainStackLayout.enabled = true })
-                                dlg.open()
-                            }
-
-                            stackLayout.enabled = false
-                            Util.createObjAsync(progressDlgComponent, createDlg)
-                        }
                     }
                 }
             }

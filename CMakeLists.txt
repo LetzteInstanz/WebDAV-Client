@@ -45,6 +45,8 @@ qt_add_qml_module(web_dav_client
         src/Qml/Core/Button.qml
         src/Qml/Core/ListView.qml
         src/Qml/Core/MessageBox.qml
+        src/Qml/Core/SelectionSequentialAnimation.qml
+        src/Qml/Core/Timer.qml
         src/Qml/EditServerDialog.qml
         src/Qml/FileItemMenu.qml
         src/Qml/FileListPageColumnLayout.qml

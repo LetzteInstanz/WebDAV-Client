@@ -3,9 +3,7 @@ import QtQuick.Controls as QtControls
 
 QtControls.Button {
     id: button
-    background: BorderRectangle {
-        id: borderRectangle
-    }
+    background: BorderRectangle {}
     contentItem: Text {
         text: parent.text
         font: parent.font
@@ -16,22 +14,8 @@ QtControls.Button {
     }
     onPressed: animation.start()
 
-    SequentialAnimation {
+    SelectionSequentialAnimation {
         id: animation
-
-        PropertyAnimation {
-            target: button
-            property: "scale"
-            to: 1.2
-            duration: 200
-            easing.type: Easing.InOutQuad
-        }
-        PropertyAnimation {
-            target: button
-            property: "scale"
-            to: 1.0
-            duration: 200
-            easing.type: Easing.InOutQuad
-        }
+        obj: button
     }
 }
