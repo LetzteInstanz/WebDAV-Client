@@ -24,6 +24,8 @@ void Qml::FileSystemModel::abortRequest() { _fs_model->abort_request(); }
 
 void Qml::FileSystemModel::disconnect() { _fs_model->disconnect(); }
 
+QString Qml::FileSystemModel::getCurrentPath() const { return _fs_model->get_current_path(); }
+
 void Qml::FileSystemModel::handle_error(::FileSystemModel::Error custom_error, QNetworkReply::NetworkError qt_error) {
     if (custom_error == ::FileSystemModel::Error::ReplyParseError) {
         errorOccurred(QObject::tr("Reply parse error"));

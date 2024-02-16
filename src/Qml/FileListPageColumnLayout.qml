@@ -8,7 +8,9 @@ import "Util.js" as Util
 import WebDavClient
 
 ColumnLayout {
-    function setViewModelAsync() {
+    function prepare() {
+        currPathLabel.text = ""
+
         function setModel() {
             view.model = itemModelManager.createModel(ItemModel.File)
             view.model.modelReset.connect(() => { view.currentIndex = -1 })
@@ -19,6 +21,10 @@ ColumnLayout {
         fileSystemModel.errorOccurred.connect(() => { fileSystemModel.replyGot.disconnect(setModel) })
     }
 
+    Connections {
+        target: fileSystemModel
+        function onReplyGot() { currPathLabel.text = fileSystemModel.getCurrentPath() }
+    }
     RowLayout {
         TextField {
             id: searchTextField
@@ -43,6 +49,13 @@ ColumnLayout {
                 view.model.repeatSearch(0)
             }
         }
+    }
+    Label {
+        id: currPathLabel
+        Layout.fillWidth: true
+        horizontalAlignment: Text.AlignHCenter
+        elide: Text.ElideMiddle
+        font.bold: true
     }
     Core.BorderRectangle {
         Layout.fillHeight: true
