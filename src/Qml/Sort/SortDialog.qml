@@ -46,7 +46,7 @@ Dialog {
                 Layout.fillWidth: true
                 Layout.verticalStretchFactor: 1
 
-                Core.CustomListView {
+                Core.ListView {
                     id: view
                     model: null
                     delegate: Item {

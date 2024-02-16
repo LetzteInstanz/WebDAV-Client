@@ -44,19 +44,10 @@ ColumnLayout {
         Layout.fillHeight: true
         Layout.fillWidth: true
 
-        ListView {
+        Core.ListView {
             id: srvListView
-            anchors.fill: parent
-            anchors.margins: 2
-            spacing: 5
             model: itemModelManager.createModel(ItemModel.Server)
-            clip: true
             currentIndex: -1
-            highlightFollowsCurrentItem: true
-            highlight: Rectangle {
-                width: ListView.view.width
-                color: "lightgray"
-            }
             property Component menuComponent
             Component.onCompleted: menuComponent = Qt.createComponent("ServerItemMenu.qml", Component.Asynchronous)
             delegate: Item {

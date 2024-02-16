@@ -68,18 +68,9 @@ ColumnLayout {
         Layout.fillHeight: true
         Layout.fillWidth: true
 
-        ListView {
+        Core.ListView {
             id: view
-            anchors.fill: parent
-            anchors.margins: 2
-            spacing: 5
             model: null
-            clip: true
-            highlightFollowsCurrentItem: true
-            highlight: Rectangle {
-                width: ListView.view.width
-                color: "lightgray"
-            }
             property Component menuComponent
             property Component sortDlgComponent
             Component.onCompleted: {
