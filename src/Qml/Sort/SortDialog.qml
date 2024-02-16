@@ -14,23 +14,23 @@ Dialog {
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
     onOpened: {
-        view.model = itemModelManager.createModel(ItemModel.SortParam)
+        listView.model = itemModelManager.createModel(ItemModel.SortParam)
         enableEditButtons()
         enableOkButton()
     }
     onClosed: {
-        const model = view.model
-        view.model = null
+        const model = listView.model
+        listView.model = null
         model.destroy()
     }
-    onAccepted: view.model.save()
+    onAccepted: listView.model.save()
     background: Core.BorderRectangle {}
-    function enableOkButton() { standardButton(Dialog.Ok).enabled = view.model.hasChanges() }
+    function enableOkButton() { standardButton(Dialog.Ok).enabled = listView.model.hasChanges() }
     function enableEditButtons() {
-        const index = view.currentIndex
+        const index = listView.currentIndex
         moveUpButton.enabled = index !== -1 && index !== 0
-        moveDownButton.enabled = index !== -1 && index !== view.count - 1
-        invertButton.enabled = view.count !== 0
+        moveDownButton.enabled = index !== -1 && index !== listView.count - 1
+        invertButton.enabled = listView.count !== 0
     }
 
     RowLayout {
@@ -47,7 +47,7 @@ Dialog {
                 Layout.verticalStretchFactor: 1
 
                 Core.ListView {
-                    id: view
+                    id: listView
                     model: null
                     delegate: Item {
                         id: delegate
@@ -103,8 +103,8 @@ Dialog {
                 width: 30
                 text: "↑"
                 onClicked: {
-                    view.model.moveUp(view.currentIndex)
-                    --view.currentIndex
+                    listView.model.moveUp(listView.currentIndex)
+                    --listView.currentIndex
                     enableEditButtons()
                     enableOkButton()
                 }
@@ -116,8 +116,8 @@ Dialog {
                 width: 30
                 text: "⇅"
                 onClicked: {
-                    view.model.invert()
-                    view.currentIndex = view.count - 1 - view.currentIndex
+                    listView.model.invert()
+                    listView.currentIndex = listView.count - 1 - listView.currentIndex
                     enableEditButtons()
                     enableOkButton()
                 }
@@ -129,8 +129,8 @@ Dialog {
                 width: 30
                 text: "↓"
                 onClicked: {
-                    view.model.moveDown(view.currentIndex)
-                    ++view.currentIndex
+                    listView.model.moveDown(listView.currentIndex)
+                    ++listView.currentIndex
                     enableEditButtons()
                     enableOkButton()
                 }
