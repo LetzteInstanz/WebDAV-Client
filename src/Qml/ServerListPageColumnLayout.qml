@@ -21,7 +21,7 @@ ColumnLayout {
                         return
 
                     dlg.setData("", "", 80, "")
-                    dlg.accepted.connect(() => { console.debug(qsTr("QML: A new item was added to the server item model")); srvListView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })
+                    dlg.accepted.connect(() => { console.debug(qsTr("QML: A new item was added to the server item model")); listView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })
                     dlg.open()
                 }
 
@@ -45,7 +45,7 @@ ColumnLayout {
         Layout.fillWidth: true
 
         Core.ListView {
-            id: srvListView
+            id: listView
             model: itemModelManager.createModel(ItemModel.Server)
             currentIndex: -1
             property Component menuComponent
@@ -85,10 +85,10 @@ ColumnLayout {
                         view.currentIndex = index
 
                         function createMenu(comp) {
-                            const menu = Util.createPopup(comp, appWindow, "ServerItemMenu", {"view": srvListView})
+                            const menu = Util.createPopup(comp, appWindow, "ServerItemMenu", {"view": listView})
                             menu.popup(view.currentItem, mouse.x, mouse.y)
                         }
-                        Util.createObjAsync(srvListView.menuComponent, createMenu)
+                        Util.createObjAsync(listView.menuComponent, createMenu)
                     }
 
                     Timer {
@@ -106,7 +106,7 @@ ColumnLayout {
                                     console.debug(qsTr("QML: The first file list was requested"))
                                     mainStackLayout.currentIndex = 1
                                     fileListPage.prepare()
-                                    const item = srvListView.currentItem
+                                    const item = listView.currentItem
                                     fileSystemModel.setServerInfo(item.addr, item.port)
                                     fileSystemModel.setRootPath(item.path)
                                     fileSystemModel.requestFileList("")
