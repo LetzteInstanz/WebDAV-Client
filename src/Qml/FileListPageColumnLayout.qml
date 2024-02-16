@@ -12,16 +12,16 @@ ColumnLayout {
         currPathLabel.text = ""
 
         function setModel() {
-            view.model = itemModelManager.createModel(ItemModel.File)
-            view.model.modelReset.connect(() => { view.currentIndex = -1 })
-            view.currentIndex = -1
+            listView.model = itemModelManager.createModel(ItemModel.File)
+            listView.model.modelReset.connect(() => { listView.currentIndex = -1 })
+            listView.currentIndex = -1
             fileSystemModel.replyGot.disconnect(setModel)
         }
         fileSystemModel.replyGot.connect(setModel)
         fileSystemModel.errorOccurred.connect(() => { fileSystemModel.replyGot.disconnect(setModel) })
     }
     function back() {
-        view.destroyModel()
+        listView.destroyModel()
         console.debug(qsTr("QML: The file system model is being disconnected"))
         fileSystemModel.disconnect()
         stackLayout.currentIndex = 0
@@ -36,7 +36,7 @@ ColumnLayout {
             id: searchTextField
             Layout.fillWidth: true
             placeholderText: qsTr("Search by name")
-            onTextEdited: view.model.searchWithTimer(text)
+            onTextEdited: listView.model.searchWithTimer(text)
 
             Core.Button {
                 anchors.right: parent.right
@@ -44,7 +44,7 @@ ColumnLayout {
                 width: height
                 background: Item {}
                 text: "×"
-                onClicked: { searchTextField.clear(); view.model.search(searchTextField.text) }
+                onClicked: { searchTextField.clear(); listView.model.search(searchTextField.text) }
             }
         }
         CheckBox {
@@ -53,7 +53,7 @@ ColumnLayout {
             onClicked: {
                 const cs = settings.getSearchCSFlag()
                 settings.setSearchCSFlag(!cs)
-                view.model.repeatSearch(0)
+                listView.model.repeatSearch(0)
             }
         }
     }
@@ -69,7 +69,7 @@ ColumnLayout {
         Layout.fillWidth: true
 
         Core.ListView {
-            id: view
+            id: listView
             model: null
             property Component menuComponent
             property Component sortDlgComponent
@@ -78,8 +78,8 @@ ColumnLayout {
                 sortDlgComponent = Qt.createComponent("Sort/SortDialog.qml", Component.Asynchronous)
             }
             function destroyModel() {
-                const model = view.model
-                view.model = null
+                const model = listView.model
+                listView.model = null
                 model.destroy()
             }
             delegate: Core.BorderRectangle {
@@ -137,10 +137,10 @@ ColumnLayout {
                         attached.currentIndex = index
 
                         function createMenu(comp) {
-                            const menu = Util.createPopup(comp, view, "FileItemMenu", {"sortDlgComponent": view.sortDlgComponent, "backFunc": back})
+                            const menu = Util.createPopup(comp, listView, "FileItemMenu", {"sortDlgComponent": listView.sortDlgComponent, "backFunc": back})
                             menu.popup(attached.currentItem, mouse.x, mouse.y)
                         }
-                        Util.createObjAsync(view.menuComponent, createMenu)
+                        Util.createObjAsync(listView.menuComponent, createMenu)
                     }
 
                     Timer {
