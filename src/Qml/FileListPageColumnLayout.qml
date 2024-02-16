@@ -22,7 +22,7 @@ ColumnLayout {
     }
     function back() {
         view.destroyModel()
-        console.debug("QML: The file system model is being disconnected")
+        console.debug(qsTr("QML: The file system model is being disconnected"))
         fileSystemModel.disconnect()
         stackLayout.currentIndex = 0
     }
@@ -163,8 +163,8 @@ ColumnLayout {
                                     return
 
                                 const mainStackLayout = stackLayout
-                                dlg.onOpened.connect(() => { console.debug("QML: A new file list was requested"); fileSystemModel.requestFileList(model.name) })
-                                dlg.rejected.connect(() => { console.debug("QML: The request is being aborted"); fileSystemModel.abortRequest() })
+                                dlg.onOpened.connect(() => { console.debug(qsTr("QML: A new file list was requested")); fileSystemModel.requestFileList(model.name) })
+                                dlg.rejected.connect(() => { console.debug(qsTr("QML: The request is being aborted")); fileSystemModel.abortRequest() })
                                 dlg.closed.connect(() => { mainStackLayout.enabled = true })
                                 dlg.open()
                             }

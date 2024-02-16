@@ -34,7 +34,7 @@ Dialog {
             function onMaxProgressChanged(max) { progressBar.to = max }
             function onProgressTextChanged(text) { textLabel.text = text }
             function onErrorOccurred(text) {
-                console.debug("QML: An error occurred")
+                console.debug(qsTr("QML: An error occurred"))
                 function createDlg(comp) {
                     const dlg = Util.createPopup(comp, appWindow, "CustomMessageBox", {"standardButtons": Dialog.Ok, "text": text})
                     if (dlg === null)
@@ -46,7 +46,7 @@ Dialog {
 
                 Util.createObjAsync(msgBoxComponent, createDlg)
             }
-            function onReplyGot() { console.debug("QML: A reply was received"); accept() }
+            function onReplyGot() { console.debug(qsTr("QML: A reply was received")); accept() }
         }
     }
 }

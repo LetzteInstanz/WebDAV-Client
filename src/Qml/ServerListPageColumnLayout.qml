@@ -21,7 +21,7 @@ ColumnLayout {
                         return
 
                     dlg.setData("", "", 80, "")
-                    dlg.accepted.connect(() => { console.debug("QML: A new item was added to the server item model"); srvListView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })
+                    dlg.accepted.connect(() => { console.debug(qsTr("QML: A new item was added to the server item model")); srvListView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })
                     dlg.open()
                 }
 
@@ -112,7 +112,7 @@ ColumnLayout {
 
                                 const mainStackLayout = stackLayout
                                 function requestFileList() {
-                                    console.debug("QML: The first file list was requested")
+                                    console.debug(qsTr("QML: The first file list was requested"))
                                     mainStackLayout.currentIndex = 1
                                     fileListPage.prepare()
                                     const item = srvListView.currentItem
@@ -124,7 +124,7 @@ ColumnLayout {
                                 const fsModel = fileSystemModel // note: An error occurs during closing the main window, if not to use the local variables
                                 function disconnect() {
                                     mainStackLayout.currentIndex = 0
-                                    console.debug("QML: The file system model is being disconnected")
+                                    console.debug(qsTr("QML: The file system model is being disconnected"))
                                     fsModel.disconnect()
                                 }
                                 dlg.rejected.connect(disconnect)
