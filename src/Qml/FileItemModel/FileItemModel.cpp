@@ -77,19 +77,19 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
 
         case Role::ModTime: {
             const FileSystemObject obj = get_object(_root, row);
-            if (!obj.is_last_modified_valid())
+            if (!obj.is_modification_time_valid())
                 return QVariant::fromValue(std::numeric_limits<time_t>::lowest());
 
-            std::tm tm = obj.get_last_modified();
+            std::tm tm = obj.get_modification_time();
             return QVariant::fromValue(to_time_t(tm));
         }
 
         case Role::ModTimeStr: {
             const FileSystemObject obj = get_object(_root, row);
-            if (!obj.is_last_modified_valid())
+            if (!obj.is_modification_time_valid())
                 return QObject::tr("unknown");
 
-            std::tm tm = obj.get_last_modified();
+            std::tm tm = obj.get_modification_time();
             const std::time_t t = to_time_t(tm);
             tm = *std::localtime(&t);
             std::ostringstream stream;

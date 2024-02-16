@@ -378,7 +378,7 @@ Parser::Parser() {
     const FileSystemObject* const curr_dir_obj = std::get<1>(result).get();
     assert(curr_dir_obj->get_name() == "dav");
     assert(curr_dir_obj->get_type() == FileSystemObject::Type::Directory);
-    assert(curr_dir_obj->is_last_modified_valid() == false);
+    assert(curr_dir_obj->is_modification_time_valid() == false);
 
     const Objects& children = std::get<2>(result);
     assert(children.size() == 3);
@@ -386,8 +386,8 @@ Parser::Parser() {
     auto it = std::begin(children);
     assert(it->get_name() == "Диск 1");
     assert(it->get_type() == FileSystemObject::Type::Directory);
-    assert(it->is_last_modified_valid());
-    time = it->get_last_modified();
+    assert(it->is_modification_time_valid());
+    time = it->get_modification_time();
     assert(time.tm_sec == 1);
     assert(time.tm_min == 49);
     assert(time.tm_hour == 13);
@@ -399,8 +399,8 @@ Parser::Parser() {
     ++it;
     assert(it->get_name() == "Диск 2");
     assert(it->get_type() == FileSystemObject::Type::Directory);
-    assert(it->is_last_modified_valid());
-    time = it->get_last_modified();
+    assert(it->is_modification_time_valid());
+    time = it->get_modification_time();
     assert(time.tm_sec == 56);
     assert(time.tm_min == 55);
     assert(time.tm_hour == 6);
@@ -412,8 +412,8 @@ Parser::Parser() {
     ++it;
     assert(it->get_name() == "Тестовый файл.txt");
     assert(it->get_type() == FileSystemObject::Type::File);
-    assert(it->is_last_modified_valid());
-    time = it->get_last_modified();
+    assert(it->is_modification_time_valid());
+    time = it->get_modification_time();
     assert(time.tm_sec == 58);
     assert(time.tm_min == 59);
     assert(time.tm_hour == 23);
