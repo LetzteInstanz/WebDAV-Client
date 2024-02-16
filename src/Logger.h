@@ -14,7 +14,7 @@ class Logger {
 public:
     using Message = std::pair<QtMsgType, QString>;
     using Log = std::vector<Message>;
-    using NotificationFunc = std::function<void(QtMsgType, const QString&)>;
+    using NotificationFunc = std::function<void (QtMsgType, const QString&)>;
 
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;

@@ -80,9 +80,6 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
             if (!obj.is_last_modified_valid())
                 return QVariant::fromValue(std::numeric_limits<time_t>::lowest());
 
-            if (obj.get_name() == "Database4.kdb")
-                return QVariant::fromValue(std::numeric_limits<time_t>::lowest());
-
             std::tm tm = obj.get_last_modified();
             return QVariant::fromValue(to_time_t(tm));
         }

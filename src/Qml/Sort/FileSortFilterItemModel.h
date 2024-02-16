@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include <QModelIndex>
 #include <QObject>
@@ -13,6 +14,7 @@ class SettingsJsonFile;
 
 namespace Qml {
     class FileItemModel;
+    class SortParam;
 
     class FileSortFilterItemModel : public QSortFilterProxyModel {
         Q_OBJECT
@@ -30,9 +32,13 @@ namespace Qml {
         bool lessThan(const QModelIndex& source_left, const QModelIndex& source_right) const override;
 
     private:
+        void update();
+
+    private:
         std::shared_ptr<SettingsJsonFile> _settings;
         std::unique_ptr<FileItemModel, QScopedPointerDeleteLater> _source;
 
+        std::vector<SortParam> _params;
         QTimer _timer;
         QString _text;
         bool _case_sensitive;

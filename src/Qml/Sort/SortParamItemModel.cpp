@@ -2,12 +2,11 @@
 
 #include "../Json/SettingsJsonFile.h"
 #include "../Util.h"
-#include "FileSortFilterItemModel.h"
 #include "SortParam.h"
 
 using namespace Qml;
 
-SortParamItemModel::SortParamItemModel(std::shared_ptr<SettingsJsonFile> settings, FileSortFilterItemModel* file_model, QObject* parent) : QAbstractListModel(parent), _settings(std::move(settings)), _file_model(file_model) {
+SortParamItemModel::SortParamItemModel(std::shared_ptr<SettingsJsonFile> settings, QObject* parent) : QAbstractListModel(parent), _settings(std::move(settings)) {
     qDebug().noquote() << QObject::tr("The sort parameter item model is being created");
     resetChanges();
 }
@@ -76,10 +75,7 @@ void SortParamItemModel::moveDown(int row) {
     dataChanged(index(row, 0), index(lower, 0), {Qt::DisplayRole, to_int(Role::Descending)});
 }
 
-void SortParamItemModel::save() {
-    _settings->set_sort_params(_data);
-    _file_model->invalidate();
-}
+void SortParamItemModel::save() { _settings->set_sort_params(_data); }
 
 void SortParamItemModel::resetChanges() {
     beginResetModel();

@@ -14,14 +14,13 @@
 class SettingsJsonFile;
 
 namespace Qml {
-    class FileSortFilterItemModel;
     class SortParam;
 
     class SortParamItemModel : public QAbstractListModel {
         Q_OBJECT
 
     public:
-        explicit SortParamItemModel(std::shared_ptr<SettingsJsonFile> settings, FileSortFilterItemModel* file_model, QObject* parent = nullptr);
+        explicit SortParamItemModel(std::shared_ptr<SettingsJsonFile> settings, QObject* parent = nullptr);
         ~SortParamItemModel() override;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -44,7 +43,6 @@ namespace Qml {
         enum class Role {Descending = Qt::UserRole};
 
         std::shared_ptr<SettingsJsonFile> _settings;
-        FileSortFilterItemModel* _file_model;
         std::vector<SortParam> _data;
     };
 }
