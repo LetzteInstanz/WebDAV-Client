@@ -44,7 +44,7 @@ qt_add_qml_module(web_dav_client
         src/Qml/Core/BorderRectangle.qml
         src/Qml/Core/Button.qml
         src/Qml/Core/CustomListView.qml
-        src/Qml/Core/CustomMessageBox.qml
+        src/Qml/Core/MessageBox.qml
         src/Qml/EditServerDialog.qml
         src/Qml/FileItemMenu.qml
         src/Qml/FileListPageColumnLayout.qml

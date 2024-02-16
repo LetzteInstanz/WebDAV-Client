@@ -42,7 +42,7 @@ ApplicationWindow {
     property Component editSrvDlgComponent
     property Component progressDlgComponent
     Component.onCompleted: {
-        msgBoxComponent = Qt.createComponent("Core/CustomMessageBox.qml", Component.Asynchronous)
+        msgBoxComponent = Qt.createComponent("Core/MessageBox.qml", Component.Asynchronous)
         editSrvDlgComponent = Qt.createComponent("EditServerDialog.qml", Component.Asynchronous)
         progressDlgComponent = Qt.createComponent("ProgressDialog.qml", Component.Asynchronous)
     }

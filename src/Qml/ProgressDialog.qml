@@ -36,7 +36,7 @@ Dialog {
             function onErrorOccurred(text) {
                 console.debug(qsTr("QML: An error occurred"))
                 function createDlg(comp) {
-                    const dlg = Util.createPopup(comp, appWindow, "CustomMessageBox", {"standardButtons": Dialog.Ok, "text": text})
+                    const dlg = Util.createPopup(comp, appWindow, "MessageBox", {"standardButtons": Dialog.Ok, "text": text})
                     if (dlg === null)
                         return
 
