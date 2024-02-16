@@ -12,7 +12,7 @@ ColumnLayout {
     property SettingsPageColumnLayout settingsPage
 
     RowLayout {
-        Button {
+        Core.Button {
             text: qsTr("Add")
             onClicked: {
                 function createDlg(comp) {
@@ -28,14 +28,14 @@ ColumnLayout {
                 Util.createObjAsync(editSrvDlgComponent, createDlg)
             }
         }
-        Button {
+        Core.Button {
             text: qsTr("Settings")
             onClicked: {
                 settingsPage.prepare()
                 stackLayout.currentIndex = 2
             }
         }
-        Button {
+        Core.Button {
             text: qsTr("Log")
             onClicked: stackLayout.currentIndex = 3
         }

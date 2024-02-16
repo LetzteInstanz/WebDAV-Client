@@ -16,11 +16,11 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.preferredHeight: saveSettingsButton.height
 
-        Button {
+        Core.Button {
             text: qsTr("Back")
             onClicked: back()
         }
-        Button {
+        Core.Button {
             id: saveSettingsButton
             anchors.right: parent.right
             text: qsTr("Ok")

@@ -13,7 +13,7 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.preferredHeight: backButton.height
 
-        Button {
+        Core.Button {
             id: backButton
             text: qsTr("Back")
             onClicked: back()

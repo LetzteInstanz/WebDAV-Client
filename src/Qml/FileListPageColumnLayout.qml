@@ -38,7 +38,7 @@ ColumnLayout {
             placeholderText: qsTr("Search by name")
             onTextEdited: view.model.searchWithTimer(text)
 
-            Button {
+            Core.Button {
                 anchors.right: parent.right
                 height: parent.height
                 width: height

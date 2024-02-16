@@ -96,9 +96,11 @@ Dialog {
         Column {
             spacing: 5
 
-            Button {
+            Core.Button {
                 id: moveUpButton
-                width: 50
+                leftPadding: 0 // note: padding: 0 doesn't affect the paddings under Android
+                rightPadding: 0
+                width: 30
                 text: "↑"
                 onClicked: {
                     view.model.moveUp(view.currentIndex)
@@ -107,9 +109,11 @@ Dialog {
                     enableOkButton()
                 }
             }
-            Button {
+            Core.Button {
                 id: invertButton
-                width: 50
+                leftPadding: 0 // note: padding: 0 doesn't affect the paddings under Android
+                rightPadding: 0
+                width: 30
                 text: "⇅"
                 onClicked: {
                     view.model.invert()
@@ -118,9 +122,11 @@ Dialog {
                     enableOkButton()
                 }
             }
-            Button {
+            Core.Button {
                 id: moveDownButton
-                width: 50
+                leftPadding: 0 // note: padding: 0 doesn't affect the paddings under Android
+                rightPadding: 0
+                width: 30
                 text: "↓"
                 onClicked: {
                     view.model.moveDown(view.currentIndex)
