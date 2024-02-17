@@ -19,6 +19,8 @@ qt_add_executable(web_dav_client
     src/FileSystem/FileSystemObject.h
     src/FileSystem/Parser.cpp
     src/FileSystem/Parser.h
+    src/FileSystem/Parser/FSObjectStruct.cpp
+    src/FileSystem/Parser/FSObjectStruct.h
     src/FileSystem/Parser/TimeParser.cpp
     src/FileSystem/Parser/TimeParser.h
     src/Json/DataJsonFile.cpp
