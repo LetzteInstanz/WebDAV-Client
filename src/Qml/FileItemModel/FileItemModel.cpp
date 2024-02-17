@@ -12,17 +12,17 @@ namespace Qml {
 }
 
 namespace {
-    time_t to_time_t(std::tm& tm) {
-#ifdef Q_OS_WIN // todo: replace with std::gmtime(), when the compiler will support that
-        return _mkgmtime(&tm);
-#else
-        return timegm(&tm);
-#endif
-    }
-
     bool is_valid_dot_pos(const QStringView& name, qsizetype pos) { return pos != -1 && pos != name.size() - 1; }
 
     QString extract_extension(const QStringView& name, qsizetype dot_pos) { return QStringView(std::begin(name) + dot_pos + 1, std::end(name)).toString().toLower(); }
+
+    QString to_string(time_t t) {
+        const std::tm tm = *std::localtime(&t);
+        std::ostringstream stream;
+        //stream.imbue(std::locale("ru_RU.utf8")); // todo: take into account the translation setting, when it will be introduced
+        stream << std::put_time(&tm, "%c");
+        return QString::fromStdString(stream.rdbuf()->str());
+    }
 }
 
 FileItemModel::FileItemModel(std::shared_ptr<::FileSystemModel> model, QObject* parent) : QAbstractListModel(parent), _fs_model(std::move(model)) {
@@ -43,14 +43,16 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
         return QVariant();
 
     const int row = index.row();
+    if (role == to_int(Role::IsExit))
+        return !_root && row == 0;
+
+    const FileSystemObject obj = get_object(_root, row);
     switch (to_type<Role>(role)) {
         case Role::Name: {
-            const FileSystemObject obj = get_object(_root, row);
             return !_root && row == 0 ? ".." : obj.get_name();
         }
 
         case Role::Extension: {
-            const FileSystemObject obj = get_object(_root, row);
             if (obj.get_type() == FileSystemObject::Type::Directory)
                 return QVariant();
 
@@ -63,7 +65,6 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
         }
 
         case Role::IconName: {
-            const FileSystemObject obj = get_object(_root, row);
             if (obj.get_type() == FileSystemObject::Type::Directory || !_root && row == 0)
                 return QStringLiteral("folder");
 
@@ -75,36 +76,36 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
             return extract_extension(name, i);
         }
 
+        case Role::CreationTime: {
+            if (!obj.is_creation_time_valid())
+                return QVariant::fromValue(std::numeric_limits<time_t>::lowest());
+
+            return QVariant::fromValue(obj.get_creation_time());
+        }
+
+        case Role::CreationTimeStr: {
+            if (!obj.is_creation_time_valid())
+                return QObject::tr("unknown");
+
+            return to_string(obj.get_creation_time());
+        }
+
         case Role::ModTime: {
-            const FileSystemObject obj = get_object(_root, row);
             if (!obj.is_modification_time_valid())
                 return QVariant::fromValue(std::numeric_limits<time_t>::lowest());
 
-            std::tm tm = obj.get_modification_time();
-            return QVariant::fromValue(to_time_t(tm));
+            return QVariant::fromValue(obj.get_modification_time());
         }
 
         case Role::ModTimeStr: {
-            const FileSystemObject obj = get_object(_root, row);
             if (!obj.is_modification_time_valid())
                 return QObject::tr("unknown");
 
-            std::tm tm = obj.get_modification_time();
-            const std::time_t t = to_time_t(tm);
-            tm = *std::localtime(&t);
-            std::ostringstream stream;
-            //stream.imbue(std::locale("ru_RU.utf8")); // todo: take into account the translation setting, when it will be introduced
-            stream << std::put_time(&tm, "%c");
-            return QString::fromStdString(stream.rdbuf()->str());
+            return to_string(obj.get_modification_time());
         }
 
         case Role::FileFlag: {
-            const FileSystemObject obj = get_object(_root, row);
             return obj.get_type() == FileSystemObject::Type::File;
-        }
-
-        case Role::IsExit: {
-            return !_root && row == 0;
         }
 
         default:
@@ -118,6 +119,7 @@ QHash<int, QByteArray> FileItemModel::roleNames() const {
     names.emplace(to_int(Role::Name), "name");
     names.emplace(to_int(Role::Extension), "extension");
     names.emplace(to_int(Role::IconName), "iconName");
+    names.emplace(to_int(Role::CreationTimeStr), "creationTime");
     names.emplace(to_int(Role::ModTimeStr), "modificationTime");
     names.emplace(to_int(Role::FileFlag), "isFile");
     return names;

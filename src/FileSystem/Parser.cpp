@@ -1,66 +1,154 @@
 #include "Parser.h"
 
-void Parser::FSObjectStruct::drop_curr_dir_name(QString& path) {
-    assert(!path.isEmpty());
-
-    if (path == QStringLiteral("/")) {
-        path.clear();
-        return;
-    }
-    const qsizetype from = path.back() == '/' ? -2 : -1;
-    const qsizetype pos = path.lastIndexOf('/', from);
-    assert(pos != -1);
-    path.resize(pos + 1);
-}
-
-QString Parser::FSObjectStruct::extract_name(const QStringView& data) {
-    assert(!data.empty());
-
-    if (data == QStringLiteral("/"))
-        return data.toString();
-
-    const qsizetype from = data.back() == '/' ? -2 : -1;
-    const qsizetype pos = data.lastIndexOf('/', from);
-    assert(pos != -1);
-    return QStringView(std::begin(data) + pos + 1, std::end(data) + from + 1).toString();
-}
-
-std::tm Parser::FSObjectStruct::to_tm(const QStringView& str) {
-    std::tm time;
-    time.tm_isdst = 0;
-
+time_t Parser::TimeParser::to_time_t(const QStringView& str, Format f) {
+    CustomTm time = {.tm = {.tm_isdst = 0}, .zone_hours = 0, .zone_minutes = 0};
     const auto str_end = std::end(str);
-    const bool last_is_T = *(str_end - 1) == 'T';
-    using enum FSObjectStruct::Token;
-    using Tokens = std::vector<Token>;
-    const auto order = last_is_T ? Tokens{DayName, Day, Month, Year, Hours, Minutes, Seconds} : Tokens{DayName, Month, Day, Hours, Minutes, Seconds, Year};
-    const auto order_end = std::end(order);
-    auto order_it = std::begin(order);
+    const CharSet& delimiters = get_delimiters(f);
+    const TokenOrder& order = get_order(str, f);
+    const auto token_end = std::end(order);
+    auto token_it = std::begin(order);
     auto from = std::begin(str);
     bool prev_is_delimiter = false;
-    for (auto it = from; order_it != order_end; ++it) {
-        const auto str_is_end = it == str_end;
-        const bool is_delimiter = str_is_end || _delimiters.contains(*it);
-        const bool lexem_is_end = is_delimiter && !prev_is_delimiter;
+    for (auto it = from; token_it != token_end; ++it) {
+        const auto is_str_end = it == str_end;
+        const bool is_delimiter = is_str_end || delimiters.contains(*it);
+        const bool is_lexem_end = is_delimiter && !prev_is_delimiter;
         bool ok = true;
-        if (lexem_is_end) {
+        if (is_lexem_end) {
+            const Token token = *token_it;
+            const auto prev_delimiter_is_sign = token == Token::ZoneHours;
+            if (prev_delimiter_is_sign) {
+                assert(from != std::begin(str));
+                --from;
+            }
             const QStringView lexem(from, it - from);
-            parse_lexem(time, lexem, ok, *order_it);
+            parse(time, lexem, ok, token);
             if (!ok)
                 throw std::runtime_error("timestamp parse error");
 
-            ++order_it;
+            ++token_it;
         }
-        if (str_is_end)
+        if (is_str_end)
             break;
 
         from = !is_delimiter && prev_is_delimiter ? it : from;
         prev_is_delimiter = is_delimiter;
     }
-    if (order_it != order_end)
+    if (token_it != token_end)
         throw std::runtime_error("timestamp parse error");
 
-    return time;
+#ifdef Q_OS_WIN // todo: replace with std::gmtime(), when the compiler will support that
+    time_t seconds = _mkgmtime(&time.tm);
+#else
+    time_t seconds = timegm(&time.tm);
+#endif
+    const auto sign = std::copysign(1, time.zone_hours);
+    seconds -= time.zone_hours * 60 * 60 + sign * time.zone_minutes * 60;
+    return seconds;
+}
+
+const Parser::TimeParser::CharSet& Parser::TimeParser::get_delimiters(Format f) {
+    switch (f) {
+        case Format::Rfc2616:
+            return _rfc2616_delimiters;
+
+        default:
+            return _rfc3339_delimiters;
+    }
+}
+
+const Parser::TimeParser::TokenOrder& Parser::TimeParser::get_order(const QStringView& str, Format f) {
+    switch (f) {
+        case Format::Rfc2616:
+            return str.back() == 'T' ? _rfc2616_order_1 : _rfc2616_order_2;
+
+        default:
+            return str.back() == 'Z' ? _rfc3339_order_1 : _rfc3339_order_2;
+    }
+}
+
+void Parser::TimeParser::parse(CustomTm& time, const QStringView& lexem, bool& ok, Token token) {
+    switch (token) {
+        case Token::DayName: {
+            break;
+        }
+
+        case Token::Day: {
+            time.tm.tm_mday = lexem.toInt(&ok);
+            break;
+        }
+
+        case Token::Month: {
+            time.tm.tm_mon = lexem.toInt(&ok) - 1;
+            break;
+        }
+
+        case Token::MonthName: {
+            const auto it = _month_map.find(lexem.toString());
+            if (it == std::end(_month_map))
+                throw std::runtime_error("month parse error");
+
+            time.tm.tm_mon = it->second;
+            break;
+        }
+
+        case Token::Year: {
+            int year = lexem.toInt(&ok);
+            time.tm.tm_year = year > 99 ? year - 1900 : year;
+            break;
+        }
+
+        case Token::Hours: {
+            time.tm.tm_hour = lexem.toInt(&ok);
+            break;
+        }
+
+        case Token::Minutes: {
+            time.tm.tm_min = lexem.toInt(&ok);
+            break;
+        }
+
+        case Token::Seconds: {
+            time.tm.tm_sec = std::round(lexem.toFloat(&ok));
+            break;
+        }
+
+        case Token::ZoneHours: {
+            time.zone_hours = lexem.toInt(&ok);
+            break;
+        }
+
+        case Token::ZoneMinutes: {
+            time.zone_minutes = lexem.toInt(&ok);
+            break;
+        }
+    }
+}
+
+const Parser::TimeParser::CharSet Parser::TimeParser::_rfc2616_delimiters{' ', ',', '-', ':'};
+const Parser::TimeParser::CharSet Parser::TimeParser::_rfc3339_delimiters{'-', '+', ':', 'T', 'Z', 't', 'z'};
+
+const std::unordered_map<QString, int> Parser::TimeParser::_month_map{{"Jan", 0}, {"Feb", 1}, {"Mar", 2}, {"Apr", 3}, {"May", 4}, {"Jun", 5},
+                                                                      {"Jul", 6}, {"Aug", 7}, {"Sep", 8}, {"Oct", 9}, {"Nov", 10}, {"Dec", 11}};
+
+const Parser::TimeParser::TokenOrder Parser::TimeParser::_rfc2616_order_1{Token::DayName, Token::Day, Token::MonthName, Token::Year, Token::Hours, Token::Minutes, Token::Seconds};
+const Parser::TimeParser::TokenOrder Parser::TimeParser::_rfc2616_order_2{Token::DayName, Token::MonthName, Token::Day, Token::Hours, Token::Minutes, Token::Seconds, Token::Year};
+const Parser::TimeParser::TokenOrder Parser::TimeParser::_rfc3339_order_1{Token::Year, Token::Month, Token::Day, Token::Hours, Token::Minutes, Token::Seconds};
+const Parser::TimeParser::TokenOrder Parser::TimeParser::_rfc3339_order_2{Token::Year, Token::Month, Token::Day, Token::Hours, Token::Minutes, Token::Seconds, Token::ZoneHours, Token::ZoneMinutes};
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+QString Parser::FSObjectStruct::extract_name(const QStringView& abs_path) {
+    if (abs_path.empty())
+        return QString();
+
+    if (abs_path == QStringLiteral("/"))
+        return abs_path.toString();
+
+    const qsizetype from = abs_path.back() == '/' ? -2 : -1;
+    const qsizetype pos = abs_path.lastIndexOf('/', from);
+    assert(pos != -1);
+    return QStringView(std::begin(abs_path) + pos + 1, std::end(abs_path) + from + 1).toString();
 }
 
 Parser::FSObjectStruct::Status Parser::FSObjectStruct::to_status(const QStringView& str) {
@@ -71,86 +159,15 @@ Parser::FSObjectStruct::Status Parser::FSObjectStruct::to_status(const QStringVi
     return Status::None;
 }
 
-void Parser::FSObjectStruct::replace_status(Status s) {
+void Parser::FSObjectStruct::replace_unknown_status(Status s) {
     type.first = ret_second_if_first_is_unknown(type.first, s);
+    creation_date.first = ret_second_if_first_is_unknown(creation_date.first, s);
     last_modified.first = ret_second_if_first_is_unknown(last_modified.first, s);
 }
 
 constexpr Parser::FSObjectStruct::Status Parser::FSObjectStruct::ret_second_if_first_is_unknown(Status first, Status second) {
     return first == Parser::FSObjectStruct::Status::Unknown ? second : first;
 }
-
-void Parser::FSObjectStruct::parse_lexem(std::tm& time, const QStringView& lexem, bool& ok, Token token) {
-    // note:
-    // HTTP-date    = rfc1123-date | rfc850-date | asctime-date
-    // rfc1123-date = wkday "," SP date1 SP time SP "GMT"
-    // rfc850-date  = weekday "," SP date2 SP time SP "GMT"
-    // asctime-date = wkday SP date3 SP time SP 4DIGIT
-    // date1        = 2DIGIT SP month SP 4DIGIT
-    //                ; day month year (e.g., 02 Jun 1982)
-    // date2        = 2DIGIT "-" month "-" 2DIGIT
-    //                ; day-month-year (e.g., 02-Jun-82)
-    // date3        = month SP ( 2DIGIT | ( SP 1DIGIT ))
-    //                ; month day (e.g., Jun  2)
-    // time         = 2DIGIT ":" 2DIGIT ":" 2DIGIT
-    //                ; 00:00:00 - 23:59:59
-    // wkday        = "Mon" | "Tue" | "Wed"
-    //              | "Thu" | "Fri" | "Sat" | "Sun"
-    // weekday      = "Monday" | "Tuesday" | "Wednesday"
-    //              | "Thursday" | "Friday" | "Saturday" | "Sunday"
-    // month        = "Jan" | "Feb" | "Mar" | "Apr"
-    //              | "May" | "Jun" | "Jul" | "Aug"
-    //              | "Sep" | "Oct" | "Nov" | "Dec"
-
-    // Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 1123
-    // Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
-    // Sun Nov 6 08:49:37 1994        ; ANSI C's asctime() format
-
-    switch (token) {
-        case Token::Day: {
-            time.tm_mday = lexem.toLong(&ok);
-            break;
-        }
-
-        case Token::Month: {
-            const auto it = _month_map.find(lexem.toString());
-            if (it == std::end(_month_map))
-                throw std::runtime_error("month parse error");
-
-            time.tm_mon = it->second;
-            break;
-        }
-
-        case Token::Year: {
-            int year = lexem.toLong(&ok);
-            time.tm_year = year > 99 ? year - 1900 : year;
-            break;
-        }
-
-        case Token::Hours: {
-            time.tm_hour = lexem.toLong(&ok);
-            break;
-        }
-
-        case Token::Minutes: {
-            time.tm_min = lexem.toLong(&ok);
-            break;
-        }
-
-        case Token::Seconds: {
-            time.tm_sec = lexem.toLong(&ok);
-            break;
-        }
-
-        case Token::DayName:
-            break;
-    }
-}
-
-const std::unordered_set<QChar> Parser::FSObjectStruct::_delimiters{' ', ',', '-', ':'};
-
-const std::unordered_map<QString, int> Parser::FSObjectStruct::_month_map{{"Jan", 0}, {"Feb", 1}, {"Mar", 2}, {"Apr", 3}, {"May", 4}, {"Jun", 5},
-                                                                          {"Jul", 6}, {"Aug", 7}, {"Sep", 8}, {"Oct", 9}, {"Nov", 10}, {"Dec", 11}};
 
 const std::vector<std::pair<QString, Parser::FSObjectStruct::Status>> Parser::FSObjectStruct::_str_code_pairs{{"200", Status::Ok},
                                                                                                               {"401", Status::Unauthorized},
@@ -159,7 +176,7 @@ const std::vector<std::pair<QString, Parser::FSObjectStruct::Status>> Parser::FS
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Parser::CurrentState::CurrentState(TagOrderMap::const_iterator first, Result& result) : _result(result) { stack.push(first); }
+Parser::CurrentState::CurrentState(const QStringView& current_path, TagOrderMap::const_iterator first, Result& result) : _current_path(current_path), _result(result) { stack.push(first); }
 
 void Parser::CurrentState::update_if_start_tag(Tag t) {
     switch (t) {
@@ -173,6 +190,10 @@ void Parser::CurrentState::update_if_start_tag(Tag t) {
 
         case Tag::ResourceType:
             _obj.type.first = _status;
+            break;
+
+        case Tag::CreationDate:
+            _obj.creation_date.first = _status;
             break;
 
         case Tag::GetLastModified:
@@ -191,35 +212,32 @@ void Parser::CurrentState::update_if_start_tag(Tag t) {
 void Parser::CurrentState::update_if_end_tag(Tag t) {
     switch (t) {
         case Tag::PropStat: {
-            _obj.replace_status(_status);
+            _obj.replace_unknown_status(_status);
             _status = FSObjectStruct::Status::None;
             break;
         }
 
         case Tag::Response: {
             if (_obj.type.first != FileSystemObject::Status::Ok) {
-                set_error(QObject::tr("a type property in the reply hasn't ok status"));
+                if (_obj.is_curr_dir_obj)
+                    throw std::runtime_error("the resourcetype property of the current directory object hasn't ok status");
+
+                set_error(QObject::tr("a resourcetype property hasn't ok status"));
                 break;
             }
-            Objects& objects = std::get<2>(_result);
-            objects.emplace_back(FileSystemObject(std::move(_obj.name), _obj.type.second, std::move(_obj.last_modified)));
-            break;
-        }
+            if (_obj.name.isEmpty()) {
+                if (_obj.is_curr_dir_obj)
+                    throw std::runtime_error("the href tag data of the current directory object is empty");
 
-        case Tag::Multistatus: {
-            QString& parent_path = std::get<0>(_result);
-            Objects& objects = std::get<2>(_result);
-            for (auto it = std::begin(objects); it != std::end(objects);) {
-                const QString name = it->get_name();
-                if (!parent_path.isEmpty() && parent_path.lastIndexOf(name) == -1) {
-                    ++it;
-                } else {
-                    CurrDirObj& obj = std::get<1>(_result);
-                    obj = std::make_unique<FileSystemObject>(std::move(*it));
-                    it = objects.erase(it);
-                }
+                set_error(QObject::tr("a href tag data is empty"));
+                break;
             }
-            FSObjectStruct::drop_curr_dir_name(parent_path);
+            FileSystemObject obj(std::move(_obj.name), _obj.type.second, std::move(_obj.creation_date), std::move(_obj.last_modified));
+            if (_obj.is_curr_dir_obj)
+                _result.first = std::make_unique<FileSystemObject>(std::move(obj));
+            else
+                _result.second.emplace_back(std::move(obj));
+
             break;
         }
 
@@ -232,18 +250,29 @@ void Parser::CurrentState::update_if_data(Tag t, const QStringView& data) {
     switch (t) {
         case Tag::Href: {
             QString abs_path = QUrl::fromPercentEncoding(data.toLatin1());
-            _obj.name = FSObjectStruct::extract_name(abs_path);
-            QString& parent_path = std::get<0>(_result);
-            if (parent_path.size() > abs_path.size() || parent_path.isEmpty())
-                parent_path = std::move(abs_path);
+            if (!abs_path.isEmpty() && abs_path.back() != '/')
+                abs_path += '/';
 
+            _obj.is_curr_dir_obj = abs_path == _current_path;
+            _obj.name = FSObjectStruct::extract_name(abs_path);
+            break;
+        }
+
+        case Tag::CreationDate: {
+            try {
+                _obj.creation_date = std::make_pair(std::remove_reference_t<FSObjectStruct::Status>(_status), TimeParser::to_time_t(data, TimeParser::Format::Rfc3339));
+            } catch (const std::runtime_error& e) {
+                _obj.creation_date.first = FSObjectStruct::Status::None;
+                set_error(QObject::tr(e.what()));
+            }
             break;
         }
 
         case Tag::GetLastModified: {
             try {
-                _obj.last_modified = std::make_pair(_status, FSObjectStruct::to_tm(data));
+                _obj.last_modified = std::make_pair(std::remove_reference_t<FSObjectStruct::Status>(_status), TimeParser::to_time_t(data, TimeParser::Format::Rfc2616));
             } catch (const std::runtime_error& e) {
+                _obj.last_modified.first = FSObjectStruct::Status::None;
                 set_error(QObject::tr(e.what()));
             }
             break;
@@ -260,8 +289,8 @@ void Parser::CurrentState::update_if_data(Tag t, const QStringView& data) {
 }
 
 void Parser::CurrentState::set_error(QString&& msg) {
-    errorMsgPair.first = true;
-    errorMsgPair.second = std::move(msg);
+    was_error = true;
+    qWarning(qUtf8Printable(QObject::tr("An error has occured during reply parse: %s.")), qUtf8Printable(msg));
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -272,6 +301,7 @@ const std::unordered_map<QString, Parser::Tag> Parser::_propfind_tag_by_str_map{
                                                                                 {"prop", Tag::Prop},
                                                                                 {"href", Tag::Href},
                                                                                 {"resourcetype", Tag::ResourceType},
+                                                                                {"creationdate", Tag::CreationDate},
                                                                                 {"getlastmodified", Tag::GetLastModified},
                                                                                 {"collection", Tag::Collection},
                                                                                 {"status", Tag::Status}};
@@ -280,155 +310,22 @@ const Parser::TagOrderMap Parser::_propfind_tag_order{{Tag::None, {Tag::Multista
                                                       {Tag::Multistatus, {Tag::Response}},
                                                       {Tag::Response, {Tag::Href, Tag::PropStat}},
                                                       {Tag::PropStat, {Tag::Prop, Tag::Status}},
-                                                      {Tag::Prop, {Tag::GetLastModified, Tag::ResourceType}},
+                                                      {Tag::Prop, {Tag::CreationDate, Tag::GetLastModified, Tag::ResourceType}},
                                                       {Tag::ResourceType, {Tag::Collection}},
                                                       {Tag::Href, {}},
+                                                      {Tag::CreationDate, {}},
                                                       {Tag::GetLastModified, {}},
                                                       {Tag::Collection, {}},
                                                       {Tag::Status, {}}};
 
-#ifndef NDEBUG
-Parser::Parser() {
-    std::tm time;
-    const std::vector<QString> test_dates{"Sun, 06 Nov 1999 08:49:37 GMT", "Sunday, 06-Nov-99 08:49:37 GMT", "Sun Nov 6 08:49:37 1999"};
-    for (const auto& date : test_dates) {
-        time = {};
-        time.tm_isdst = -1;
-        time = FSObjectStruct::to_tm(date);
-        assert(time.tm_sec == 37);
-        assert(time.tm_min == 49);
-        assert(time.tm_hour == 8);
-        assert(time.tm_mday == 6);
-        assert(time.tm_mon == 10);
-        assert(time.tm_year == 1999 - 1900);
-        assert(time.tm_isdst == 0);
-    }
-    const QString test_date = "Sun, 06 Nov 2024 08:49:37 GMT";
-    time = {};
-    time.tm_isdst = -1;
-    time = FSObjectStruct::to_tm(test_date);
-    assert(time.tm_year == 2024 - 1900);
+Parser::Result Parser::parse_propfind_reply(const QStringView& current_path, const QByteArray& data) {
+    assert(!current_path.empty());
+    assert(current_path.back() == '/');
 
-    const QString test_responce =
-"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-"<D:multistatus xmlns:D=\"DAV:\" xmlns:ns0=\"DAV:\">\n"
-    "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
-        "<D:href>/dav/</D:href>\n"
-        "<D:propstat>\n"
-            "<D:prop>\n"
-                "<lp1:resourcetype><D:collection/></lp1:resourcetype>\n"
-            "</D:prop>\n"
-            "<D:status>HTTP/1.1 200 OK</D:status>\n"
-        "</D:propstat>\n"
-        "<D:propstat>\n"
-            "<D:status>HTTP/1.1 403 Forbidden</D:status>\n"
-            "<D:prop>\n"
-                "<lp1:getlastmodified />\n"
-            "</D:prop>\n"
-        "</D:propstat>\n"
-    "</D:response>\n"
-    "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
-        "<D:propstat>\n"
-            "<D:status>HTTP/1.1 200 OK</D:status>\n"
-            "<D:prop>\n"
-                "<lp1:getlastmodified>Mon, 06 Mar 2023 13:49:01 GMT</lp1:getlastmodified>\n"
-                "<lp1:resourcetype><D:collection/></lp1:resourcetype>\n"
-            "</D:prop>\n"
-        "</D:propstat>\n"
-        "<D:href>/dav/%d0%94%d0%b8%d1%81%d0%ba%201/</D:href>\n"
-    "</D:response>\n"
-    "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
-        "<D:propstat>\n"
-            "<D:prop>\n"
-                "<lp1:getlastmodified>Thu, 09 Mar 2023 06:55:56 GMT</lp1:getlastmodified>\n"
-                "<lp1:resourcetype><D:collection/></lp1:resourcetype>\n"
-            "</D:prop>\n"
-            "<D:status>HTTP/1.1 200 OK</D:status>\n"
-        "</D:propstat>\n"
-        "<D:href>/dav/%d0%94%d0%b8%d1%81%d0%ba%202/</D:href>\n"
-    "</D:response>\n"
-    "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
-        "<D:propstat>\n"
-            "<D:status>HTTP/1.1 200 OK</D:status>\n"
-            "<D:prop>\n"
-                "<lp1:getlastmodified>Wednesday, 16-Jul-2025 23:59:58 GMT</lp1:getlastmodified>\n"
-            "</D:prop>\n"
-        "</D:propstat>\n"
-        "<D:href>/dav/%d0%94%d0%b8%d1%81%d0%ba%203/</D:href>\n"
-        "<D:propstat>\n"
-            "<D:prop>\n"
-                "<lp1:resourcetype />\n"
-            "</D:prop>\n"
-            "<D:status>HTTP/1.1 401 Unauthorized</D:status>\n"
-        "</D:propstat>\n"
-    "</D:response>\n"
-    "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
-        "<D:propstat>\n"
-            "<D:prop>\n"
-                "<lp1:getlastmodified>Wednesday, 16-Jul-2025 23:59:58 GMT</lp1:getlastmodified>\n"
-                "<lp1:resourcetype />\n"
-            "</D:prop>\n"
-            "<D:status>HTTP/1.1 200 OK</D:status>\n"
-        "</D:propstat>\n"
-        "<D:href>/dav/%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9%20%D1%84%D0%B0%D0%B9%D0%BB.txt</D:href>\n"
-    "</D:response>\n"
-"</D:multistatus>";
-    const Result result = parse_propfind_reply(test_responce.toLatin1());
-    assert(std::get<1>(result) != nullptr);
-    const FileSystemObject* const curr_dir_obj = std::get<1>(result).get();
-    assert(curr_dir_obj->get_name() == "dav");
-    assert(curr_dir_obj->get_type() == FileSystemObject::Type::Directory);
-    assert(curr_dir_obj->is_modification_time_valid() == false);
-
-    const Objects& children = std::get<2>(result);
-    assert(children.size() == 3);
-
-    auto it = std::begin(children);
-    assert(it->get_name() == "Диск 1");
-    assert(it->get_type() == FileSystemObject::Type::Directory);
-    assert(it->is_modification_time_valid());
-    time = it->get_modification_time();
-    assert(time.tm_sec == 1);
-    assert(time.tm_min == 49);
-    assert(time.tm_hour == 13);
-    assert(time.tm_mday == 6);
-    assert(time.tm_mon == 2);
-    assert(time.tm_year == 2023 - 1900);
-    assert(time.tm_isdst == 0);
-
-    ++it;
-    assert(it->get_name() == "Диск 2");
-    assert(it->get_type() == FileSystemObject::Type::Directory);
-    assert(it->is_modification_time_valid());
-    time = it->get_modification_time();
-    assert(time.tm_sec == 56);
-    assert(time.tm_min == 55);
-    assert(time.tm_hour == 6);
-    assert(time.tm_mday == 9);
-    assert(time.tm_mon == 2);
-    assert(time.tm_year == 2023 - 1900);
-    assert(time.tm_isdst == 0);
-
-    ++it;
-    assert(it->get_name() == "Тестовый файл.txt");
-    assert(it->get_type() == FileSystemObject::Type::File);
-    assert(it->is_modification_time_valid());
-    time = it->get_modification_time();
-    assert(time.tm_sec == 58);
-    assert(time.tm_min == 59);
-    assert(time.tm_hour == 23);
-    assert(time.tm_mday == 16);
-    assert(time.tm_mon == 6);
-    assert(time.tm_year == 2025 - 1900);
-    assert(time.tm_isdst == 0);
-}
-#endif
-
-Parser::Result Parser::parse_propfind_reply(const QByteArray& data) const  {
     Result result;
     const auto first = _propfind_tag_order.find(Tag::None);
     assert(first != std::end(_propfind_tag_order));
-    CurrentState state(first, result);
+    CurrentState state(current_path, first, result);
     QXmlStreamReader reader(data);
     while (!reader.atEnd()) {
         switch (reader.readNext()) {
@@ -489,8 +386,238 @@ Parser::Result Parser::parse_propfind_reply(const QByteArray& data) const  {
     if (reader.hasError())
         throw std::runtime_error("invalid XML format");
 
-    if (state.errorMsgPair.first)
-        qWarning(qUtf8Printable(QObject::tr("An error has occured during reply parse: %s. The reply text: \n%s")), qUtf8Printable(state.errorMsgPair.second), qUtf8Printable(data));
+    if (state.was_error)
+        qWarning(qUtf8Printable(QObject::tr("The reply text: \n%s")), qUtf8Printable(data));
+    else
+        qDebug(qUtf8Printable(QObject::tr("The reply text: \n%s")), qUtf8Printable(data));
 
     return result;
 }
+
+#ifndef NDEBUG
+void Parser::test() {
+    for (const auto& str : std::vector<QString>{"Sun, 06 Nov 1999 08:49:37 GMT", "Sunday, 06-Nov-99 08:49:37 GMT", "Sun Nov 6 08:49:37 1999"}) {
+        const time_t seconds = TimeParser::to_time_t(str, TimeParser::Format::Rfc2616);
+        const std::tm* tm = std::gmtime(&seconds);
+        assert(tm);
+        assert(tm->tm_sec == 37);
+        assert(tm->tm_min == 49);
+        assert(tm->tm_hour == 8);
+        assert(tm->tm_mday == 6);
+        assert(tm->tm_mon == 10);
+        assert(tm->tm_year == 1999 - 1900);
+        assert(tm->tm_isdst == 0);
+    }
+    time_t seconds = TimeParser::to_time_t(QString("Sun, 06 Nov 2024 08:49:37 GMT"), TimeParser::Format::Rfc2616);
+    std::tm* tm = std::gmtime(&seconds);
+    assert(tm);
+    assert(tm->tm_year == 2024 - 1900);
+
+    seconds = TimeParser::to_time_t(QString("1985-04-12T23:20:50.52Z"), TimeParser::Format::Rfc3339);
+    tm = std::gmtime(&seconds);
+    assert(tm);
+    assert(tm->tm_sec == 51);
+    assert(tm->tm_min == 20);
+    assert(tm->tm_hour == 23);
+    assert(tm->tm_mday == 12);
+    assert(tm->tm_mon == 3);
+    assert(tm->tm_year == 1985 - 1900);
+    assert(tm->tm_isdst == 0);
+
+    seconds = TimeParser::to_time_t(QString("1996-12-19T16:39:57.473-08:21"), TimeParser::Format::Rfc3339);
+    tm = std::gmtime(&seconds);
+    assert(tm);
+    assert(tm->tm_sec == 57);
+    assert(tm->tm_min == 0);
+    assert(tm->tm_hour == 1);
+    assert(tm->tm_mday == 20);
+    assert(tm->tm_mon == 11);
+    assert(tm->tm_year == 1996 - 1900);
+    assert(tm->tm_isdst == 0);
+
+    seconds = TimeParser::to_time_t(QString("1996-12-19T16:29:57+08:30"), TimeParser::Format::Rfc3339);
+    tm = std::gmtime(&seconds);
+    assert(tm);
+    assert(tm->tm_sec == 57);
+    assert(tm->tm_min == 59);
+    assert(tm->tm_hour == 7);
+    assert(tm->tm_mday == 19);
+    assert(tm->tm_mon == 11);
+    assert(tm->tm_year == 1996 - 1900);
+    assert(tm->tm_isdst == 0);
+
+    const QString test_responce =
+"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+"<D:multistatus xmlns:D=\"DAV:\" xmlns:ns0=\"DAV:\">\n"
+    "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
+        "<D:href>/dav</D:href>\n"
+        "<D:propstat>\n"
+            "<D:prop>\n"
+                "<lp1:resourcetype><D:collection/></lp1:resourcetype>\n"
+            "</D:prop>\n"
+            "<D:status>HTTP/1.1 200 OK</D:status>\n"
+        "</D:propstat>\n"
+        "<D:propstat>\n"
+            "<D:status>HTTP/1.1 403 Forbidden</D:status>\n"
+            "<D:prop>\n"
+                "<lp1:creationdate />\n"
+                "<lp1:getlastmodified />\n"
+            "</D:prop>\n"
+        "</D:propstat>\n"
+    "</D:response>\n"
+
+    "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
+        "<D:propstat>\n"
+            "<D:status>HTTP/1.1 200 OK</D:status>\n"
+            "<D:prop>\n"
+                "<lp1:getlastmodified>Mon, 06 Mar 2023 13:49:01 GMT</lp1:getlastmodified>\n"
+                "<lp1:resourcetype><D:collection/></lp1:resourcetype>\n"
+                "<lp1:creationdate>1996-12-19T16:29:57+08:30</lp1:creationdate>\n"
+            "</D:prop>\n"
+        "</D:propstat>\n"
+        "<D:href>/dav/%d0%94%d0%b8%d1%81%d0%ba%201</D:href>\n" // Диск 1
+    "</D:response>\n"
+
+    "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
+        "<D:propstat>\n"
+            "<D:prop>\n"
+                "<lp1:creationdate>1996-12-19T16:39:57.473-08:21</lp1:creationdate>\n"
+                "<lp1:getlastmodified>Thu, 09 Mar 2023 06:55:56 GMT</lp1:getlastmodified>\n"
+                "<lp1:resourcetype><D:collection/></lp1:resourcetype>\n"
+            "</D:prop>\n"
+            "<D:status>HTTP/1.1 200 OK</D:status>\n"
+        "</D:propstat>\n"
+        "<D:href>/dav/%d0%94%d0%b8%d1%81%d0%ba%202/</D:href>\n" // Диск 2
+    "</D:response>\n"
+
+    "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
+        "<D:propstat>\n"
+            "<D:status>HTTP/1.1 200 OK</D:status>\n"
+            "<D:prop>\n"
+                "<lp1:getlastmodified>Wednesday, 16-Jul-2025 23:59:58 GMT</lp1:getlastmodified>\n"
+            "</D:prop>\n"
+        "</D:propstat>\n"
+        "<D:href>/dav/%d0%94%d0%b8%d1%81%d0%ba%203/</D:href>\n" // Диск 3
+        "<D:propstat>\n"
+            "<D:prop>\n"
+                "<lp1:resourcetype />\n"
+            "</D:prop>\n"
+            "<D:status>HTTP/1.1 401 Unauthorized</D:status>\n"
+        "</D:propstat>\n"
+    "</D:response>\n"
+
+    "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
+        "<D:propstat>\n"
+            "<D:prop>\n"
+                "<lp1:getlastmodified>Wednesday, 16-Jul-2025 23:59:58 GMT</lp1:getlastmodified>\n"
+                "<lp1:resourcetype />\n"
+            "</D:prop>\n"
+            "<D:status>HTTP/1.1 200 OK</D:status>\n"
+        "</D:propstat>\n"
+        "<D:propstat>\n"
+            "<D:status>HTTP/1.1 404 Not Found</D:status>\n"
+            "<D:prop>\n"
+                "<lp1:creationdate />\n"
+            "</D:prop>\n"
+        "</D:propstat>\n"
+        "<D:href>/dav/%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9%20%D1%84%D0%B0%D0%B9%D0%BB.txt</D:href>\n"
+    "</D:response>\n"
+
+    "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
+        "<D:propstat>\n"
+            "<D:prop>\n"
+                "<lp1:getlastmodified>Wednesday, 16-Jul-2025 23:59:58 GMT</lp1:getlastmodified>\n"
+                "<lp1:resourcetype />\n"
+            "</D:prop>\n"
+            "<D:status>HTTP/1.1 200 OK</D:status>\n"
+        "</D:propstat>\n"
+        "<D:propstat>\n"
+            "<D:status>HTTP/1.1 404 Not Found</D:status>\n"
+            "<D:prop>\n"
+                "<lp1:creationdate />\n"
+            "</D:prop>\n"
+        "</D:propstat>\n"
+        "<D:href></D:href>\n"
+    "</D:response>\n"
+"</D:multistatus>";
+    const Result result = parse_propfind_reply(QString("/dav/"), test_responce.toLatin1());
+    const FileSystemObject* const obj = result.first.get();
+    assert(obj);
+    assert(obj->get_name() == "dav");
+    assert(obj->get_type() == FileSystemObject::Type::Directory);
+    assert(obj->is_creation_time_valid() == false);
+    assert(obj->is_modification_time_valid() == false);
+
+    assert(result.second.size() == 3);
+
+    auto it = std::begin(result.second);
+    assert(it->get_name() == "Диск 1");
+    assert(it->get_type() == FileSystemObject::Type::Directory);
+
+    assert(it->is_creation_time_valid());
+    seconds = it->get_creation_time();
+    tm = std::gmtime(&seconds);
+    assert(tm);
+    assert(tm->tm_sec == 57);
+    assert(tm->tm_min == 59);
+    assert(tm->tm_hour == 7);
+    assert(tm->tm_mday == 19);
+    assert(tm->tm_mon == 11);
+    assert(tm->tm_year == 1996 - 1900);
+    assert(tm->tm_isdst == 0);
+    assert(it->is_modification_time_valid());
+    seconds = it->get_modification_time();
+    tm = std::gmtime(&seconds);
+    assert(tm);
+    assert(tm->tm_sec == 1);
+    assert(tm->tm_min == 49);
+    assert(tm->tm_hour == 13);
+    assert(tm->tm_mday == 6);
+    assert(tm->tm_mon == 2);
+    assert(tm->tm_year == 2023 - 1900);
+    assert(tm->tm_isdst == 0);
+
+    ++it;
+    assert(it->get_name() == "Диск 2");
+    assert(it->get_type() == FileSystemObject::Type::Directory);
+    assert(it->is_creation_time_valid());
+    seconds = it->get_creation_time();
+    tm = std::gmtime(&seconds);
+    assert(tm);
+    assert(tm->tm_sec == 57);
+    assert(tm->tm_min == 0);
+    assert(tm->tm_hour == 1);
+    assert(tm->tm_mday == 20);
+    assert(tm->tm_mon == 11);
+    assert(tm->tm_year == 1996 - 1900);
+    assert(tm->tm_isdst == 0);
+    assert(it->is_modification_time_valid());
+    seconds = it->get_modification_time();
+    tm = std::gmtime(&seconds);
+    assert(tm);
+    assert(tm->tm_sec == 56);
+    assert(tm->tm_min == 55);
+    assert(tm->tm_hour == 6);
+    assert(tm->tm_mday == 9);
+    assert(tm->tm_mon == 2);
+    assert(tm->tm_year == 2023 - 1900);
+    assert(tm->tm_isdst == 0);
+
+    ++it;
+    assert(it->get_name() == "Тестовый файл.txt");
+    assert(it->get_type() == FileSystemObject::Type::File);
+    assert(it->is_creation_time_valid() == false);
+
+    assert(it->is_modification_time_valid());
+    seconds = it->get_modification_time();
+    tm = std::gmtime(&seconds);
+    assert(tm);
+    assert(tm->tm_sec == 58);
+    assert(tm->tm_min == 59);
+    assert(tm->tm_hour == 23);
+    assert(tm->tm_mday == 16);
+    assert(tm->tm_mon == 6);
+    assert(tm->tm_year == 2025 - 1900);
+    assert(tm->tm_isdst == 0);
+}
+#endif

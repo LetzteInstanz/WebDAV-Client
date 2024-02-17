@@ -26,7 +26,7 @@ public:
     ~FileSystemModel();
 
     bool is_cur_dir_root_path() const noexcept;
-    QString get_current_path() const;
+    QString get_current_path() const noexcept;
     void set_server_info(const QStringView& addr, uint16_t port);
     void set_root_path(const QStringView& absolute_path);
     void request_file_list(const QStringView& relative_path);
@@ -40,19 +40,19 @@ public:
     size_t size() const noexcept;
 
 private:
-    static void add_slash_to_start(QString& path);
-    static void add_slash_to_end(QString& path);
+    static QString&& add_slash_to_start(QString&& path);
+    static QString&& add_slash_to_end(QString&& path);
     static QString handle_double_dots(const QStringView& path);
     void handle_reply(QByteArray&& data);
     void handle_error(QNetworkReply::NetworkError error);
 
 private:
     std::unique_ptr<Client> _client;
-    std::unique_ptr<Parser> _parser;
     QString _root_path;
     std::unordered_map<const void*, const NotifyAboutUpdateFunc> _notify_func_by_obj_map;
     NotifyAboutErrorFunc _error_func;
-    QString _parent_path;
+    QString _prev_path;
+    QString _current_path;
     std::unique_ptr<FileSystemObject> _curr_dir_obj;
     std::deque<FileSystemObject> _objects;
 };
