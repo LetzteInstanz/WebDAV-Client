@@ -7,14 +7,16 @@ import "Core" as Core
 import "Util.js" as Util
 
 ColumnLayout {
+    function back() { stackLayout.currentIndex = 0 }
+
     Item {
         Layout.fillWidth: true
         Layout.preferredHeight: backButton.height
 
-        Button {
+        Core.Button {
             id: backButton
             text: qsTr("Back")
-            onClicked: stackLayout.currentIndex = 0
+            onClicked: back()
         }
     }
     ScrollView {

@@ -1,12 +1,12 @@
-import QtQuick
+import QtQuick as QtQuick
 
-ListView {
+QtQuick.ListView {
     anchors.fill: parent
     anchors.margins: 2
     spacing: 5
     clip: true
     highlightFollowsCurrentItem: true
-    highlight: Rectangle {
+    highlight: QtQuick.Rectangle {
         width: ListView.view.width
         color: "lightgray"
     }

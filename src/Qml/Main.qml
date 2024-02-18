@@ -12,11 +12,37 @@ ApplicationWindow {
     visible: true
     title: "WebDAVClient 1.0"
     background: Core.BorderRectangle {}
+    onClosing: (event) => {
+        if (Qt.platform.os !== "android")
+            return
+
+        switch (stackLayout.currentIndex) {
+            case 0:
+                return
+
+            case 1:
+                fileListPageColumnLayout.back()
+                break
+
+            case 2:
+                settingsPageColumnLayout.back()
+                break
+
+            case 3:
+                logPageColumnLayout.back()
+                break
+
+            default:
+                console.error(qsTr("QML: Unknown page index in the stack layout"))
+                return
+        }
+        event.accepted = false
+    }
     property Component msgBoxComponent
     property Component editSrvDlgComponent
     property Component progressDlgComponent
     Component.onCompleted: {
-        msgBoxComponent = Qt.createComponent("Core/CustomMessageBox.qml", Component.Asynchronous)
+        msgBoxComponent = Qt.createComponent("Core/MessageBox.qml", Component.Asynchronous)
         editSrvDlgComponent = Qt.createComponent("EditServerDialog.qml", Component.Asynchronous)
         progressDlgComponent = Qt.createComponent("ProgressDialog.qml", Component.Asynchronous)
     }
@@ -52,6 +78,8 @@ ApplicationWindow {
             id: settingsPageColumnLayout
         }
 
-        LogPageColumnLayout {}
+        LogPageColumnLayout {
+            id: logPageColumnLayout
+        }
     }
 }

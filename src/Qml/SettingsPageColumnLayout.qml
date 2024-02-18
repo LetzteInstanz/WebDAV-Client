@@ -10,23 +10,24 @@ ColumnLayout {
         logLevelComboBox.currentIndex = settings.getCurrentLogLevel()
         saveSettingsButton.enabled = false
     }
+    function back() { stackLayout.currentIndex = 0 }
 
     Item {
         Layout.fillWidth: true
         Layout.preferredHeight: saveSettingsButton.height
 
-        Button {
+        Core.Button {
             text: qsTr("Back")
-            onClicked: stackLayout.currentIndex = 0
+            onClicked: back()
         }
-        Button {
+        Core.Button {
             id: saveSettingsButton
             anchors.right: parent.right
             text: qsTr("Ok")
             onClicked: {
                 //settings.setDownloadPath(pathTxtField.text)
                 settings.setCurrentLogLevel(logLevelComboBox.currentIndex)
-                stackLayout.currentIndex = 0
+                back()
             }
         }
     }

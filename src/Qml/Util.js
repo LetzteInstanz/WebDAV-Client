@@ -11,15 +11,15 @@ function createObjAsync(comp, customFunc) {
 
 function createObj(comp, parent, typeName, properties) {
     if (comp.status === QtQml.Component.Error) {
-        console.error("QML: " + typeName + ".qml component loading failed: ", comp.errorString())
+        console.error("QML: " + typeName + ".qml " + qsTr("component loading failed: "), comp.errorString())
         return null
     }
     const obj = comp.createObject(parent, properties)
     if (obj === null) {
-        console.error("QML: " + typeName + " object creation failed")
+        console.error("QML: " + typeName + qsTr(" object creation failed"))
         return obj
     }
-    console.debug("QML: " + typeName + " object was created")
+    console.debug("QML: " + typeName + qsTr(" object was created"))
     return obj
 }
 
@@ -32,7 +32,7 @@ function createPopup(comp, parent, typeName, properties) {
         if (!popup.parent) // note: If the popup is opened, an error occurs during closing the main window. This is a fix.
             return
 
-        console.debug("QML: " + typeName + " object was destroyed");
+        console.debug("QML: " + typeName + qsTr(" object was destroyed"));
         popup.destroy()
     }
     popup.closed.connect(destroy)
@@ -44,7 +44,7 @@ function showTextContextMenu(parent, textItem, event) {
         return
 
     if (!parent.textContextMenuComponent) {
-        console.debug("QML: TextContextMenu.qml component isn't valid")
+        console.debug(qsTr("QML: TextContextMenu.qml component isn't valid"))
         parent.textContextMenuComponent = Qt.createComponent("TextContextMenu.qml", QtQml.Component.Asynchronous)
     }
     const comp = parent.textContextMenuComponent

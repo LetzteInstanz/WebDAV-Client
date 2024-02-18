@@ -11,8 +11,47 @@ ColumnLayout {
     property FileListPageColumnLayout fileListPage
     property SettingsPageColumnLayout settingsPage
 
+    Core.SelectionSequentialAnimation {
+        id: animation
+        obj: null
+    }
+    Core.Timer {
+        id: delayTimer
+        property Item item
+        onTriggered: {
+            function createDlg(comp) {
+                const dlg = Util.createPopup(comp, appWindow, "ProgressDialog", {})
+                if (dlg === null)
+                    return
+
+                const mainStackLayout = stackLayout
+                function requestFileList() {
+                    console.debug(qsTr("QML: The first file list was requested"))
+                    mainStackLayout.currentIndex = 1
+                    fileListPage.prepare()
+                    const _item = item
+                    fileSystemModel.setServerInfo(_item.addr, _item.port)
+                    fileSystemModel.setRootPath(_item.path)
+                    fileSystemModel.requestFileList("")
+                }
+                dlg.onOpened.connect(requestFileList)
+                const fsModel = fileSystemModel // note: An error occurs during closing the main window, if not to use the local variables
+                function disconnect() {
+                    mainStackLayout.currentIndex = 0
+                    console.debug(qsTr("QML: The file system model is being disconnected"))
+                    fsModel.disconnect()
+                }
+                dlg.rejected.connect(disconnect)
+                dlg.closed.connect(() => { mainStackLayout.enabled = true })
+                dlg.open()
+            }
+
+            stackLayout.enabled = false
+            Util.createObjAsync(progressDlgComponent, createDlg)
+        }
+    }
     RowLayout {
-        Button {
+        Core.Button {
             text: qsTr("Add")
             onClicked: {
                 function createDlg(comp) {
@@ -21,21 +60,21 @@ ColumnLayout {
                         return
 
                     dlg.setData("", "", 80, "")
-                    dlg.accepted.connect(() => { console.debug("QML: A new item was added to the server item model"); srvListView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })
+                    dlg.accepted.connect(() => { console.debug(qsTr("QML: A new item was added to the server item model")); listView.model.addServerInfo(dlg.desc(), dlg.addr(), dlg.port(), dlg.path()) })
                     dlg.open()
                 }
 
                 Util.createObjAsync(editSrvDlgComponent, createDlg)
             }
         }
-        Button {
+        Core.Button {
             text: qsTr("Settings")
             onClicked: {
                 settingsPage.prepare()
                 stackLayout.currentIndex = 2
             }
         }
-        Button {
+        Core.Button {
             text: qsTr("Log")
             onClicked: stackLayout.currentIndex = 3
         }
@@ -44,19 +83,10 @@ ColumnLayout {
         Layout.fillHeight: true
         Layout.fillWidth: true
 
-        ListView {
-            id: srvListView
-            anchors.fill: parent
-            anchors.margins: 2
-            spacing: 5
+        Core.ListView {
+            id: listView
             model: itemModelManager.createModel(ItemModel.Server)
-            clip: true
             currentIndex: -1
-            highlightFollowsCurrentItem: true
-            highlight: Rectangle {
-                width: ListView.view.width
-                color: "lightgray"
-            }
             property Component menuComponent
             Component.onCompleted: menuComponent = Qt.createComponent("ServerItemMenu.qml", Component.Asynchronous)
             delegate: Item {
@@ -86,53 +116,25 @@ ColumnLayout {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        delegate.ListView.view.currentIndex = index
+                        const view = delegate.ListView.view
+                        view.currentIndex = -1
+                        const item = view.itemAtIndex(index)
+                        animation.obj = item
+                        animation.start()
+                        delayTimer.item = item
                         delayTimer.start()
                     }
                     onPressAndHold: (mouse) => {
                         const view = delegate.ListView.view
                         view.currentIndex = index
+                        animation.obj = view.itemAtIndex(index)
+                        animation.start()
 
                         function createMenu(comp) {
-                            const menu = Util.createPopup(comp, appWindow, "ServerItemMenu", {"view": srvListView})
+                            const menu = Util.createPopup(comp, appWindow, "ServerItemMenu", {"view": listView})
                             menu.popup(view.currentItem, mouse.x, mouse.y)
                         }
-                        Util.createObjAsync(srvListView.menuComponent, createMenu)
-                    }
-
-                    Timer {
-                        id: delayTimer
-                        interval: 100
-                        repeat: false
-                        onTriggered: {
-                            function createDlg(comp) {
-                                const dlg = Util.createPopup(comp, appWindow, "ProgressDialog", {})
-                                if (dlg === null)
-                                    return
-
-                                const mainStackLayout = stackLayout
-                                function requestFileList() {
-                                    console.debug("QML: The first file list was requested")
-                                    mainStackLayout.currentIndex = 1
-                                    fileListPage.prepare()
-                                    const item = srvListView.currentItem
-                                    fileSystemModel.setServerInfo(item.addr, item.port)
-                                    fileSystemModel.setRootPath(item.path)
-                                    fileSystemModel.requestFileList("")
-                                }
-                                dlg.onOpened.connect(requestFileList)
-                                const fsModel = fileSystemModel // note: An error occurs during closing the main window, if not to use the local variables
-                                function disconnect() {
-                                    mainStackLayout.currentIndex = 0
-                                    console.debug("QML: The file system model is being disconnected")
-                                    fsModel.disconnect()
-                                }
-                                dlg.rejected.connect(disconnect)
-                                dlg.open()
-                            }
-
-                            Util.createObjAsync(progressDlgComponent, createDlg)
-                        }
+                        Util.createObjAsync(listView.menuComponent, createMenu)
                     }
                 }
             }

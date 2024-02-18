@@ -9,28 +9,28 @@ import WebDavClient
 
 Dialog {
     anchors.centerIn: parent
-    width: 300
-    height: 250
+    width: parent.width
+    height: 370
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
     onOpened: {
-        view.model = itemModelManager.createModel(ItemModel.SortParam)
+        listView.model = itemModelManager.createModel(ItemModel.SortParam)
         enableEditButtons()
         enableOkButton()
     }
     onClosed: {
-        const model = view.model
-        view.model = null
+        const model = listView.model
+        listView.model = null
         model.destroy()
     }
-    onAccepted: view.model.save()
+    onAccepted: listView.model.save()
     background: Core.BorderRectangle {}
-    function enableOkButton() { standardButton(Dialog.Ok).enabled = view.model.hasChanges() }
+    function enableOkButton() { standardButton(Dialog.Ok).enabled = listView.model.hasChanges() }
     function enableEditButtons() {
-        const index = view.currentIndex
+        const index = listView.currentIndex
         moveUpButton.enabled = index !== -1 && index !== 0
-        moveDownButton.enabled = index !== -1 && index !== view.count - 1
-        invertButton.enabled = view.count !== 0
+        moveDownButton.enabled = index !== -1 && index !== listView.count - 1
+        invertButton.enabled = listView.count !== 0
     }
 
     RowLayout {
@@ -46,8 +46,8 @@ Dialog {
                 Layout.fillWidth: true
                 Layout.verticalStretchFactor: 1
 
-                Core.CustomListView {
-                    id: view
+                Core.ListView {
+                    id: listView
                     model: null
                     delegate: Item {
                         id: delegate
@@ -96,35 +96,41 @@ Dialog {
         Column {
             spacing: 5
 
-            Button {
+            Core.Button {
                 id: moveUpButton
+                leftPadding: 0 // note: padding: 0 doesn't affect the paddings under Android
+                rightPadding: 0
                 width: 30
                 text: "↑"
                 onClicked: {
-                    view.model.moveUp(view.currentIndex)
-                    --view.currentIndex
+                    listView.model.moveUp(listView.currentIndex)
+                    --listView.currentIndex
                     enableEditButtons()
                     enableOkButton()
                 }
             }
-            Button {
+            Core.Button {
                 id: invertButton
+                leftPadding: 0 // note: padding: 0 doesn't affect the paddings under Android
+                rightPadding: 0
                 width: 30
-                text: "↕"
+                text: "⇅"
                 onClicked: {
-                    view.model.invert()
-                    view.currentIndex = view.count - 1 - view.currentIndex
+                    listView.model.invert()
+                    listView.currentIndex = listView.count - 1 - listView.currentIndex
                     enableEditButtons()
                     enableOkButton()
                 }
             }
-            Button {
+            Core.Button {
                 id: moveDownButton
+                leftPadding: 0 // note: padding: 0 doesn't affect the paddings under Android
+                rightPadding: 0
                 width: 30
                 text: "↓"
                 onClicked: {
-                    view.model.moveDown(view.currentIndex)
-                    ++view.currentIndex
+                    listView.model.moveDown(listView.currentIndex)
+                    ++listView.currentIndex
                     enableEditButtons()
                     enableOkButton()
                 }

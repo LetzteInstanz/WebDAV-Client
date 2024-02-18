@@ -12,41 +12,72 @@ ColumnLayout {
         currPathLabel.text = ""
 
         function setModel() {
-            view.model = itemModelManager.createModel(ItemModel.File)
-            view.model.modelReset.connect(() => { view.currentIndex = -1 })
-            view.currentIndex = -1
+            listView.model = itemModelManager.createModel(ItemModel.File)
+            listView.model.modelReset.connect(() => { listView.currentIndex = -1 })
+            listView.currentIndex = -1
             fileSystemModel.replyGot.disconnect(setModel)
         }
         fileSystemModel.replyGot.connect(setModel)
         fileSystemModel.errorOccurred.connect(() => { fileSystemModel.replyGot.disconnect(setModel) })
+    }
+    function back() {
+        listView.destroyModel()
+        console.debug(qsTr("QML: The file system model is being disconnected"))
+        fileSystemModel.disconnect()
+        stackLayout.currentIndex = 0
     }
 
     Connections {
         target: fileSystemModel
         function onReplyGot() { currPathLabel.text = fileSystemModel.getCurrentPath() }
     }
+    Core.SelectionSequentialAnimation {
+        id: animation
+        obj: null
+    }
+    Core.Timer {
+        id: delayTimer
+        property var model: null
+        onTriggered: {
+            function createDlg(comp) {
+                const dlg = Util.createPopup(comp, appWindow, "ProgressDialog", {})
+                if (dlg === null)
+                    return
+
+                const mainStackLayout = stackLayout
+                dlg.onOpened.connect(() => { console.debug(qsTr("QML: A new file list was requested")); fileSystemModel.requestFileList(model.name) })
+                dlg.rejected.connect(() => { console.debug(qsTr("QML: The request is being aborted")); fileSystemModel.abortRequest() })
+                dlg.closed.connect(() => { mainStackLayout.enabled = true })
+                dlg.open()
+            }
+
+            stackLayout.enabled = false
+            Util.createObjAsync(progressDlgComponent, createDlg)
+        }
+    }
     RowLayout {
         TextField {
             id: searchTextField
             Layout.fillWidth: true
             placeholderText: qsTr("Search by name")
-            onTextEdited: view.model.searchWithTimer(text)
+            onTextEdited: listView.model.searchWithTimer(text)
 
-            Button {
+            Core.Button {
                 anchors.right: parent.right
                 height: parent.height
                 width: height
+                background: Item {}
                 text: "×"
-                onClicked: { searchTextField.clear(); view.model.search(searchTextField.text) }
+                onClicked: { searchTextField.clear(); listView.model.search(searchTextField.text) }
             }
         }
         CheckBox {
-            text: qsTr("Case sensitive")
+            text: qsTr("Case\nsensitive")
             checkState: settings.getSearchCSFlag() ? Qt.Checked : Qt.Unchecked
             onClicked: {
                 const cs = settings.getSearchCSFlag()
                 settings.setSearchCSFlag(!cs)
-                view.model.repeatSearch(0)
+                listView.model.repeatSearch(0)
             }
         }
     }
@@ -61,18 +92,9 @@ ColumnLayout {
         Layout.fillHeight: true
         Layout.fillWidth: true
 
-        ListView {
-            id: view
-            anchors.fill: parent
-            anchors.margins: 2
-            spacing: 5
+        Core.ListView {
+            id: listView
             model: null
-            clip: true
-            highlightFollowsCurrentItem: true
-            highlight: Rectangle {
-                width: ListView.view.width
-                color: "lightgray"
-            }
             property Component menuComponent
             property Component sortDlgComponent
             Component.onCompleted: {
@@ -80,8 +102,8 @@ ColumnLayout {
                 sortDlgComponent = Qt.createComponent("Sort/SortDialog.qml", Component.Asynchronous)
             }
             function destroyModel() {
-                const model = view.model
-                view.model = null
+                const model = listView.model
+                listView.model = null
                 model.destroy()
             }
             delegate: Core.BorderRectangle {
@@ -128,40 +150,25 @@ ColumnLayout {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        delegate.ListView.view.currentIndex = index
+                        const view = delegate.ListView.view
+                        animation.obj = view.itemAtIndex(delegate.index)
+                        animation.start()
                         if (model.isFile)
                             return
 
+                        delayTimer.model = model
                         delayTimer.start()
                     }
                     onPressAndHold: (mouse) => {
-                        const attached = delegate.ListView.view
-                        attached.currentIndex = index
+                        const view = delegate.ListView.view
+                        //animation.obj = view.itemAtIndex(delegate.index)
+                        //animation.start()
 
                         function createMenu(comp) {
-                            const menu = Util.createPopup(comp, view, "FileItemMenu", {"view": view})
-                            menu.popup(attached.currentItem, mouse.x, mouse.y)
+                            const menu = Util.createPopup(comp, listView, "FileItemMenu", {"sortDlgComponent": listView.sortDlgComponent, "backFunc": back})
+                            menu.popup(view.currentItem, mouse.x, mouse.y)
                         }
-                        Util.createObjAsync(view.menuComponent, createMenu)
-                    }
-
-                    Timer {
-                        id: delayTimer
-                        interval: 100
-                        repeat: false
-                        onTriggered: {
-                            function createDlg(comp) {
-                                const dlg = Util.createPopup(comp, appWindow, "ProgressDialog", {})
-                                if (dlg === null)
-                                    return
-
-                                dlg.onOpened.connect(() => { console.debug("QML: A new file list was requested"); fileSystemModel.requestFileList(model.name) })
-                                dlg.rejected.connect(() => { console.debug("QML: The request is being aborted"); fileSystemModel.abortRequest() })
-                                dlg.open()
-                            }
-
-                            Util.createObjAsync(progressDlgComponent, createDlg)
-                        }
+                        Util.createObjAsync(listView.menuComponent, createMenu)
                     }
                 }
             }
