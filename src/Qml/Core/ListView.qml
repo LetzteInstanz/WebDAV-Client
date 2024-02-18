@@ -2,7 +2,10 @@ import QtQuick as QtQuick
 
 QtQuick.ListView {
     anchors.fill: parent
-    anchors.margins: 2
+    leftMargin: 2
+    rightMargin: 2
+    topMargin: 2
+    bottomMargin: 2
     spacing: 5
     clip: true
     highlightFollowsCurrentItem: true

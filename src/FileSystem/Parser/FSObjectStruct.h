@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <ctime>
 #include <utility>
 #include <vector>
@@ -23,6 +24,7 @@ struct FSObjectStruct {
     std::pair<Status, Type> type = {Status::None, Type::File};
     std::pair<Status, time_t> creation_date = {Status::None, 0};
     std::pair<Status, time_t> last_modified = {Status::None, 0};
+    std::pair<Status, uint64_t> content_length = {Status::None, 0};
 
 private:
     constexpr static Status ret_second_if_first_is_unknown(Status first, Status second);

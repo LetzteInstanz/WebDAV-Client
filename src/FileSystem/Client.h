@@ -29,6 +29,7 @@ private:
                                                          "<D:creationdate/>\n"
                                                          "<D:getlastmodified/>\n"
                                                          "<D:resourcetype/>\n"
+                                                         "<D:getcontentlength/>\n"
                                                      "</D:prop>\n"
                                                  "</D:propfind>";
 

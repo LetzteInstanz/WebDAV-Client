@@ -11,6 +11,71 @@ namespace Qml {
     using Role = FileItemModelRole;
 }
 
+class SizeDisplayer {
+public:
+    constexpr static size_t size = 7;
+
+    static QString to_string(uint64_t bytes) {
+        double sz = bytes;
+        int i = 0;
+        for (; sz >= 1024 && i < SizeDisplayer::size; ++i)
+            sz /= 1024;
+
+        assert(i < _prefixes.size());
+        return QString("%1 %2").arg(_locale.toString(sz, 'g', 3), _prefixes[i]);
+    }
+
+#ifndef NDEBUG
+    static void test() {
+        QString str = SizeDisplayer::to_string(1023);
+        assert(str.indexOf(QObject::tr("B")) != -1);
+
+        str = SizeDisplayer::to_string(1024);
+        assert(str.indexOf(QObject::tr("K")) != -1);
+
+        str = SizeDisplayer::to_string(std::pow(1024, 2) - 1);
+        assert(str.indexOf(QObject::tr("K")) != -1);
+
+        str = SizeDisplayer::to_string(std::pow(1024, 2));
+        assert(str.indexOf(QObject::tr("M")) != -1);
+
+        str = SizeDisplayer::to_string(std::pow(1024, 3) - 1);
+        assert(str.indexOf(QObject::tr("M")) != -1);
+
+        str = SizeDisplayer::to_string(std::pow(1024, 3));
+        assert(str.indexOf(QObject::tr("G")) != -1);
+
+        str = SizeDisplayer::to_string(std::pow(1024, 4) - 1);
+        assert(str.indexOf(QObject::tr("G")) != -1);
+
+        str = SizeDisplayer::to_string(std::pow(1024, 4));
+        assert(str.indexOf(QObject::tr("T")) != -1);
+
+        str = SizeDisplayer::to_string(std::pow(1024, 5) - 1);
+        assert(str.indexOf(QObject::tr("T")) != -1);
+
+        str = SizeDisplayer::to_string(std::pow(1024, 5));
+        assert(str.indexOf(QObject::tr("P")) != -1);
+
+        //str = SizeDisplayer::to_string(std::pow(1024, 6) - 1); // note: the precision of double type isn't enough; long double isn't supported by Qt
+        //assert(str.indexOf(QObject::tr("P")) != -1);
+
+        str = SizeDisplayer::to_string(std::pow(1024, 6));
+        assert(str.indexOf(QObject::tr("E")) != -1);
+
+        str = SizeDisplayer::to_string(0xFFFFFFFFFFFFFFFF);
+        assert(str.indexOf(QObject::tr("E")) != -1);
+    }
+#endif
+
+private:
+    static const std::array<QString, size> _prefixes;
+    static const QLocale _locale;
+};
+
+const std::array<QString, SizeDisplayer::size> SizeDisplayer::_prefixes{QObject::tr("B"), QObject::tr("K"), QObject::tr("M"), QObject::tr("G"), QObject::tr("T"), QObject::tr("P"), QObject::tr("E")};
+const QLocale SizeDisplayer::_locale;
+
 namespace {
     bool is_valid_dot_pos(const QStringView& name, qsizetype pos) { return pos != -1 && pos != name.size() - 1; }
 
@@ -19,7 +84,7 @@ namespace {
     QString to_string(time_t t) {
         const std::tm tm = *std::localtime(&t);
         std::ostringstream stream;
-        //stream.imbue(std::locale("ru_RU.utf8")); // todo: take into account the translation setting, when it will be introduced
+        stream.imbue(std::locale("")); // todo: take into account the translation setting, when it will be introduced
         stream << std::put_time(&tm, "%c");
         return QString::fromStdString(stream.rdbuf()->str());
     }
@@ -29,6 +94,9 @@ FileItemModel::FileItemModel(std::shared_ptr<::FileSystemModel> model, QObject* 
     qDebug().noquote() << QObject::tr("The source file item model is being created");
     _fs_model->add_notification_func(this, std::bind(&FileItemModel::update, this));
     _root = _fs_model->is_cur_dir_root_path();
+#ifndef NDEBUG
+    SizeDisplayer::test();
+#endif
 }
 
 FileItemModel::~FileItemModel() {
@@ -39,7 +107,7 @@ FileItemModel::~FileItemModel() {
 int FileItemModel::rowCount(const QModelIndex& parent) const { return parent.isValid() ? 0 : _fs_model->size() + (_root ? 0 : 1); }
 
 QVariant FileItemModel::data(const QModelIndex& index, int role) const {
-    if (role < to_int(Role::Name) || role >= to_int(Role::Size))
+    if (role < to_int(Role::Name) || role >= to_int(Role::EnumSize))
         return QVariant();
 
     const int row = index.row();
@@ -78,7 +146,7 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
 
         case Role::CreationTime: {
             if (!obj.is_creation_time_valid())
-                return QVariant::fromValue(std::numeric_limits<time_t>::lowest());
+                return QVariant();
 
             return QVariant::fromValue(obj.get_creation_time());
         }
@@ -92,7 +160,7 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
 
         case Role::ModTime: {
             if (!obj.is_modification_time_valid())
-                return QVariant::fromValue(std::numeric_limits<time_t>::lowest());
+                return QVariant();
 
             return QVariant::fromValue(obj.get_modification_time());
         }
@@ -106,6 +174,17 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
 
         case Role::FileFlag: {
             return obj.get_type() == FileSystemObject::Type::File;
+        }
+
+        case Role::Size: {
+            return obj.is_size_valid() ? QVariant::fromValue(obj.get_size()) : QVariant();
+        }
+
+        case Role::SizeStr: {
+            if (!obj.is_size_valid())
+                return QString();
+
+            return SizeDisplayer::to_string(obj.get_size());
         }
 
         default:
@@ -122,6 +201,7 @@ QHash<int, QByteArray> FileItemModel::roleNames() const {
     names.emplace(to_int(Role::CreationTimeStr), "creationTime");
     names.emplace(to_int(Role::ModTimeStr), "modificationTime");
     names.emplace(to_int(Role::FileFlag), "isFile");
+    names.emplace(to_int(Role::SizeStr), "size");
     return names;
 }
 

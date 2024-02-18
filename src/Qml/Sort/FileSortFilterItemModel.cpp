@@ -70,10 +70,11 @@ bool FileSortFilterItemModel::filterAcceptsRow(int source_row, const QModelIndex
 bool FileSortFilterItemModel::lessThan(const QModelIndex& source_left, const QModelIndex& source_right) const {
     using Role = FileItemModelRole;
     const QVariant left_data = source_left.data(to_int(Role::IsExit));
+    const QVariant right_data = source_right.data(to_int(Role::IsExit));
     assert(left_data.canConvert<bool>());
-    assert(source_right.data(to_int(Role::IsExit)).canConvert<bool>());
+    assert(right_data.canConvert<bool>());
     const auto left_is_exit = left_data.toBool();
-    if (left_is_exit || source_right.data(to_int(Role::IsExit)).toBool())
+    if (left_is_exit || right_data.toBool())
         return left_is_exit;
 
     assert(!_params.empty());

@@ -12,23 +12,26 @@ const std::unordered_map<QString, Parser::Tag> Parser::_propfind_tag_by_str_map{
                                                                                 {"creationdate", Tag::CreationDate},
                                                                                 {"getlastmodified", Tag::GetLastModified},
                                                                                 {"collection", Tag::Collection},
+                                                                                {"getcontentlength", Tag::GetContentLength},
                                                                                 {"status", Tag::Status}};
 
-const Parser::TagOrderMap Parser::_propfind_tag_order{{Tag::None,            {Tag::Multistatus}},
-                                                      {Tag::Multistatus,     {Tag::Response}},
-                                                      {Tag::Response,        {Tag::Href, Tag::PropStat}},
-                                                      {Tag::PropStat,        {Tag::Prop, Tag::Status}},
-                                                      {Tag::Prop,            {Tag::CreationDate, Tag::GetLastModified, Tag::ResourceType}},
-                                                      {Tag::ResourceType,    {Tag::Collection}},
-                                                      {Tag::Href,            {}},
-                                                      {Tag::CreationDate,    {}},
-                                                      {Tag::GetLastModified, {}},
-                                                      {Tag::Collection,      {}},
-                                                      {Tag::Status,          {}}};
+const Parser::TagOrderMap Parser::_propfind_tag_order{{Tag::None,             {Tag::Multistatus}},
+                                                      {Tag::Multistatus,      {Tag::Response}},
+                                                      {Tag::Response,         {Tag::Href, Tag::PropStat}},
+                                                      {Tag::PropStat,         {Tag::Prop, Tag::Status}},
+                                                      {Tag::Prop,             {Tag::CreationDate, Tag::GetLastModified, Tag::ResourceType, Tag::GetContentLength}},
+                                                      {Tag::ResourceType,     {Tag::Collection}},
+                                                      {Tag::Href,             {}},
+                                                      {Tag::CreationDate,     {}},
+                                                      {Tag::GetLastModified,  {}},
+                                                      {Tag::Collection,       {}},
+                                                      {Tag::GetContentLength, {}},
+                                                      {Tag::Status,           {}}};
 
 Parser::Result Parser::parse_propfind_reply(const QStringView& current_path, const QByteArray& data) {
     assert(!current_path.empty());
     assert(current_path.back() == '/');
+    assert(_propfind_tag_by_str_map.size() + 1 == _propfind_tag_order.size());
 
     Result result;
     const auto first = _propfind_tag_order.find(Tag::None);
@@ -172,9 +175,21 @@ void Parser::test() {
                 "<lp1:getlastmodified />\n"
             "</D:prop>\n"
         "</D:propstat>\n"
+        "<D:propstat>\n"
+            "<D:status>HTTP/1.1 404 Not Found</D:status>\n"
+            "<D:prop>\n"
+                "<lp1:getcontentlength/>\n"
+            "</D:prop>\n"
+        "</D:propstat>\n"
     "</D:response>\n"
 
     "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
+        "<D:propstat>\n"
+            "<D:status>HTTP/1.1 404 Not Found</D:status>\n"
+            "<D:prop>\n"
+                "<lp1:getcontentlength/>\n"
+            "</D:prop>\n"
+        "</D:propstat>\n"
         "<D:propstat>\n"
             "<D:status>HTTP/1.1 200 OK</D:status>\n"
             "<D:prop>\n"
@@ -195,6 +210,12 @@ void Parser::test() {
             "</D:prop>\n"
             "<D:status>HTTP/1.1 200 OK</D:status>\n"
         "</D:propstat>\n"
+        "<D:propstat>\n"
+            "<D:status>HTTP/1.1 404 Not Found</D:status>\n"
+            "<D:prop>\n"
+                "<lp1:getcontentlength/>\n"
+            "</D:prop>\n"
+        "</D:propstat>\n"
         "<D:href>/dav/%d0%94%d0%b8%d1%81%d0%ba%202/</D:href>\n" // Диск 2
     "</D:response>\n"
 
@@ -207,6 +228,12 @@ void Parser::test() {
         "</D:propstat>\n"
         "<D:href>/dav/%d0%94%d0%b8%d1%81%d0%ba%203/</D:href>\n" // Диск 3
         "<D:propstat>\n"
+            "<D:status>HTTP/1.1 404 Not Found</D:status>\n"
+            "<D:prop>\n"
+                "<lp1:getcontentlength/>\n"
+            "</D:prop>\n"
+        "</D:propstat>\n"
+        "<D:propstat>\n"
             "<D:prop>\n"
                 "<lp1:resourcetype />\n"
             "</D:prop>\n"
@@ -217,6 +244,7 @@ void Parser::test() {
     "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
         "<D:propstat>\n"
             "<D:prop>\n"
+                "<lp1:getcontentlength>1743607603214300</lp1:getcontentlength>\n"
                 "<lp1:getlastmodified>Wednesday, 16-Jul-2025 23:59:58 GMT</lp1:getlastmodified>\n"
                 "<lp1:resourcetype />\n"
             "</D:prop>\n"
@@ -228,7 +256,7 @@ void Parser::test() {
                 "<lp1:creationdate />\n"
             "</D:prop>\n"
         "</D:propstat>\n"
-        "<D:href>/dav/%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9%20%D1%84%D0%B0%D0%B9%D0%BB.txt</D:href>\n"
+        "<D:href>/dav/%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9%20%D1%84%D0%B0%D0%B9%D0%BB.txt</D:href>\n" // Тестовый файл.txt
     "</D:response>\n"
 
     "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n"
@@ -255,13 +283,13 @@ void Parser::test() {
     assert(obj->get_type() == FileSystemObject::Type::Directory);
     assert(obj->is_creation_time_valid() == false);
     assert(obj->is_modification_time_valid() == false);
+    assert(obj->is_size_valid() == false);
 
     assert(result.second.size() == 3);
 
     auto it = std::begin(result.second);
     assert(it->get_name() == "Диск 1");
     assert(it->get_type() == FileSystemObject::Type::Directory);
-
     assert(it->is_creation_time_valid());
     seconds = it->get_creation_time();
     tm = std::gmtime(&seconds);
@@ -284,6 +312,7 @@ void Parser::test() {
     assert(tm->tm_mon == 2);
     assert(tm->tm_year == 2023 - 1900);
     assert(tm->tm_isdst == 0);
+    assert(it->is_size_valid() == false);
 
     ++it;
     assert(it->get_name() == "Диск 2");
@@ -310,12 +339,12 @@ void Parser::test() {
     assert(tm->tm_mon == 2);
     assert(tm->tm_year == 2023 - 1900);
     assert(tm->tm_isdst == 0);
+    assert(it->is_size_valid() == false);
 
     ++it;
     assert(it->get_name() == "Тестовый файл.txt");
     assert(it->get_type() == FileSystemObject::Type::File);
     assert(it->is_creation_time_valid() == false);
-
     assert(it->is_modification_time_valid());
     seconds = it->get_modification_time();
     tm = std::gmtime(&seconds);
@@ -327,5 +356,7 @@ void Parser::test() {
     assert(tm->tm_mon == 6);
     assert(tm->tm_year == 2025 - 1900);
     assert(tm->tm_isdst == 0);
+    assert(it->is_size_valid());
+    assert(it->get_size() == 1743607603214300);
 }
 #endif
