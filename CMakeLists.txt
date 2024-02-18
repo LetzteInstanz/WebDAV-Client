@@ -17,12 +17,12 @@ qt_add_executable(web_dav_client
     src/FileSystem/FileSystemModel.h
     src/FileSystem/FileSystemObject.cpp
     src/FileSystem/FileSystemObject.h
-    src/FileSystem/Parser.cpp
-    src/FileSystem/Parser.h
     src/FileSystem/Parser/CurrentState.cpp
     src/FileSystem/Parser/CurrentState.h
     src/FileSystem/Parser/FSObjectStruct.cpp
     src/FileSystem/Parser/FSObjectStruct.h
+    src/FileSystem/Parser/Parser.cpp
+    src/FileSystem/Parser/Parser.h
     src/FileSystem/Parser/TimeParser.cpp
     src/FileSystem/Parser/TimeParser.h
     src/Json/DataJsonFile.cpp
