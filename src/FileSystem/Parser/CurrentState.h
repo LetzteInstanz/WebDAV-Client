@@ -6,8 +6,8 @@
 #include <QString>
 #include <QStringView>
 
-#include "../Parser.h"
 #include "FSObjectStruct.h"
+#include "Parser.h"
 
 struct Parser::CurrentState {
     CurrentState(const QStringView& current_path, TagOrderMap::const_iterator first, Result& result);

@@ -1,7 +1,7 @@
 #include "Parser.h"
 
-#include "Parser/CurrentState.h"
-#include "Parser/TimeParser.h"
+#include "CurrentState.h"
+#include "TimeParser.h"
 
 const std::unordered_map<QString, Parser::Tag> Parser::_propfind_tag_by_str_map{{"multistatus", Tag::Multistatus},
                                                                                 {"response", Tag::Response},
