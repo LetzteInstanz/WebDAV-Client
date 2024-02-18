@@ -17,17 +17,20 @@ const char* const SettingsJsonFile::_sort_param_desc_key = "descending";
 const char* const SettingsJsonFile::_cs_key = "case_sensitive";
 
 const std::unordered_map<QString, Qml::SortParam> SettingsJsonFile::_supported_sort_params{
-    {QStringLiteral("type"),              {Qml::Role::FileFlag,  QObject::tr("Type (directories are higher)"), false, Qml::SortParam::compare_file_flag}},
-    {QStringLiteral("name"),              {Qml::Role::Name,      QObject::tr("Name"),                          false, Qml::SortParam::compare_qstring}},
-    {QStringLiteral("modification_time"), {Qml::Role::ModTime,   QObject::tr("Modification time"),             false, Qml::SortParam::compare_time_t}},
-    {QStringLiteral("extension"),         {Qml::Role::Extension, QObject::tr("Filename extension"),            false, Qml::SortParam::compare_extension}}
+    {QStringLiteral("type"),              {Qml::Role::FileFlag,     QObject::tr("Type (directories are higher)"), false, Qml::SortParam::compare_file_flag}},
+    {QStringLiteral("name"),              {Qml::Role::Name,         QObject::tr("Name"),                          false, Qml::SortParam::compare_qstring}},
+    {QStringLiteral("modification_time"), {Qml::Role::ModTime,      QObject::tr("Modification time"),             false, Qml::SortParam::compare_time_t}},
+    {QStringLiteral("creation_time"),     {Qml::Role::CreationTime, QObject::tr("Creation time"),                 false, Qml::SortParam::compare_time_t}},
+    {QStringLiteral("extension"),         {Qml::Role::Extension,    QObject::tr("Filename extension"),            false, Qml::SortParam::compare_extension}}
 };
 
-const std::vector<QString> SettingsJsonFile::_default_sort_param_order{QStringLiteral("type"), QStringLiteral("name"), QStringLiteral("modification_time"), QStringLiteral("extension")};
+const std::vector<QString> SettingsJsonFile::_default_sort_param_order{QStringLiteral("type"), QStringLiteral("name"), QStringLiteral("modification_time"), QStringLiteral("creation_time") , QStringLiteral("extension")};
 
 std::unordered_map<Qml::Role, QString> SettingsJsonFile::_sort_param_json_id_by_role_map;
 
 SettingsJsonFile::SettingsJsonFile(std::shared_ptr<Logger> logger) : JsonFile("config.json"), _logger(std::move(logger)) {
+    assert(_supported_sort_params.size() == _default_sort_param_order.size());
+
     auto& out_map = _sort_param_json_id_by_role_map;
     if (out_map.empty())
         std::transform(std::begin(_supported_sort_params), std::end(_supported_sort_params), std::inserter(out_map, std::end(out_map)), [](const auto& pair) { return std::make_pair(pair.second.role, pair.first); });
@@ -177,7 +180,11 @@ bool SettingsJsonFile::read_sort_params(const QJsonArray& array) {
         param.descending = val_it->toBool();
         _sort_params.push_back(std::move(param));
     }
-    return true;
+    const auto all = _sort_params.size() == _supported_sort_params.size();
+    if (!all)
+        qWarning() << QObject::tr("There aren't all sort parameters in the setting file");
+
+    return all;
 }
 
 QJsonArray SettingsJsonFile::to_json_array(const SortParamVector& params) {
