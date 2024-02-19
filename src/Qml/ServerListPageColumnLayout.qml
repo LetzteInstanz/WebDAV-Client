@@ -83,70 +83,66 @@ ColumnLayout {
             }
         }
     }
-    Core.BorderRectangle {
+    Core.ListView {
+        id: listView
         Layout.fillHeight: true
         Layout.fillWidth: true
+        model: itemModelManager.createModel(ItemModel.Server)
+        currentIndex: -1
+        property Component menuComponent
+        Component.onCompleted: menuComponent = Qt.createComponent("ServerItemMenu.qml", Component.Asynchronous)
+        delegate: Item {
+            id: delegateItem
+            width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
+            height: descText.contentHeight + paramText.contentHeight + contentItem.anchors.topMargin + contentItem.anchors.bottomMargin
+            required property int index
+            required property var model
+            required property string desc
+            required property string addr
+            required property int port
+            required property string path
 
-        Core.ListView {
-            id: listView
-            anchors.fill: parent
-            model: itemModelManager.createModel(ItemModel.Server)
-            currentIndex: -1
-            property Component menuComponent
-            Component.onCompleted: menuComponent = Qt.createComponent("ServerItemMenu.qml", Component.Asynchronous)
-            delegate: Item {
-                id: delegateItem
-                width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
-                height: descText.contentHeight + paramText.contentHeight + contentItem.anchors.topMargin + contentItem.anchors.bottomMargin
-                required property int index
-                required property var model
-                required property string desc
-                required property string addr
-                required property int port
-                required property string path
+            Core.ContentItem {
+                id: contentItem
+                anchors.fill: parent
 
-                Core.ContentItem {
-                    id: contentItem
-                    anchors.fill: parent
-
-                    Text {
-                        id: descText
-                        font.bold: true
-                        font.pointSize: 14
-                        elide: Text.ElideRight
-                        text: desc
-                    }
-                    Text {
-                        id: paramText
-                        anchors.top: descText.bottom
-                        elide: Text.ElideRight
-                        text: "http://" + addr + ":" + port + "/" + path
-                    }
+                Text {
+                    id: descText
+                    font.bold: true
+                    font.pointSize: 14
+                    elide: Text.ElideRight
+                    text: desc
                 }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        const view = delegateItem.ListView.view
-                        view.currentIndex = -1
-                        const item = view.itemAtIndex(index)
-                        animation.obj = item
-                        animation.start()
-                        delayTimer.item = item
-                        delayTimer.start()
-                    }
-                    onPressAndHold: (mouse) => {
-                        const view = delegateItem.ListView.view
-                        view.currentIndex = index
-                        const item = view.itemAtIndex(index)
-                        animation.obj = item
-                        animation.start()
+                Text {
+                    id: paramText
+                    anchors.top: descText.bottom
+                    elide: Text.ElideRight
+                    text: "http://" + addr + ":" + port + "/" + path
+                }
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    const view = delegateItem.ListView.view
+                    view.currentIndex = -1
+                    const item = view.itemAtIndex(index)
+                    animation.obj = item
+                    animation.start()
+                    delayTimer.item = item
+                    delayTimer.start()
+                }
+                onPressAndHold: (mouse) => {
+                    const view = delegateItem.ListView.view
+                    view.currentIndex = index
+                    const item = view.itemAtIndex(index)
+                    animation.obj = item
+                    animation.start()
 
-                        function createMenu(comp) {
-                            const menu = Util.createPopup(comp, item, "ServerItemMenu", {"view": listView})
-                            menu.popup(item, mouse.x, mouse.y)
-                        }
-                        Util.createObjAsync(listView.menuComponent, createMenu)
+                    function createMenu(comp) {
+                        const menu = Util.createPopup(comp, item, "ServerItemMenu", {"view": listView})
+                        menu.popup(item, mouse.x, mouse.y)
                     }
+                    Util.createObjAsync(listView.menuComponent, createMenu)
                 }
             }
         }

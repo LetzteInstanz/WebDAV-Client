@@ -88,115 +88,111 @@ ColumnLayout {
         elide: Text.ElideMiddle
         font.bold: true
     }
-    Core.BorderRectangle {
+    Core.ListView {
+        id: listView
         Layout.fillHeight: true
         Layout.fillWidth: true
+        model: null
+        property Component menuComponent
+        property Component sortDlgComponent
+        Component.onCompleted: {
+            menuComponent = Qt.createComponent("FileItemMenu.qml", Component.Asynchronous)
+            sortDlgComponent = Qt.createComponent("Sort/SortDialog.qml", Component.Asynchronous)
+        }
+        function destroyModel() {
+            const model = listView.model
+            listView.model = null
+            model.destroy()
+        }
+        delegate: Item {
+            id: delegateItem
+            height: Math.max(image.height, nameText.contentHeight + creationTimeText.contentHeight + Math.max(sizeText.contentHeight, modificationTimeText.contentHeight)) +
+                    contentRectangle.anchors.topMargin + contentRectangle.anchors.bottomMargin + rowLayout.anchors.topMargin + rowLayout.anchors.bottomMargin
+            width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
+            required property int index
+            required property var model
 
-        Core.ListView {
-            id: listView
-            anchors.fill: parent
-            model: null
-            property Component menuComponent
-            property Component sortDlgComponent
-            Component.onCompleted: {
-                menuComponent = Qt.createComponent("FileItemMenu.qml", Component.Asynchronous)
-                sortDlgComponent = Qt.createComponent("Sort/SortDialog.qml", Component.Asynchronous)
-            }
-            function destroyModel() {
-                const model = listView.model
-                listView.model = null
-                model.destroy()
-            }
-            delegate: Item {
-                id: delegateItem
-                height: Math.max(image.height, nameText.contentHeight + creationTimeText.contentHeight + Math.max(sizeText.contentHeight, modificationTimeText.contentHeight)) +
-                        contentRectangle.anchors.topMargin + contentRectangle.anchors.bottomMargin + rowLayout.anchors.topMargin + rowLayout.anchors.bottomMargin
-                width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
-                required property int index
-                required property var model
+            Core.BorderRectangle {
+                id: contentRectangle
+                anchors.fill: parent
+                anchors.margins: 2
+                anchors.topMargin: index === 0 ? 2 : 1
+                anchors.bottomMargin: index === listView.count - 1 ? 2 : 1
+                color: "transparent"
 
-                Core.BorderRectangle {
-                    id: contentRectangle
+                RowLayout {
+                    id: rowLayout
                     anchors.fill: parent
-                    anchors.margins: 2
-                    anchors.topMargin: index === 0 ? 2 : 1
-                    anchors.bottomMargin: index === listView.count - 1 ? 2 : 1
-                    color: "transparent"
+                    anchors.rightMargin: 2
+                    anchors.bottomMargin: 2
+                    spacing: 0
 
-                    RowLayout {
-                        id: rowLayout
-                        anchors.fill: parent
-                        anchors.rightMargin: 2
-                        anchors.bottomMargin: 2
+                    Image {
+                        id: image
+                        Layout.preferredWidth: model.needsWideImageWidth ? 54 : 48 // note: Some icons have more narrow transparent "border";
+                        fillMode: Image.Pad                                        // There are different spacing sizes between nameText item and the image because of that
+                        source: "image://icons/" + model.iconName
+                    }
+                    ColumnLayout {
                         spacing: 0
 
-                        Image {
-                            id: image
-                            Layout.preferredWidth: model.needsWideImageWidth ? 54 : 48 // note: Some icons have more narrow transparent "border";
-                            fillMode: Image.Pad                                        // There are different spacing sizes between nameText item and the image because of that
-                            source: "image://icons/" + model.iconName
+                        Text {
+                            id: nameText
+                            Layout.fillHeight: true
+                            Layout.fillWidth: true
+                            font.bold: true
+                            font.pointSize: 14
+                            wrapMode: Text.Wrap
+                            text: model.name
                         }
-                        ColumnLayout {
+                        Text {
+                            id: creationTimeText
+                            Layout.fillWidth: true
+                            horizontalAlignment: Text.AlignRight
+                            text: model.creationTime
+                        }
+                        RowLayout {
                             spacing: 0
 
                             Text {
-                                id: nameText
-                                Layout.fillHeight: true
+                                id: sizeText
                                 Layout.fillWidth: true
-                                font.bold: true
-                                font.pointSize: 14
-                                wrapMode: Text.Wrap
-                                text: model.name
+                                verticalAlignment: Text.AlignBottom
+                                text: model.size
                             }
                             Text {
-                                id: creationTimeText
-                                Layout.fillWidth: true
+                                id: modificationTimeText
+                                verticalAlignment: Text.AlignBottom
                                 horizontalAlignment: Text.AlignRight
-                                text: model.creationTime
-                            }
-                            RowLayout {
-                                spacing: 0
-
-                                Text {
-                                    id: sizeText
-                                    Layout.fillWidth: true
-                                    verticalAlignment: Text.AlignBottom
-                                    text: model.size
-                                }
-                                Text {
-                                    id: modificationTimeText
-                                    verticalAlignment: Text.AlignBottom
-                                    horizontalAlignment: Text.AlignRight
-                                    text: model.modificationTime
-                                }
+                                text: model.modificationTime
                             }
                         }
                     }
                 }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        const view = delegateItem.ListView.view
-                        animation.obj = view.itemAtIndex(index)
-                        animation.start()
-                        if (model.isFile)
-                            return
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    const view = delegateItem.ListView.view
+                    animation.obj = view.itemAtIndex(index)
+                    animation.start()
+                    if (model.isFile)
+                        return
 
-                        delayTimer.model = model
-                        delayTimer.start()
-                    }
-                    onPressAndHold: (mouse) => {
-                        //const view = delegateItem.ListView.view
-                        //animation.obj = view.itemAtIndex(index)
-                        //animation.start()
+                    delayTimer.model = model
+                    delayTimer.start()
+                }
+                onPressAndHold: (mouse) => {
+                    //const view = delegateItem.ListView.view
+                    //animation.obj = view.itemAtIndex(index)
+                    //animation.start()
 
-                        function createMenu(comp) {
-                            const item = delegateItem.ListView.view.itemAtIndex(index)
-                            const menu = Util.createPopup(comp, item, "FileItemMenu", {"sortDlgComponent": listView.sortDlgComponent, "backFunc": back})
-                            menu.popup(item, mouse.x, mouse.y)
-                        }
-                        Util.createObjAsync(listView.menuComponent, createMenu)
+                    function createMenu(comp) {
+                        const item = delegateItem.ListView.view.itemAtIndex(index)
+                        const menu = Util.createPopup(comp, item, "FileItemMenu", {"sortDlgComponent": listView.sortDlgComponent, "backFunc": back})
+                        menu.popup(item, mouse.x, mouse.y)
                     }
+                    Util.createObjAsync(listView.menuComponent, createMenu)
                 }
             }
         }

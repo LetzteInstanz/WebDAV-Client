@@ -11,4 +11,8 @@ QtQuick.ListView {
         width: ListView.view.width
         color: "lightgray"
     }
+    BorderRectangle {
+        anchors.fill: parent
+        color: "transparent"
+    }
 }

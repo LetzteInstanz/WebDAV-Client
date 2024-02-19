@@ -32,66 +32,62 @@ Dialog {
                 Layout.alignment: Qt.AlignHCenter
                 text: qsTr("Higher priority")
             }
-            Core.BorderRectangle {
+            Core.ListView {
+                id: listView
                 Layout.fillHeight: true
                 Layout.fillWidth: true
+                model: null
+                ScrollBar.vertical: ScrollBar {
+                    policy: ScrollBar.AlwaysOn
+                }
+                delegate: Item {
+                    id: delegateItem
+                    width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
+                    height: Math.max(paramNameText.contentHeight, descendingCheckBox.height) + contentItem.anchors.topMargin + contentItem.anchors.bottomMargin
+                    required property int index
+                    required property var model
 
-                Core.ListView {
-                    id: listView
-                    anchors.fill: parent
-                    model: null
-                    ScrollBar.vertical: ScrollBar {
-                        policy: ScrollBar.AlwaysOn
-                    }
-                    delegate: Item {
-                        id: delegateItem
-                        width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
-                        height: Math.max(paramNameText.contentHeight, descendingCheckBox.height) + contentItem.anchors.topMargin + contentItem.anchors.bottomMargin
-                        required property int index
-                        required property var model
+                    Core.ContentItem {
+                        id: contentItem
+                        anchors.fill: parent
 
-                        Core.ContentItem {
-                            id: contentItem
+                        RowLayout {
                             anchors.fill: parent
+                            spacing: 0
 
-                            RowLayout {
-                                anchors.fill: parent
-                                spacing: 0
-
-                                Text {
-                                    id: paramNameText
-                                    Layout.fillWidth: true
-                                    wrapMode: Text.Wrap
-                                    text: model.display
-                                }
-                                CheckBox {
-                                    id: descendingCheckBox
-                                    leftPadding: 0
-                                    rightPadding: 0
-                                    text: qsTr("Descending")
-                                    checkState: model.descending ? Qt.Checked : Qt.Unchecked
-                                    onClicked: { model.descending = !model.descending; enableOkButton() }
-                                }
+                            Text {
+                                id: paramNameText
+                                Layout.fillWidth: true
+                                wrapMode: Text.Wrap
+                                text: model.display
+                            }
+                            CheckBox {
+                                id: descendingCheckBox
+                                leftPadding: 0
+                                rightPadding: 0
+                                text: qsTr("Descending")
+                                checkState: model.descending ? Qt.Checked : Qt.Unchecked
+                                onClicked: { model.descending = !model.descending; enableOkButton() }
                             }
                         }
-                        MouseArea {
-                            id: paramNameTextMouseArea
-                            width: contentItem.anchors.leftMargin + paramNameText.width
-                            height: delegateItem.height
-                            onClicked: {
-                                const view = delegateItem.ListView.view
-                                view.currentIndex = index
-                                animation.obj = view.itemAtIndex(index)
-                                animation.start()
-                                enableEditButtons()
-                            }
+                    }
+                    MouseArea {
+                        id: paramNameTextMouseArea
+                        width: contentItem.anchors.leftMargin + paramNameText.width
+                        height: delegateItem.height
+                        onClicked: {
+                            const view = delegateItem.ListView.view
+                            view.currentIndex = index
+                            animation.obj = view.itemAtIndex(index)
+                            animation.start()
+                            enableEditButtons()
                         }
-                        MouseArea {
-                            x: paramNameTextMouseArea.width
-                            width: delegateItem.width - paramNameTextMouseArea.width + contentItem.anchors.rightMargin
-                            height: delegateItem.height
-                            onClicked: descendingCheckBox.clicked()
-                        }
+                    }
+                    MouseArea {
+                        x: paramNameTextMouseArea.width
+                        width: delegateItem.width - paramNameTextMouseArea.width + contentItem.anchors.rightMargin
+                        height: delegateItem.height
+                        onClicked: descendingCheckBox.clicked()
                     }
                 }
             }
