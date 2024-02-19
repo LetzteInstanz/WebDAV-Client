@@ -108,6 +108,7 @@ const std::unordered_map<QString, QString> FileItemModel::_icon_name_by_extensio
     {"bin", "application-x-firmware.png"},
     {"hex", "application-x-firmware.png"},
     {"gzip", "application-x-gzip.png"},
+    {"gz", "application-x-gzip.png"},
     {"hwp", "application-x-hwp.png"},
     {"ipynb", "application-x-ipynb+json.png"},
     {"java", "application-x-java.png"},
