@@ -37,7 +37,7 @@ time_t TimeParser::to_time_t(const QStringView& str, Format f) {
     if (token_it != token_end)
         throw std::runtime_error("timestamp parse error");
 
-#ifdef Q_OS_WIN // todo: replace with std::gmtime(), when the compiler will support that
+#ifdef Q_OS_WIN // todo: replace with std::timegm(), when the compiler will support that
     time_t seconds = _mkgmtime(&time.tm);
 #else
     time_t seconds = timegm(&time.tm);

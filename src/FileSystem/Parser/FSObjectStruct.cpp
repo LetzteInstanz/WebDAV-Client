@@ -25,6 +25,7 @@ void FSObjectStruct::replace_unknown_status(Status s) {
     type.first = ret_second_if_first_is_unknown(type.first, s);
     creation_date.first = ret_second_if_first_is_unknown(creation_date.first, s);
     last_modified.first = ret_second_if_first_is_unknown(last_modified.first, s);
+    content_length.first = ret_second_if_first_is_unknown(content_length.first, s);
 }
 
 constexpr FSObjectStruct::Status FSObjectStruct::ret_second_if_first_is_unknown(Status first, Status second) {

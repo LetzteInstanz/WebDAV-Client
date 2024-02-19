@@ -30,6 +30,10 @@ void Parser::CurrentState::update_if_start_tag(Tag t) {
             _obj.type = std::make_pair(_status, FileSystemObject::Type::Directory);
             break;
 
+        case Tag::GetContentLength:
+            _obj.content_length.first = _status;
+            break;
+
         default:
             break;
     }
@@ -58,7 +62,7 @@ void Parser::CurrentState::update_if_end_tag(Tag t) {
                 set_error(QObject::tr("a href tag data is empty"));
                 break;
             }
-            FileSystemObject obj(std::move(_obj.name), _obj.type.second, std::move(_obj.creation_date), std::move(_obj.last_modified));
+            FileSystemObject obj(std::move(_obj.name), _obj.type.second, std::move(_obj.creation_date), std::move(_obj.last_modified), std::move(_obj.content_length));
             if (_obj.is_curr_dir_obj)
                 _result.first = std::make_unique<FileSystemObject>(std::move(obj));
             else
@@ -76,7 +80,7 @@ void Parser::CurrentState::update_if_data(Tag t, const QStringView& data) {
     switch (t) {
         case Tag::Href: {
             QString abs_path = QUrl::fromPercentEncoding(data.toLatin1());
-            if (!abs_path.isEmpty() && abs_path.back() != '/')
+            if (abs_path.back() != '/')
                 abs_path += '/';
 
             _obj.is_curr_dir_obj = abs_path == _current_path;
@@ -104,6 +108,16 @@ void Parser::CurrentState::update_if_data(Tag t, const QStringView& data) {
             break;
         }
 
+        case Tag::GetContentLength: {
+            bool ok;
+            _obj.content_length.second = data.toULongLong(&ok);
+            if (!ok) {
+                _obj.content_length.first = FSObjectStruct::Status::None;
+                set_error(QObject::tr("getcontentlength property isn't a number"));
+            }
+            break;
+        }
+
         case Tag::Status: {
             _status = FSObjectStruct::to_status(data);
             break;
@@ -116,5 +130,5 @@ void Parser::CurrentState::update_if_data(Tag t, const QStringView& data) {
 
 void Parser::CurrentState::set_error(QString&& msg) {
     was_error = true;
-    qWarning(qUtf8Printable(QObject::tr("An error has occured during reply parse: %s.")), qUtf8Printable(msg));
+    qWarning(qUtf8Printable(QObject::tr("An error has occured during the reply parse: %s.")), qUtf8Printable(msg));
 }

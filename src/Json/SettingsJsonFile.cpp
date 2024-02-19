@@ -21,10 +21,11 @@ const std::unordered_map<QString, Qml::SortParam> SettingsJsonFile::_supported_s
     {QStringLiteral("name"),              {Qml::Role::Name,         QObject::tr("Name"),                          false, Qml::SortParam::compare_qstring}},
     {QStringLiteral("modification_time"), {Qml::Role::ModTime,      QObject::tr("Modification time"),             false, Qml::SortParam::compare_time_t}},
     {QStringLiteral("creation_time"),     {Qml::Role::CreationTime, QObject::tr("Creation time"),                 false, Qml::SortParam::compare_time_t}},
+    {QStringLiteral("size"),              {Qml::Role::Size,         QObject::tr("Size"),                          false, Qml::SortParam::compare_uint64_t}},
     {QStringLiteral("extension"),         {Qml::Role::Extension,    QObject::tr("Filename extension"),            false, Qml::SortParam::compare_extension}}
 };
 
-const std::vector<QString> SettingsJsonFile::_default_sort_param_order{QStringLiteral("type"), QStringLiteral("name"), QStringLiteral("modification_time"), QStringLiteral("creation_time") , QStringLiteral("extension")};
+const std::vector<QString> SettingsJsonFile::_default_sort_param_order{QStringLiteral("type"), QStringLiteral("name"), QStringLiteral("modification_time"), QStringLiteral("creation_time"), QStringLiteral("size"), QStringLiteral("extension")};
 
 std::unordered_map<Qml::Role, QString> SettingsJsonFile::_sort_param_json_id_by_role_map;
 

@@ -24,7 +24,7 @@ public:
     static Result parse_propfind_reply(const QStringView& current_path, const QByteArray& data);
 
 private:
-    enum class Tag {None, Multistatus, Response, PropStat, Prop, Href, ResourceType, CreationDate, GetLastModified, Collection, Status};
+    enum class Tag {None, Multistatus, Response, PropStat, Prop, Href, ResourceType, CreationDate, GetLastModified, Collection, GetContentLength, Status};
 
     struct TagHasher {
         size_t operator()(Tag t) const noexcept { return to_type<size_t>(t); }

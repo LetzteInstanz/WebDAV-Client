@@ -22,5 +22,6 @@ namespace Qml {
         static CompResult compare_qstring(const QVariant& lhs, const QVariant& rhs, bool descending);
         static CompResult compare_extension(const QVariant& lhs, const QVariant& rhs, bool descending);
         static CompResult compare_time_t(const QVariant& lhs, const QVariant& rhs, bool descending);
+        static CompResult compare_uint64_t(const QVariant& lhs, const QVariant& rhs, bool descending);
     };
 }

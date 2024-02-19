@@ -108,8 +108,10 @@ ColumnLayout {
             }
             delegate: Core.BorderRectangle {
                 id: delegate
-                height: Math.max(image.height, nameText.contentHeight + creationTimeText.contentHeight + modificationTimeText.contentHeight) + rowLayout.anchors.topMargin + rowLayout.anchors.bottomMargin
-                width: ListView.view.width
+                height: Math.max(image.height, nameText.contentHeight + creationTimeText.contentHeight +
+                        Math.max(sizeText.contentHeight, modificationTimeText.contentHeight)) +
+                        rowLayout.anchors.topMargin + rowLayout.anchors.bottomMargin
+                width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
                 color: "transparent"
                 required property int index
                 required property var model
@@ -117,20 +119,25 @@ ColumnLayout {
                 RowLayout {
                     id: rowLayout
                     anchors.fill: parent
-                    anchors.margins: 2
+                    anchors.margins: 1
+                    anchors.rightMargin: anchors.margins + 1
+                    anchors.bottomMargin: anchors.margins + 1
+                    spacing: 0
 
                     Image {
                         id: image
+                        horizontalAlignment: Image.AlignLeft
+                        fillMode: Image.Pad
                         source: "image://icons/" + model.iconName
                     }
                     ColumnLayout {
+                        spacing: 0
+
                         Text {
                             id: nameText
                             Layout.fillHeight: true
                             Layout.fillWidth: true
                             Layout.verticalStretchFactor: 1
-                            verticalAlignment: Text.AlignVCenter
-                            horizontalAlignment: Text.AlignLeft
                             font.bold: true
                             font.pointSize: 14
                             wrapMode: Text.Wrap
@@ -138,21 +145,26 @@ ColumnLayout {
                         }
                         Text {
                             id: creationTimeText
-                            Layout.fillHeight: true
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 16
-                            verticalAlignment: Text.AlignBottom
                             horizontalAlignment: Text.AlignRight
                             text: model.creationTime
                         }
-                        Text {
-                            id: modificationTimeText
-                            Layout.fillHeight: true
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 16
-                            verticalAlignment: Text.AlignBottom
-                            horizontalAlignment: Text.AlignRight
-                            text: model.modificationTime
+                        RowLayout {
+                            spacing: 0
+
+                            Text {
+                                id: sizeText
+                                Layout.fillWidth: true
+                                verticalAlignment: Text.AlignBottom
+                                text: model.size
+                            }
+                            Text {
+                                id: modificationTimeText
+                                Layout.fillWidth: true
+                                verticalAlignment: Text.AlignBottom
+                                horizontalAlignment: Text.AlignRight
+                                text: model.modificationTime
+                            }
                         }
                     }
                 }

@@ -32,21 +32,36 @@ SortParam::CompResult SortParam::compare_extension(const QVariant& lhs, const QV
     const auto left_is_null = lhs.isNull();
     const auto right_is_null = rhs.isNull();
     if (left_is_null || right_is_null)
-        return left_is_null == right_is_null ? CompResult::Equal : left_is_less_if_ascending(!left_is_null, descending);
+        return left_is_null == right_is_null ? CompResult::Equal : left_is_less_if_ascending(right_is_null, descending);
 
+    assert(lhs.canConvert<QString>());
+    assert(rhs.canConvert<QString>());
     return compare_qstring(lhs, rhs, descending);
 }
 
 SortParam::CompResult SortParam::compare_time_t(const QVariant& lhs, const QVariant& rhs, bool descending) {
+    const auto left_is_null = lhs.isNull();
+    const auto right_is_null = rhs.isNull();
+    if (left_is_null || right_is_null)
+        return left_is_null == right_is_null ? CompResult::Equal : left_is_less_if_ascending(right_is_null, descending);
+
     assert(lhs.canConvert<time_t>());
     assert(rhs.canConvert<time_t>());
     const auto left_time = lhs.value<time_t>();
     const auto right_time = rhs.value<time_t>();
-    const auto left_is_lowest = left_time == std::numeric_limits<time_t>::lowest();
-    const auto right_is_lowest = right_time == std::numeric_limits<time_t>::lowest();
-    if (left_is_lowest || right_is_lowest)
-        return left_is_lowest == right_is_lowest ? CompResult::Equal : left_is_less_if_ascending(!left_is_lowest, descending);
-
     const double diff = std::difftime(right_time, left_time);
     return diff == 0 ? CompResult::Equal : left_is_less_if_ascending(diff > 0, descending);
+}
+
+SortParam::CompResult SortParam::compare_uint64_t(const QVariant& lhs, const QVariant& rhs, bool descending) {
+    const auto left_is_null = lhs.isNull();
+    const auto right_is_null = rhs.isNull();
+    if (left_is_null || right_is_null)
+        return left_is_null == right_is_null ? CompResult::Equal : left_is_less_if_ascending(right_is_null, descending);
+
+    assert(lhs.canConvert<uint64_t>());
+    assert(rhs.canConvert<uint64_t>());
+    const auto left_size = lhs.value<uint64_t>();
+    const auto right_size = rhs.value<uint64_t>();
+    return left_size == right_size ? CompResult::Equal : left_is_less_if_ascending(left_size < right_size, descending);
 }

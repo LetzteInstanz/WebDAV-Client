@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <cassert>
 #include <cmath>
@@ -11,7 +12,7 @@
 #include <functional>
 #include <iomanip>
 #include <iterator>
-#include <limits>
+#include <locale>
 #include <memory>
 #include <mutex>
 #include <sstream>
@@ -37,6 +38,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QLocale>
 #include <QModelIndex>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>

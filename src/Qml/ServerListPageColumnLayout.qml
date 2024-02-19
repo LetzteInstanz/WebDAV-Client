@@ -91,7 +91,7 @@ ColumnLayout {
             Component.onCompleted: menuComponent = Qt.createComponent("ServerItemMenu.qml", Component.Asynchronous)
             delegate: Item {
                 id: delegate
-                width: ListView.view.width
+                width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
                 height: descText.contentHeight + paramText.contentHeight
                 required property int index
                 required property var model
