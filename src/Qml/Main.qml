@@ -68,6 +68,7 @@ ApplicationWindow {
         ServerListPageColumnLayout {
             fileListPage: fileListPageColumnLayout
             settingsPage: settingsPageColumnLayout
+            logPage: logPageColumnLayout
         }
 
         FileListPageColumnLayout {

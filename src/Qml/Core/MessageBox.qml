@@ -14,9 +14,8 @@ Dialog {
     background: BorderRectangle {}
     property string text
 
-    Label {
+    contentItem: Label {
         id: txtLabel
-        anchors.fill: parent
         horizontalAlignment: Text.AlignHCenter
         text: dlg.text
     }
