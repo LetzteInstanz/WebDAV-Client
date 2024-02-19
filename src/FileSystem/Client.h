@@ -23,12 +23,13 @@ public:
     void abort();
 
 private:
-    constexpr static char _file_list_request[] = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-                                                 "<D:propfind xmlns:D=\"DAV:\">"
-                                                     "<D:prop>"
-                                                         "<D:getlastmodified/>"
-                                                         "<D:resourcetype/>"
-                                                     "</D:prop>"
+    constexpr static char _file_list_request[] = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                                                 "<D:propfind xmlns:D=\"DAV:\">\n"
+                                                     "<D:prop>\n"
+                                                         "<D:creationdate/>\n"
+                                                         "<D:getlastmodified/>\n"
+                                                         "<D:resourcetype/>\n"
+                                                     "</D:prop>\n"
                                                  "</D:propfind>";
 
     const ReplyHandler _reply_handler;

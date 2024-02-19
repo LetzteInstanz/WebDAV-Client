@@ -108,7 +108,7 @@ ColumnLayout {
             }
             delegate: Core.BorderRectangle {
                 id: delegate
-                height: (Math.max(image.height, nameText.contentHeight + dateTimeText.contentHeight) + rowLayout.anchors.topMargin + rowLayout.anchors.bottomMargin)
+                height: Math.max(image.height, nameText.contentHeight + creationTimeText.contentHeight + modificationTimeText.contentHeight) + rowLayout.anchors.topMargin + rowLayout.anchors.bottomMargin
                 width: ListView.view.width
                 color: "transparent"
                 required property int index
@@ -137,7 +137,16 @@ ColumnLayout {
                             text: model.name
                         }
                         Text {
-                            id: dateTimeText
+                            id: creationTimeText
+                            Layout.fillHeight: true
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 16
+                            verticalAlignment: Text.AlignBottom
+                            horizontalAlignment: Text.AlignRight
+                            text: model.creationTime
+                        }
+                        Text {
+                            id: modificationTimeText
                             Layout.fillHeight: true
                             Layout.fillWidth: true
                             Layout.preferredHeight: 16

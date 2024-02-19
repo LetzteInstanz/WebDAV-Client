@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <atomic>
 #include <cassert>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <ctime>
@@ -17,8 +18,7 @@
 #include <stack>
 #include <stdexcept>
 #include <string>
-#include <time.h> // note: Only for to_time_t(std::tm& tm)
-#include <tuple>
+#include <time.h> // note: Only for timegm (struct tm *__tp)
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
