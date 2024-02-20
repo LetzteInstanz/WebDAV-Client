@@ -261,6 +261,7 @@ const std::unordered_map<QString, QString> FileItemModel::_icon_name_by_extensio
     {"eml", "message-rfc822.png"},
     {"pkg", "package-x-generic.png"},
     {"rpm", "package-x-generic.png"},
+    {"xz", "package-x-generic.png"},
     {"rom", "rom.png"},
     {"sh", "shellscript.png"},
     {"css", "text-css.png"},
