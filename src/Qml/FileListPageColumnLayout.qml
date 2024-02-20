@@ -132,6 +132,7 @@ ColumnLayout {
                         id: image
                         Layout.preferredWidth: model.needsWideImageWidth ? 54 : 48 // note: Some icons have more narrow transparent "border";
                         fillMode: Image.Pad                                        // There are different spacing sizes between nameText item and the image because of that
+                        smooth: false
                         source: "image://icons/" + model.iconName
                     }
                     ColumnLayout {
