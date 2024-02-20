@@ -9,6 +9,7 @@ import WebDavClient
 
 ColumnLayout {
     function prepare() {
+        searchTextField.text = ""
         currPathLabel.text = ""
 
         function setModel() {
