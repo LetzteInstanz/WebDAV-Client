@@ -34,7 +34,7 @@ Menu {
         text: qsTr("Remove")
         onTriggered: {
             function createDlg(comp) {
-                const dlg = Util.createPopup(comp, appWindow, "MessageBox", {"standardButtons": Dialog.Yes | Dialog.No, "text": qsTr("Do you want to remove \"") + view.currentItem.desc + qsTr("\"?")})
+                const dlg = Util.createPopup(comp, appWindow, "MessageBox", {"standardButtons": Dialog.Yes | Dialog.No, "title": qsTr("Confirmation"), "text": qsTr("Do you want to remove \"") + view.currentItem.desc + qsTr("\"?")})
                 if (dlg === null)
                     return
 

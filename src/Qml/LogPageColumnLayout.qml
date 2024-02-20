@@ -7,6 +7,7 @@ import "Core" as Core
 import "Util.js" as Util
 
 ColumnLayout {
+    function prepare() { logTxtArea.cursorPosition = logTxtArea.length - 1 }
     function back() { stackLayout.currentIndex = 0 }
 
     Item {
@@ -22,11 +23,15 @@ ColumnLayout {
     ScrollView {
         Layout.fillHeight: true
         Layout.fillWidth: true
+        background: Core.BorderRectangle {}
+        ScrollBar.vertical: ScrollBar {
+            policy: ScrollBar.AlwaysOn
+        }
 
         TextArea {
             id: logTxtArea
             anchors.fill: parent
-            background: Core.BorderRectangle {}
+            background: null
             text: logger.getLog()
             readOnly: true
             wrapMode: TextEdit.Wrap

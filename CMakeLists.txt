@@ -49,6 +49,7 @@ qt_add_qml_module(web_dav_client
     QML_FILES
         src/Qml/Core/BorderRectangle.qml
         src/Qml/Core/Button.qml
+        src/Qml/Core/ContentItem.qml
         src/Qml/Core/ListView.qml
         src/Qml/Core/MessageBox.qml
         src/Qml/Core/SelectionSequentialAnimation.qml

@@ -72,7 +72,6 @@ ColumnLayout {
                 id: logLevelComboBox
                 model: logLevelItemModel
                 delegate: ItemDelegate {
-                    id: logLevelDelegate
                     text: modelData
                     required property string modelData
                 }

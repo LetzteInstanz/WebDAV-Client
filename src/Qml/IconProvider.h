@@ -1,7 +1,5 @@
 #pragma once
 
-#include <unordered_map>
-
 #include <QObject>
 #include <QPixmap>
 #include <QQuickImageProvider>
@@ -19,6 +17,5 @@ namespace Qml {
 
     private:
         static const char* const _res_path;
-        static const std::unordered_map<QString, QString> _icon_name_by_extension_map;
     };
 }

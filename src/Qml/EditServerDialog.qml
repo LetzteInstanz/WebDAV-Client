@@ -8,7 +8,7 @@ import "Util.js" as Util
 
 Dialog {
     anchors.centerIn: parent
-    width: parent.width
+    width: parent.width - 20
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
     onOpened: {
@@ -53,9 +53,7 @@ Dialog {
         function hasChanges() { return !_enabledHasChangesFunc || (_desc !== desc() || _addr !== addr() || _port !== portSpinBox.value || _path !== path()) }
         function enableOkButton() { standardButton(Dialog.Ok).enabled = hasChanges() && !isFieldEmpty() }
     }
-    RowLayout {
-        anchors.fill: parent
-
+    contentItem: RowLayout {
         ColumnLayout {
             Label {
                 text: qsTr("Name:")

@@ -13,10 +13,9 @@ Dialog {
     closePolicy: Popup.CloseOnEscape
     standardButtons: Dialog.Cancel
     background: Core.BorderRectangle {}
+    title: qsTr("Progress")
 
-    ColumnLayout {
-        anchors.fill: parent
-
+    contentItem: ColumnLayout {
         ProgressBar {
             id: progressBar
             Layout.fillWidth: true
@@ -36,7 +35,7 @@ Dialog {
             function onErrorOccurred(text) {
                 console.debug(qsTr("QML: An error occurred"))
                 function createDlg(comp) {
-                    const dlg = Util.createPopup(comp, appWindow, "MessageBox", {"standardButtons": Dialog.Ok, "text": text})
+                    const dlg = Util.createPopup(comp, appWindow, "MessageBox", {"standardButtons": Dialog.Ok, "title": qsTr("Error"), "text": text})
                     if (dlg === null)
                         return
 
