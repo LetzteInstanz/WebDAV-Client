@@ -3,8 +3,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-import "Core" as Core
-import "Util.js" as Util
+import "../Core" as Core
+import "../Util.js" as Util
 import WebDavClient
 
 ColumnLayout {
@@ -37,7 +37,7 @@ ColumnLayout {
             policy: ScrollBar.AlwaysOn
         }
         property Component menuComponent
-        Component.onCompleted: menuComponent = Qt.createComponent("Logger/LogItemMenu.qml", Component.Asynchronous)
+        Component.onCompleted: menuComponent = Qt.createComponent("LogItemMenu.qml", Component.Asynchronous)
         delegate: Item {
             id: delegateItem
             width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin

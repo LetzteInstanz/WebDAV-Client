@@ -4,13 +4,14 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 import "Core" as Core
+import "Logger" as Logger
 import "Util.js" as Util
 import WebDavClient
 
 ColumnLayout {
     property FileListPageColumnLayout fileListPage
     property SettingsPageColumnLayout settingsPage
-    property LogPageColumnLayout logPage
+    property Logger.LogPageColumnLayout logPage
 
     Core.SelectionSequentialAnimation {
         id: animation
