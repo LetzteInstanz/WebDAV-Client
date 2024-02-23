@@ -29,6 +29,8 @@
 #include <QAbstractListModel>
 #include <QByteArray>
 #include <QChar>
+#include <QClipboard>
+#include <QColor>
 #include <QDir>
 #include <QFile>
 #include <QGuiApplication>

@@ -7,6 +7,8 @@ QtQuick.ListView {
     bottomMargin: 1
     clip: true
     highlightFollowsCurrentItem: true
+    highlightMoveDuration: 600
+    highlightResizeDuration: 1000
     highlight: QtQuick.Rectangle {
         width: ListView.view.width
         color: "lightgray"
@@ -14,5 +16,10 @@ QtQuick.ListView {
     BorderRectangle {
         anchors.fill: parent
         color: "transparent"
+    }
+    function destroyModel() {
+        const model_ = model
+        model = null
+        model_.destroy()
     }
 }

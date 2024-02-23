@@ -57,6 +57,7 @@ qt_add_qml_module(web_dav_client
         src/Qml/EditServerDialog.qml
         src/Qml/FileItemMenu.qml
         src/Qml/FileListPageColumnLayout.qml
+        src/Qml/Logger/LogItemMenu.qml
         src/Qml/LogPageColumnLayout.qml
         src/Qml/Main.qml
         src/Qml/ProgressDialog.qml
@@ -76,8 +77,8 @@ qt_add_qml_module(web_dav_client
         src/Qml/IconProvider.h
         src/Qml/ItemModelManager.cpp
         src/Qml/ItemModelManager.h
-        src/Qml/Logger.cpp
-        src/Qml/Logger.h
+        src/Qml/Logger/LogItemModel.cpp
+        src/Qml/Logger/LogItemModel.h
         src/Qml/Settings.cpp
         src/Qml/Settings.h
         src/Qml/ServerItemModel.cpp

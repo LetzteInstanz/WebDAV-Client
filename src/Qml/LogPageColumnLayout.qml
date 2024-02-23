@@ -5,10 +5,18 @@ import QtQuick.Layouts
 
 import "Core" as Core
 import "Util.js" as Util
+import WebDavClient
 
 ColumnLayout {
-    function prepare() { logTxtArea.cursorPosition = logTxtArea.length - 1 }
-    function back() { stackLayout.currentIndex = 0 }
+    function prepare() {
+        listView.model = itemModelManager.createModel(ItemModel.Log)
+        listView.currentIndex = -1
+        listView.positionViewAtEnd()
+    }
+    function back() {
+        listView.destroyModel()
+        stackLayout.currentIndex = 0
+    }
 
     Item {
         Layout.fillWidth: true
@@ -20,27 +28,45 @@ ColumnLayout {
             onClicked: back()
         }
     }
-    ScrollView {
+    Core.ListView {
         Layout.fillHeight: true
         Layout.fillWidth: true
-        background: Core.BorderRectangle {}
+        id: listView
+        model: null
         ScrollBar.vertical: ScrollBar {
             policy: ScrollBar.AlwaysOn
         }
+        property Component menuComponent
+        Component.onCompleted: menuComponent = Qt.createComponent("Logger/LogItemMenu.qml", Component.Asynchronous)
+        delegate: Item {
+            id: delegateItem
+            width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
+            height: messageText.contentHeight + contentItem.anchors.topMargin + contentItem.anchors.bottomMargin
 
-        TextArea {
-            id: logTxtArea
-            anchors.fill: parent
-            background: null
-            text: logger.getLog()
-            readOnly: true
-            wrapMode: TextEdit.Wrap
-            textFormat: TextEdit.RichText
-            onReleased: (event) => { Util.showTextContextMenu(appWindow, logTxtArea, event) }
+            Core.ContentItem {
+                id: contentItem
+                anchors.fill: parent
 
-            Connections {
-                target: logger
-                function onMsgReceived(msg) { logTxtArea.insert(logTxtArea.length, msg) }
+                Text {
+                    id: messageText
+                    anchors.fill: parent
+                    wrapMode: Text.Wrap
+                    color: model.colour
+                    text: model.text
+                }
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: delegateItem.ListView.view.currentIndex = index
+                onPressAndHold: (event) => {
+                    delegateItem.ListView.view.currentIndex = index
+                    function createMenu(comp) {
+                        const item = delegateItem.ListView.view.itemAtIndex(index)
+                        const menu = Util.createPopup(comp, item, "LogItemMenu", {"view": listView})
+                        menu.popup(item, event.x, event.y)
+                    }
+                    Util.createObjAsync(listView.menuComponent, createMenu)
+                }
             }
         }
     }
