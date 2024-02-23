@@ -58,7 +58,7 @@ qt_add_qml_module(web_dav_client
         src/Qml/FileItemMenu.qml
         src/Qml/FileListPageColumnLayout.qml
         src/Qml/Logger/LogItemMenu.qml
-        src/Qml/LogPageColumnLayout.qml
+        src/Qml/Logger/LogPageColumnLayout.qml
         src/Qml/Main.qml
         src/Qml/ProgressDialog.qml
         src/Qml/ServerItemMenu.qml
