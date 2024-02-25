@@ -107,18 +107,28 @@ ColumnLayout {
                 id: contentItem
                 anchors.fill: parent
 
-                Text {
-                    id: descText
-                    font.bold: true
-                    font.pointSize: 14
-                    elide: Text.ElideRight
-                    text: desc
-                }
-                Text {
-                    id: paramText
-                    anchors.top: descText.bottom
-                    elide: Text.ElideRight
-                    text: "http://" + addr + ":" + port + "/" + path
+                ColumnLayout {
+                    anchors.fill: parent
+                    spacing: 0
+
+                    Text {
+                        id: descText
+                        Layout.fillWidth: true
+                        font.bold: true
+                        font.pointSize: 14
+                        maximumLineCount: 1
+                        wrapMode: Text.Wrap
+                        elide: Text.ElideRight
+                        text: desc
+                    }
+                    Text {
+                        id: paramText
+                        Layout.fillWidth: true
+                        maximumLineCount: 1
+                        wrapMode: Text.WrapAnywhere
+                        elide: Text.ElideRight
+                        text: "http://" + addr + ":" + port + "/" + path
+                    }
                 }
             }
             MouseArea {
@@ -132,7 +142,7 @@ ColumnLayout {
                     delayTimer.item = item
                     delayTimer.start()
                 }
-                onPressAndHold: (mouse) => {
+                onPressAndHold: (event) => {
                     const view = delegateItem.ListView.view
                     view.currentIndex = index
                     const item = view.itemAtIndex(index)
@@ -141,7 +151,7 @@ ColumnLayout {
 
                     function createMenu(comp) {
                         const menu = Util.createPopup(comp, item, "ServerItemMenu", {"view": listView})
-                        menu.popup(item, mouse.x, mouse.y)
+                        menu.popup(item, event.x, event.y)
                     }
                     Util.createObjAsync(listView.menuComponent, createMenu)
                 }
