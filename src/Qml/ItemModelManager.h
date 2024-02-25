@@ -7,6 +7,7 @@
 #include <QQmlEngine>
 
 class FileSystemModel;
+class Logger;
 class ServerInfoManager;
 class SettingsJsonFile;
 
@@ -16,7 +17,7 @@ namespace Qml {
         QML_ELEMENT
 
     public:
-        enum class Model {Server, File, SortParam};
+        enum class Model {Server, Log, File, SortParam};
         Q_ENUM(Model);
     };
 
@@ -24,11 +25,12 @@ namespace Qml {
         Q_OBJECT
 
     public:
-        ItemModelManager(std::shared_ptr<SettingsJsonFile> settings, std::unique_ptr<ServerInfoManager>&& srv_mgr, std::shared_ptr<::FileSystemModel> fs_model, QObject* parent = nullptr);
+        ItemModelManager(std::shared_ptr<Logger> logger, std::shared_ptr<SettingsJsonFile> settings, std::unique_ptr<ServerInfoManager>&& srv_mgr, std::shared_ptr<::FileSystemModel> fs_model, QObject* parent = nullptr);
 
         Q_INVOKABLE QAbstractItemModel* createModel(ItemModel::Model model);
 
     private:
+        std::shared_ptr<Logger> _logger;
         std::shared_ptr<SettingsJsonFile> _settings;
         std::shared_ptr<ServerInfoManager> _srv_mgr;
         std::shared_ptr<::FileSystemModel> _fs_model;

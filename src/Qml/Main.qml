@@ -5,6 +5,7 @@ import QtQuick.Layouts
 //import Qt.labs.platform
 
 import "Core" as Core
+import "Logger" as Logger
 import WebDavClient
 
 ApplicationWindow {
@@ -79,7 +80,7 @@ ApplicationWindow {
             id: settingsPageColumnLayout
         }
 
-        LogPageColumnLayout {
+        Logger.LogPageColumnLayout {
             id: logPageColumnLayout
         }
     }

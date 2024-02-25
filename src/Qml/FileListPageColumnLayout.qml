@@ -100,11 +100,6 @@ ColumnLayout {
             menuComponent = Qt.createComponent("FileItemMenu.qml", Component.Asynchronous)
             sortDlgComponent = Qt.createComponent("Sort/SortDialog.qml", Component.Asynchronous)
         }
-        function destroyModel() {
-            const model = listView.model
-            listView.model = null
-            model.destroy()
-        }
         delegate: Item {
             id: delegateItem
             height: Math.max(image.height, nameText.contentHeight + creationTimeText.contentHeight + Math.max(sizeText.contentHeight, modificationTimeText.contentHeight)) +
@@ -184,7 +179,7 @@ ColumnLayout {
                     delayTimer.model = model
                     delayTimer.start()
                 }
-                onPressAndHold: (mouse) => {
+                onPressAndHold: (event) => {
                     //const view = delegateItem.ListView.view
                     //animation.obj = view.itemAtIndex(index)
                     //animation.start()
@@ -192,7 +187,7 @@ ColumnLayout {
                     function createMenu(comp) {
                         const item = delegateItem.ListView.view.itemAtIndex(index)
                         const menu = Util.createPopup(comp, item, "FileItemMenu", {"sortDlgComponent": listView.sortDlgComponent, "backFunc": back})
-                        menu.popup(item, mouse.x, mouse.y)
+                        menu.popup(item, event.x, event.y)
                     }
                     Util.createObjAsync(listView.menuComponent, createMenu)
                 }

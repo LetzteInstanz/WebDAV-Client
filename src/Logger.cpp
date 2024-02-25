@@ -1,9 +1,11 @@
 #include "Logger.h"
 
+#include "Util.h"
+
 namespace {
     bool operator>(QtMsgType lhs, QtMsgType rhs) {
         if (lhs != QtInfoMsg && rhs != QtInfoMsg)
-            return static_cast<int>(lhs) > static_cast<int>(rhs);
+            return to_int(lhs) > to_int(rhs);
 
         return lhs == QtInfoMsg && rhs == QtDebugMsg;
     }
@@ -13,15 +15,19 @@ namespace {
     bool operator<(QtMsgType lhs, QtMsgType rhs) { return !(lhs >= rhs); }
 }
 
+#ifndef NDEBUG
 QtMessageHandler Logger::_default_handler = nullptr;
+#endif
 
-Logger::Logger() { _default_handler = qInstallMessageHandler(&Logger::message_handler); }
+Logger::Logger() = default;
 
 void Logger::message_handler(QtMsgType type, const QMessageLogContext& context, const QString& msg) {
+#ifndef NDEBUG
     _default_handler(type, context, msg);
-    std::shared_ptr<Logger> logger = Logger::get_instance();
+#endif
+    static auto logger = Logger::get_instance();
     if (type >= logger->get_max_level())
-        logger->append_msg(type, msg);
+        logger->append_message(std::make_pair(type, msg));
 }
 
 std::shared_ptr<Logger> Logger::get_instance() {
@@ -33,6 +39,16 @@ std::shared_ptr<Logger> Logger::get_instance() {
     return std::atomic_load_explicit(&logger, std::memory_order::relaxed);
 #endif
 }
+
+void Logger::install_handler() {
+#ifndef NDEBUG
+    _default_handler = qInstallMessageHandler(&Logger::message_handler);
+#else
+    qInstallMessageHandler(&Logger::message_handler);
+#endif
+}
+
+QtMsgType Logger::get_max_level() const noexcept { return _max_level.load(std::memory_order::relaxed); }
 
 void Logger::set_max_level(QtMsgType level) {
     const auto old = _max_level.load(std::memory_order::relaxed);
@@ -52,23 +68,24 @@ void Logger::set_max_level(QtMsgType level) {
     _filtered = true;
 }
 
-Logger::Log Logger::get_log() const {
+Logger::Log Logger::get_log() {
     const std::lock_guard<std::mutex> locker(_mutex);
-    _enable_signal = true;
+    _enable_func = _notification_func != nullptr;
     return _log;
 }
 
-void Logger::append_msg(QtMsgType type, const QString& msg) {
+void Logger::append_message(Message&& msg) {
     const std::lock_guard<std::mutex> locker(_mutex);
-    if (type < get_max_level()) // note: The value of _max_level may change in the main thread between calls get_max_level() and append_msg() in message_handler() in another thread
+    if (msg.first < get_max_level()) // note: The value of _max_level may change in the main thread between calls get_max_level() and append_msg() in message_handler() in another thread
         return;
 
-    _log.emplace_back(std::make_pair(type, msg));
-    if (_enable_signal && _notification_func) // note: A message was passed from the QML engine 2 times into the TextArea in QML: signal call _notification_func was posted into the event loop, then get_log() was called.
-        _notification_func(type, msg);        // _enable_signal enables signal sending only after get_log() call.
+    _log.emplace_back(msg);
+    if (_enable_func)
+        _notification_func(std::move(msg));
 }
 
 void Logger::set_notification_func(NotificationFunc&& func) {
     const std::lock_guard<std::mutex> locker(_mutex);
-    _notification_func = func;
+    _enable_func = false;
+    _notification_func = std::move(func);
 }
