@@ -90,7 +90,7 @@ void Parser::CurrentState::update_if_data(Tag t, const QStringView& data) {
 
         case Tag::CreationDate: {
             try {
-                _obj.creation_date = std::make_pair(std::remove_reference_t<FSObjectStruct::Status>(_status), TimeParser::to_time_t(data, TimeParser::Format::Rfc3339));
+                _obj.creation_date = std::make_pair(std::remove_reference_t<FSObjectStruct::Status>(_status), TimeParser::to_sys_seconds(data, TimeParser::Format::Rfc3339));
             } catch (const std::runtime_error& e) {
                 _obj.creation_date.first = FSObjectStruct::Status::None;
                 set_error(QObject::tr(e.what()));
@@ -100,7 +100,7 @@ void Parser::CurrentState::update_if_data(Tag t, const QStringView& data) {
 
         case Tag::GetLastModified: {
             try {
-                _obj.last_modified = std::make_pair(std::remove_reference_t<FSObjectStruct::Status>(_status), TimeParser::to_time_t(data, TimeParser::Format::Rfc2616));
+                _obj.last_modified = std::make_pair(std::remove_reference_t<FSObjectStruct::Status>(_status), TimeParser::to_sys_seconds(data, TimeParser::Format::Rfc2616));
             } catch (const std::runtime_error& e) {
                 _obj.last_modified.first = FSObjectStruct::Status::None;
                 set_error(QObject::tr(e.what()));

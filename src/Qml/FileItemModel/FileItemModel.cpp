@@ -495,8 +495,9 @@ namespace {
 
     QString extract_extension(const QStringView& name, qsizetype dot_pos) { return QStringView(std::begin(name) + dot_pos + 1, std::end(name)).toString().toLower(); }
 
-    QString to_string(time_t t) {
-        const std::tm tm = *std::localtime(&t);
+    QString to_string(std::chrono::sys_seconds t) {
+        const time_t c_time = std::chrono::system_clock::to_time_t(t);
+        const std::tm tm = *std::localtime(&c_time); // todo: replace with std::chrono::zoned_time() and std::chrono::current_zone(), when GCC will support this
         std::ostringstream stream;
         stream.imbue(std::locale("")); // todo: take into account the translation setting, when it will be introduced
         stream << std::put_time(&tm, "%c");

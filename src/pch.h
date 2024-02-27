@@ -19,7 +19,6 @@
 #include <stack>
 #include <stdexcept>
 #include <string>
-#include <time.h> // note: Only for timegm (struct tm *__tp)
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
