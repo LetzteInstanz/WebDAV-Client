@@ -2,7 +2,7 @@
 
 #include "../Util.h"
 
-std::chrono::sys_seconds TimeParser::to_sys_seconds(const QStringView& str, Format f) {
+std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(const QStringView& str, Format f) {
     CustomTime time; // todo: replace with std::chrono::parse(), when GCC will support this
     const auto str_end = std::end(str);
     const CharSet& delimiters = get_delimiters(f);
@@ -47,9 +47,60 @@ std::chrono::sys_seconds TimeParser::to_sys_seconds(const QStringView& str, Form
     return seconds;
 }
 
-const TimeParser::CharSet& TimeParser::get_delimiters(Format f) { return f == Format::Rfc2616 ? _rfc2616_delimiters : _rfc3339_delimiters; }
+#ifndef NDEBUG
+void Parser::CurrentState::TimeParser::test() {
+    using namespace std::chrono_literals;
 
-const TimeParser::TokenOrder& TimeParser::get_order(const QStringView& str, Format f) {
+    for (const auto& str : std::vector<QString>{"Sun, 06 Nov 1999 08:49:37 GMT", "Sunday, 06-Nov-99 08:49:37 GMT", "Sun Nov 6 08:49:37 1999"}) {
+        const std::chrono::sys_seconds seconds = TimeParser::to_sys_seconds(str, TimeParser::Format::Rfc2616);
+        const std::chrono::year_month_day yyyy_mm_dd(std::chrono::time_point_cast<std::chrono::days>(seconds));
+        assert(yyyy_mm_dd.year() == 1999y);
+        assert(yyyy_mm_dd.month() == std::chrono::November);
+        assert(yyyy_mm_dd.day() == 6d);
+        const std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration> hh_mm_ss(seconds - to_type<std::chrono::sys_days>(yyyy_mm_dd));
+        assert(hh_mm_ss.hours() == 8h);
+        assert(hh_mm_ss.minutes() == 49min);
+        assert(hh_mm_ss.seconds() == 37s);
+    }
+    std::chrono::sys_seconds seconds = TimeParser::to_sys_seconds(QString("Sun, 06 Nov 2024 08:49:37 GMT"), TimeParser::Format::Rfc2616);
+    std::chrono::year_month_day yyyy_mm_dd(std::chrono::time_point_cast<std::chrono::days>(seconds));
+    assert(yyyy_mm_dd.year() == 2024y);
+
+    seconds = TimeParser::to_sys_seconds(QString("1985-04-12T23:20:50.52Z"), TimeParser::Format::Rfc3339);
+    yyyy_mm_dd = std::chrono::year_month_day(std::chrono::time_point_cast<std::chrono::days>(seconds));
+    assert(yyyy_mm_dd.year() == 1985y);
+    assert(yyyy_mm_dd.month() == std::chrono::April);
+    assert(yyyy_mm_dd.day() == 12d);
+    std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration> hh_mm_ss(seconds - to_type<std::chrono::sys_days>(yyyy_mm_dd));
+    assert(hh_mm_ss.hours() == 23h);
+    assert(hh_mm_ss.minutes() == 20min);
+    assert(hh_mm_ss.seconds() == 51s);
+
+    seconds = TimeParser::to_sys_seconds(QString("1996-12-19T16:39:57.473-08:21"), TimeParser::Format::Rfc3339);
+    yyyy_mm_dd = std::chrono::year_month_day(std::chrono::time_point_cast<std::chrono::days>(seconds));
+    assert(yyyy_mm_dd.year() == 1996y);
+    assert(yyyy_mm_dd.month() == std::chrono::December);
+    assert(yyyy_mm_dd.day() == 20d);
+    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - to_type<std::chrono::sys_days>(yyyy_mm_dd));
+    assert(hh_mm_ss.hours() == 1h);
+    assert(hh_mm_ss.minutes() == 0min);
+    assert(hh_mm_ss.seconds() == 57s);
+
+    seconds = TimeParser::to_sys_seconds(QString("1996-12-19T16:29:57+08:30"), TimeParser::Format::Rfc3339);
+    yyyy_mm_dd = std::chrono::year_month_day(std::chrono::time_point_cast<std::chrono::days>(seconds));
+    assert(yyyy_mm_dd.year() == 1996y);
+    assert(yyyy_mm_dd.month() == std::chrono::December);
+    assert(yyyy_mm_dd.day() == 19d);
+    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - to_type<std::chrono::sys_days>(yyyy_mm_dd));
+    assert(hh_mm_ss.hours() == 7h);
+    assert(hh_mm_ss.minutes() == 59min);
+    assert(hh_mm_ss.seconds() == 57s);
+}
+#endif
+
+const Parser::CurrentState::TimeParser::CharSet& Parser::CurrentState::TimeParser::get_delimiters(Format f) { return f == Format::Rfc2616 ? _rfc2616_delimiters : _rfc3339_delimiters; }
+
+const Parser::CurrentState::TimeParser::TokenOrder& Parser::CurrentState::TimeParser::get_order(const QStringView& str, Format f) {
     switch (f) {
         case Format::Rfc2616:
             return str.back() == 'T' ? _rfc2616_order_1 : _rfc2616_order_2;
@@ -59,7 +110,7 @@ const TimeParser::TokenOrder& TimeParser::get_order(const QStringView& str, Form
     }
 }
 
-void TimeParser::parse(CustomTime& time, const QStringView& lexem, bool& ok, Token token) {
+void Parser::CurrentState::TimeParser::parse(CustomTime& time, const QStringView& lexem, bool& ok, Token token) {
     switch (token) {
         case Token::DayName: {
             break;
@@ -120,13 +171,13 @@ void TimeParser::parse(CustomTime& time, const QStringView& lexem, bool& ok, Tok
     }
 }
 
-const TimeParser::CharSet TimeParser::_rfc2616_delimiters{' ', ',', '-', ':'};
-const TimeParser::CharSet TimeParser::_rfc3339_delimiters{'-', '+', ':', 'T', 'Z', 't', 'z'};
+const Parser::CurrentState::TimeParser::CharSet Parser::CurrentState::TimeParser::_rfc2616_delimiters{' ', ',', '-', ':'};
+const Parser::CurrentState::TimeParser::CharSet Parser::CurrentState::TimeParser::_rfc3339_delimiters{'-', '+', ':', 'T', 'Z', 't', 'z'};
 
-const std::unordered_map<QString, int> TimeParser::_month_map{{"Jan", 1}, {"Feb", 2}, {"Mar", 3}, {"Apr", 4}, {"May", 5}, {"Jun", 6},
-                                                              {"Jul", 7}, {"Aug", 8}, {"Sep", 9}, {"Oct", 10}, {"Nov", 11}, {"Dec", 12}};
+const std::unordered_map<QString, int> Parser::CurrentState::TimeParser::_month_map{{"Jan", 1}, {"Feb", 2}, {"Mar", 3}, {"Apr", 4}, {"May", 5}, {"Jun", 6},
+                                                                                    {"Jul", 7}, {"Aug", 8}, {"Sep", 9}, {"Oct", 10}, {"Nov", 11}, {"Dec", 12}};
 
-const TimeParser::TokenOrder TimeParser::_rfc2616_order_1{Token::DayName, Token::Day, Token::MonthName, Token::Year, Token::Hours, Token::Minutes, Token::Seconds};
-const TimeParser::TokenOrder TimeParser::_rfc2616_order_2{Token::DayName, Token::MonthName, Token::Day, Token::Hours, Token::Minutes, Token::Seconds, Token::Year};
-const TimeParser::TokenOrder TimeParser::_rfc3339_order_1{Token::Year, Token::Month, Token::Day, Token::Hours, Token::Minutes, Token::Seconds};
-const TimeParser::TokenOrder TimeParser::_rfc3339_order_2{Token::Year, Token::Month, Token::Day, Token::Hours, Token::Minutes, Token::Seconds, Token::ZoneHours, Token::ZoneMinutes};
+const Parser::CurrentState::TimeParser::TokenOrder Parser::CurrentState::TimeParser::_rfc2616_order_1{Token::DayName, Token::Day, Token::MonthName, Token::Year, Token::Hours, Token::Minutes, Token::Seconds};
+const Parser::CurrentState::TimeParser::TokenOrder Parser::CurrentState::TimeParser::_rfc2616_order_2{Token::DayName, Token::MonthName, Token::Day, Token::Hours, Token::Minutes, Token::Seconds, Token::Year};
+const Parser::CurrentState::TimeParser::TokenOrder Parser::CurrentState::TimeParser::_rfc3339_order_1{Token::Year, Token::Month, Token::Day, Token::Hours, Token::Minutes, Token::Seconds};
+const Parser::CurrentState::TimeParser::TokenOrder Parser::CurrentState::TimeParser::_rfc3339_order_2{Token::Year, Token::Month, Token::Day, Token::Hours, Token::Minutes, Token::Seconds, Token::ZoneHours, Token::ZoneMinutes};

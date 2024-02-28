@@ -9,11 +9,17 @@
 #include <QString>
 #include <QStringView>
 
-class TimeParser {
+#include "CurrentState.h"
+
+class Parser::CurrentState::TimeParser {
 public:
     enum class Format {Rfc2616, Rfc3339};
 
     static std::chrono::sys_seconds to_sys_seconds(const QStringView& str, Format f);
+
+#ifndef NDEBUG
+    static void test();
+#endif
 
 private:
     struct CustomTime {

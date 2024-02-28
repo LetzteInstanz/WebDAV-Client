@@ -105,55 +105,8 @@ Parser::Result Parser::parse_propfind_reply(const QStringView& current_path, con
 }
 
 #ifndef NDEBUG
-#include "TimeParser.h"
-
 void Parser::test() {
     using namespace std::chrono_literals;
-
-    for (const auto& str : std::vector<QString>{"Sun, 06 Nov 1999 08:49:37 GMT", "Sunday, 06-Nov-99 08:49:37 GMT", "Sun Nov 6 08:49:37 1999"}) {
-        const std::chrono::sys_seconds seconds = TimeParser::to_sys_seconds(str, TimeParser::Format::Rfc2616);
-        const std::chrono::year_month_day yyyy_mm_dd(std::chrono::time_point_cast<std::chrono::days>(seconds));
-        assert(yyyy_mm_dd.year() == 1999y);
-        assert(yyyy_mm_dd.month() == std::chrono::November);
-        assert(yyyy_mm_dd.day() == 6d);
-        const std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration> hh_mm_ss(seconds - static_cast<std::chrono::sys_days>(yyyy_mm_dd));
-        assert(hh_mm_ss.hours() == 8h);
-        assert(hh_mm_ss.minutes() == 49min);
-        assert(hh_mm_ss.seconds() == 37s);
-    }
-    std::chrono::sys_seconds seconds = TimeParser::to_sys_seconds(QString("Sun, 06 Nov 2024 08:49:37 GMT"), TimeParser::Format::Rfc2616);
-    std::chrono::year_month_day yyyy_mm_dd(std::chrono::time_point_cast<std::chrono::days>(seconds));
-    assert(yyyy_mm_dd.year() == 2024y);
-
-    seconds = TimeParser::to_sys_seconds(QString("1985-04-12T23:20:50.52Z"), TimeParser::Format::Rfc3339);
-    yyyy_mm_dd = std::chrono::year_month_day(std::chrono::time_point_cast<std::chrono::days>(seconds));
-    assert(yyyy_mm_dd.year() == 1985y);
-    assert(yyyy_mm_dd.month() == std::chrono::April);
-    assert(yyyy_mm_dd.day() == 12d);
-    std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration> hh_mm_ss(seconds - static_cast<std::chrono::sys_days>(yyyy_mm_dd));
-    assert(hh_mm_ss.hours() == 23h);
-    assert(hh_mm_ss.minutes() == 20min);
-    assert(hh_mm_ss.seconds() == 51s);
-
-    seconds = TimeParser::to_sys_seconds(QString("1996-12-19T16:39:57.473-08:21"), TimeParser::Format::Rfc3339);
-    yyyy_mm_dd = std::chrono::year_month_day(std::chrono::time_point_cast<std::chrono::days>(seconds));
-    assert(yyyy_mm_dd.year() == 1996y);
-    assert(yyyy_mm_dd.month() == std::chrono::December);
-    assert(yyyy_mm_dd.day() == 20d);
-    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - static_cast<std::chrono::sys_days>(yyyy_mm_dd));
-    assert(hh_mm_ss.hours() == 1h);
-    assert(hh_mm_ss.minutes() == 0min);
-    assert(hh_mm_ss.seconds() == 57s);
-
-    seconds = TimeParser::to_sys_seconds(QString("1996-12-19T16:29:57+08:30"), TimeParser::Format::Rfc3339);
-    yyyy_mm_dd = std::chrono::year_month_day(std::chrono::time_point_cast<std::chrono::days>(seconds));
-    assert(yyyy_mm_dd.year() == 1996y);
-    assert(yyyy_mm_dd.month() == std::chrono::December);
-    assert(yyyy_mm_dd.day() == 19d);
-    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - static_cast<std::chrono::sys_days>(yyyy_mm_dd));
-    assert(hh_mm_ss.hours() == 7h);
-    assert(hh_mm_ss.minutes() == 59min);
-    assert(hh_mm_ss.seconds() == 57s);
 
     const QString test_responce =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -289,12 +242,12 @@ void Parser::test() {
     assert(it->get_name() == "Диск 1");
     assert(it->get_type() == FileSystemObject::Type::Directory);
     assert(it->is_creation_time_valid());
-    seconds = it->get_creation_time();
-    yyyy_mm_dd = std::chrono::year_month_day(std::chrono::time_point_cast<std::chrono::days>(seconds));
+    std::chrono::sys_seconds seconds = it->get_creation_time();
+    std::chrono::year_month_day yyyy_mm_dd = std::chrono::year_month_day(std::chrono::time_point_cast<std::chrono::days>(seconds));
     assert(yyyy_mm_dd.year() == 1996y);
     assert(yyyy_mm_dd.month() == std::chrono::December);
     assert(yyyy_mm_dd.day() == 19d);
-    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - static_cast<std::chrono::sys_days>(yyyy_mm_dd));
+    std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration> hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - to_type<std::chrono::sys_days>(yyyy_mm_dd));
     assert(hh_mm_ss.hours() == 7h);
     assert(hh_mm_ss.minutes() == 59min);
     assert(hh_mm_ss.seconds() == 57s);
@@ -305,7 +258,7 @@ void Parser::test() {
     assert(yyyy_mm_dd.year() == 2023y);
     assert(yyyy_mm_dd.month() == std::chrono::March);
     assert(yyyy_mm_dd.day() == 6d);
-    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - static_cast<std::chrono::sys_days>(yyyy_mm_dd));
+    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - to_type<std::chrono::sys_days>(yyyy_mm_dd));
     assert(hh_mm_ss.hours() == 13h);
     assert(hh_mm_ss.minutes() == 49min);
     assert(hh_mm_ss.seconds() == 1s);
@@ -321,7 +274,7 @@ void Parser::test() {
     assert(yyyy_mm_dd.year() == 1996y);
     assert(yyyy_mm_dd.month() == std::chrono::December);
     assert(yyyy_mm_dd.day() == 20d);
-    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - static_cast<std::chrono::sys_days>(yyyy_mm_dd));
+    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - to_type<std::chrono::sys_days>(yyyy_mm_dd));
     assert(hh_mm_ss.hours() == 1h);
     assert(hh_mm_ss.minutes() == 0min);
     assert(hh_mm_ss.seconds() == 57s);
@@ -332,7 +285,7 @@ void Parser::test() {
     assert(yyyy_mm_dd.year() == 2023y);
     assert(yyyy_mm_dd.month() == std::chrono::March);
     assert(yyyy_mm_dd.day() == 9d);
-    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - static_cast<std::chrono::sys_days>(yyyy_mm_dd));
+    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - to_type<std::chrono::sys_days>(yyyy_mm_dd));
     assert(hh_mm_ss.hours() == 6h);
     assert(hh_mm_ss.minutes() == 55min);
     assert(hh_mm_ss.seconds() == 56s);
@@ -349,7 +302,7 @@ void Parser::test() {
     assert(yyyy_mm_dd.year() == 2025y);
     assert(yyyy_mm_dd.month() == std::chrono::July);
     assert(yyyy_mm_dd.day() == 16d);
-    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - static_cast<std::chrono::sys_days>(yyyy_mm_dd));
+    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - to_type<std::chrono::sys_days>(yyyy_mm_dd));
     assert(hh_mm_ss.hours() == 23h);
     assert(hh_mm_ss.minutes() == 59min);
     assert(hh_mm_ss.seconds() == 58s);
