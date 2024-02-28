@@ -24,6 +24,8 @@ private:
     void set_error(QString&& msg);
 
 private:
+    class TimeParser;
+
     const QStringView& _current_path;
     FSObjectStruct _obj;
     FSObjectStruct::Status _status = FSObjectStruct::Status::None;

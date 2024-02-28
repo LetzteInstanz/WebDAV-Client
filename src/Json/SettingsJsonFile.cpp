@@ -56,7 +56,7 @@ SettingsJsonFile::SettingsJsonFile(std::shared_ptr<Logger> logger) : JsonFile("c
     if (exists && !ok)
         json_value_type_warning(_log_level_key, QObject::tr("a number"));
 
-    _log_level = ok ? static_cast<QtMsgType>(it->toInt()) : QtWarningMsg;
+    _log_level = ok ? to_type<QtMsgType>(it->toInt()) : QtWarningMsg;
     _logger->set_max_level(_log_level);
     if (!ok)
         obj[_log_level_key] = _log_level;

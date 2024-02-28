@@ -23,6 +23,10 @@ public:
 
     static Result parse_propfind_reply(const QStringView& current_path, const QByteArray& data);
 
+#ifndef NDEBUG
+    static void test();
+#endif
+
 private:
     enum class Tag {None, Multistatus, Response, PropStat, Prop, Href, ResourceType, CreationDate, GetLastModified, Collection, GetContentLength, Status};
 
@@ -33,12 +37,6 @@ private:
     using TagOrderMap = std::unordered_map<Tag, TagSet, TagHasher>;
     struct CurrentState;
 
-#ifndef NDEBUG
-public:
-    static void test();
-#endif
-
-private:
     static const std::unordered_map<QString, Tag> _propfind_tag_by_str_map;
     static const TagOrderMap _propfind_tag_order;
 };

@@ -2,7 +2,12 @@
 
 #include "TimeParser.h"
 
-Parser::CurrentState::CurrentState(const QStringView& current_path, TagOrderMap::const_iterator first, Result& result) : _current_path(current_path), _result(result) { stack.push(first); }
+Parser::CurrentState::CurrentState(const QStringView& current_path, TagOrderMap::const_iterator first, Result& result) : _current_path(current_path), _result(result) {
+#ifndef NDEBUG
+    TimeParser::test();
+#endif
+    stack.push(first);
+}
 
 void Parser::CurrentState::update_if_start_tag(Tag t) {
     switch (t) {
