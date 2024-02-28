@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ctime>
+#include <chrono>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -13,13 +13,17 @@ class TimeParser {
 public:
     enum class Format {Rfc2616, Rfc3339};
 
-    static time_t to_time_t(const QStringView& str, Format f);
+    static std::chrono::sys_seconds to_sys_seconds(const QStringView& str, Format f);
 
 private:
-    struct CustomTm {
-        std::tm tm;
-        int zone_hours;
-        int zone_minutes;
+    struct CustomTime {
+        std::chrono::year year;
+        std::chrono::month month;
+        std::chrono::day day;
+        std::chrono::hours hours;
+        std::chrono::minutes minutes;
+        std::chrono::seconds seconds;
+        int time_zone_sign;
     };
     enum class Token {DayName, Day, Month, MonthName, Year, Hours, Minutes, Seconds, ZoneHours, ZoneMinutes};
     using CharSet = std::unordered_set<QChar>;
@@ -27,7 +31,7 @@ private:
 
     static const CharSet& get_delimiters(Format f);
     static const TokenOrder& get_order(const QStringView& str, Format f);
-    static void parse(CustomTm& time, const QStringView& lexem, bool& ok, Token token);
+    static void parse(CustomTime& time, const QStringView& lexem, bool& ok, Token token);
 
 private:
     static const CharSet _rfc2616_delimiters;

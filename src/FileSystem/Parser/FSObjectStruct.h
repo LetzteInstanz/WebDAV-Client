@@ -1,7 +1,7 @@
 #pragma once
 
+#include <chrono>
 #include <cstdint>
-#include <ctime>
 #include <utility>
 #include <vector>
 
@@ -22,8 +22,8 @@ struct FSObjectStruct {
     bool is_curr_dir_obj = false;
     QString name;
     std::pair<Status, Type> type = {Status::None, Type::File};
-    std::pair<Status, time_t> creation_date = {Status::None, 0};
-    std::pair<Status, time_t> last_modified = {Status::None, 0};
+    std::pair<Status, std::chrono::sys_seconds> creation_date = {Status::None, {}};
+    std::pair<Status, std::chrono::sys_seconds> last_modified = {Status::None, {}};
     std::pair<Status, uint64_t> content_length = {Status::None, 0};
 
 private:
