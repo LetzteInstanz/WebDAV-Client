@@ -3,7 +3,7 @@
 #include "../Util.h"
 
 std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(const QStringView& str, Format f) {
-    CustomTime time; // todo: replace with std::chrono::parse(), when GCC will support this
+    CustomTime time;
     const auto str_end = std::end(str);
     const CharSet& delimiters = get_delimiters(f);
     const TokenOrder& order = get_order(str, f);
@@ -43,7 +43,7 @@ std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(const 
     auto seconds = std::chrono::time_point_cast<std::chrono::seconds>(days);
     seconds += time.hours;
     seconds += time.minutes;
-    seconds += time.seconds;
+    seconds += time.seconds; // todo: use std::chrono::utc_clock type and std::chrono::std::chrono::clock_cast(), when GCC will support this
     return seconds;
 }
 
@@ -131,7 +131,7 @@ void Parser::CurrentState::TimeParser::parse(CustomTime& time, const QStringView
             if (it == std::end(_month_map))
                 throw std::runtime_error("month parse error");
 
-            time.month = std::chrono::month(it->second);
+            time.month = it->second;
             break;
         }
 
@@ -174,8 +174,8 @@ void Parser::CurrentState::TimeParser::parse(CustomTime& time, const QStringView
 const Parser::CurrentState::TimeParser::CharSet Parser::CurrentState::TimeParser::_rfc2616_delimiters{' ', ',', '-', ':'};
 const Parser::CurrentState::TimeParser::CharSet Parser::CurrentState::TimeParser::_rfc3339_delimiters{'-', '+', ':', 'T', 'Z', 't', 'z'};
 
-const std::unordered_map<QString, int> Parser::CurrentState::TimeParser::_month_map{{"Jan", 1}, {"Feb", 2}, {"Mar", 3}, {"Apr", 4}, {"May", 5}, {"Jun", 6},
-                                                                                    {"Jul", 7}, {"Aug", 8}, {"Sep", 9}, {"Oct", 10}, {"Nov", 11}, {"Dec", 12}};
+const std::unordered_map<QString, std::chrono::month> Parser::CurrentState::TimeParser::_month_map{{"Jan", std::chrono::January}, {"Feb", std::chrono::February}, {"Mar", std::chrono::March}, {"Apr", std::chrono::April}, {"May", std::chrono::May}, {"Jun", std::chrono::June},
+                                                                                                   {"Jul", std::chrono::July}, {"Aug", std::chrono::August}, {"Sep", std::chrono::September}, {"Oct", std::chrono::October}, {"Nov", std::chrono::November}, {"Dec", std::chrono::December}};
 
 const Parser::CurrentState::TimeParser::TokenOrder Parser::CurrentState::TimeParser::_rfc2616_order_1{Token::DayName, Token::Day, Token::MonthName, Token::Year, Token::Hours, Token::Minutes, Token::Seconds};
 const Parser::CurrentState::TimeParser::TokenOrder Parser::CurrentState::TimeParser::_rfc2616_order_2{Token::DayName, Token::MonthName, Token::Day, Token::Hours, Token::Minutes, Token::Seconds, Token::Year};
