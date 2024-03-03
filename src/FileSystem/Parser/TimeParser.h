@@ -42,7 +42,7 @@ private:
 private:
     static const CharSet _rfc2616_delimiters;
     static const CharSet _rfc3339_delimiters;
-    static const std::unordered_map<QString, int> _month_map;
+    static const std::unordered_map<QString, std::chrono::month> _month_map;
     static const TokenOrder _rfc2616_order_1;
     static const TokenOrder _rfc2616_order_2;
     static const TokenOrder _rfc3339_order_1;
