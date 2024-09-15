@@ -1,6 +1,7 @@
 #include "ServerInfo.h"
 
 #include "Util.h"
+#include "pch.h"
 
 const char* const ServerInfo::_desc_key = "description",
           * const ServerInfo::_addr_key = "address",

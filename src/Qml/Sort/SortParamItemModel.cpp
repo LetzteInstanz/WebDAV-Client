@@ -1,5 +1,6 @@
 #include "SortParamItemModel.h"
 
+#include "../../pch.h"
 #include "../Json/SettingsJsonFile.h"
 #include "../Util.h"
 #include "SortParam.h"

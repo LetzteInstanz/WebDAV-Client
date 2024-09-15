@@ -1,5 +1,6 @@
 #include "FileItemModel.h"
 
+#include "../../pch.h"
 #include "../FileSystem/FileSystemModel.h"
 #include "../FileSystem/FileSystemObject.h"
 #include "../Util.h"

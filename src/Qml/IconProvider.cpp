@@ -1,5 +1,7 @@
 #include "IconProvider.h"
 
+#include "../pch.h"
+
 using namespace Qml;
 
 const char* const IconProvider::_res_path = ":/res/icons/";

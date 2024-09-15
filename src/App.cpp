@@ -10,6 +10,7 @@
 #include "Qml/Sort/SortParam.h"
 #include "ServerInfo.h"
 #include "ServerInfoManager.h"
+#include "pch.h"
 
 App::App(int& argc, char** argv) : QGuiApplication(argc, argv) {
     auto logger = Logger::get_instance();

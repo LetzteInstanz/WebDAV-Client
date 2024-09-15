@@ -1,5 +1,7 @@
 #include "SortParam.h"
 
+#include "../../pch.h"
+
 using namespace Qml;
 
 namespace {

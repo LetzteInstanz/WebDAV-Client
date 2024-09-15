@@ -1,6 +1,7 @@
 #include "CurrentState.h"
 
 #include "TimeParser.h"
+#include "../../pch.h"
 
 Parser::CurrentState::CurrentState(const QStringView& current_path, TagOrderMap::const_iterator first, Result& result) : _current_path(current_path), _result(result) {
 #ifndef NDEBUG

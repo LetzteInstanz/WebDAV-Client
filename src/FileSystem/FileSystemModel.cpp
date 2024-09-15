@@ -1,5 +1,6 @@
 #include "FileSystemModel.h"
 
+#include "../pch.h"
 #include "Client.h"
 #include "Parser/Parser.h"
 

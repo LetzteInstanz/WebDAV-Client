@@ -1,5 +1,6 @@
 #include "Parser.h"
 
+#include "../../pch.h"
 #include "CurrentState.h"
 
 const std::unordered_map<QString, Parser::Tag> Parser::_propfind_tag_by_str_map{{"multistatus", Tag::Multistatus},

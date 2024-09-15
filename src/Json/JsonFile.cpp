@@ -1,5 +1,7 @@
 #include "JsonFile.h"
 
+#include "../pch.h"
+
 JsonFile::JsonFile(const QString& filename) {
     QString path = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
 #ifndef Q_OS_ANDROID

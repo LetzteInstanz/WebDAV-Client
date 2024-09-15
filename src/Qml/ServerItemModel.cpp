@@ -3,6 +3,7 @@
 #include "../ServerInfo.h"
 #include "../ServerInfoManager.h"
 #include "../Util.h"
+#include "../pch.h"
 
 using namespace Qml;
 
@@ -40,7 +41,7 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
         return false;
 
     ServerInfo info = _srv_manager->get(index.row());
-    std::function<QString()> get;
+    std::function<QString ()> get;
     std::function<void (const QString&)> set;
     auto is_port = false;
     switch (to_type<Role>(role)) {

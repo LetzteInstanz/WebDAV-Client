@@ -1,5 +1,7 @@
 #include "Client.h"
 
+#include "../pch.h"
+
 Client::Client(ReplyHandler&& reply_handler, ErrorHandler&& error_handler) noexcept
     : _reply_handler(std::move(reply_handler)), _error_handler(std::move(error_handler)) {}
 

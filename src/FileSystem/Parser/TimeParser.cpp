@@ -1,5 +1,6 @@
 #include "TimeParser.h"
 
+#include "../../pch.h"
 #include "../Util.h"
 
 std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(const QStringView& str, Format f) {

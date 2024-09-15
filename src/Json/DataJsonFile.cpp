@@ -1,6 +1,7 @@
 #include "DataJsonFile.h"
 
 #include "../ServerInfo.h"
+#include "../pch.h"
 
 const char* const DataJsonFile::_server_key = "servers";
 

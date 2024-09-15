@@ -1,6 +1,7 @@
 #include "Settings.h"
 
 #include "../Json/SettingsJsonFile.h"
+#include "../pch.h"
 
 using namespace Qml;
 

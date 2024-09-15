@@ -1,46 +1,49 @@
-cmake_minimum_required(VERSION 3.16)
-
-project(web_dav_client VERSION 1.0 LANGUAGES CXX)
-
+cmake_minimum_required(VERSION 3.28)
+project(WebDavClient VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 find_package(Qt6 6.5 REQUIRED COMPONENTS Quick)
-
 qt_standard_project_setup(REQUIRES 6.5)
+qt_add_executable(web_dav_client)
+set_property(TARGET web_dav_client PROPERTY CXX_STANDARD 23)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "-fmodules-ts")
+endif()
 
-qt_add_executable(web_dav_client
-    src/App.cpp
-    src/App.h
-    src/FileSystem/Client.cpp
-    src/FileSystem/Client.h
-    src/FileSystem/FileSystemModel.cpp
-    src/FileSystem/FileSystemModel.h
-    src/FileSystem/FileSystemObject.cpp
-    src/FileSystem/FileSystemObject.h
-    src/FileSystem/Parser/CurrentState.cpp
-    src/FileSystem/Parser/CurrentState.h
-    src/FileSystem/Parser/FSObjectStruct.cpp
-    src/FileSystem/Parser/FSObjectStruct.h
-    src/FileSystem/Parser/Parser.cpp
-    src/FileSystem/Parser/Parser.h
-    src/FileSystem/Parser/TimeParser.cpp
-    src/FileSystem/Parser/TimeParser.h
-    src/Json/DataJsonFile.cpp
-    src/Json/DataJsonFile.h
-    src/Json/JsonFile.cpp
-    src/Json/JsonFile.h
-    src/Json/SettingsJsonFile.cpp
-    src/Json/SettingsJsonFile.h
-    src/Logger.cpp
-    src/Logger.h
-    src/main.cpp
-    src/pch.h
-    src/ServerInfo.cpp
-    src/ServerInfo.h
-    src/ServerInfoManager.cpp
-    src/ServerInfoManager.h
-    src/Util.cpp
-    src/Util.h
+target_sources(web_dav_client
+    PUBLIC
+        src/App.cpp
+        src/App.h
+        src/FileSystem/Client.cpp
+        src/FileSystem/Client.h
+        src/FileSystem/FileSystemModel.cpp
+        src/FileSystem/FileSystemModel.h
+        src/FileSystem/FileSystemObject.cpp
+        src/FileSystem/FileSystemObject.h
+        src/FileSystem/Parser/CurrentState.cpp
+        src/FileSystem/Parser/CurrentState.h
+        src/FileSystem/Parser/FSObjectStruct.cpp
+        src/FileSystem/Parser/FSObjectStruct.h
+        src/FileSystem/Parser/Parser.cpp
+        src/FileSystem/Parser/Parser.h
+        src/FileSystem/Parser/TimeParser.cpp
+        src/FileSystem/Parser/TimeParser.h
+        src/Json/DataJsonFile.cpp
+        src/Json/DataJsonFile.h
+        src/Json/JsonFile.cpp
+        src/Json/JsonFile.h
+        src/Json/SettingsJsonFile.cpp
+        src/Json/SettingsJsonFile.h
+        src/Logger.cpp
+        src/Logger.h
+        src/main.cpp
+        src/pch.h
+        src/ServerInfo.cpp
+        src/ServerInfo.h
+        src/ServerInfoManager.cpp
+        src/ServerInfoManager.h
+        src/Util.cpp
+        src/Util.h
 )
 
 qt_add_qml_module(web_dav_client
@@ -231,13 +234,8 @@ qt_add_resources(web_dav_client "images"
         res/icons/unknown.png
         res/icons/video-x-generic.png
 )
-
-include_directories(src/Qml) # note: https://doc.qt.io/qt-6/qtqml-cppintegration-definetypes.html: All headers that declare QML types need to be accessible without any prefix from the project's include path.
-
-target_precompile_headers(web_dav_client PRIVATE src/pch.h)
-
-set_property(TARGET web_dav_client PROPERTY CXX_STANDARD 20)
 set_property(TARGET web_dav_client APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android)
+include_directories(src/Qml) # note: https://doc.qt.io/qt-6/qtqml-cppintegration-definetypes.html: All headers that declare QML types need to be accessible without any prefix from the project's include path.
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
@@ -250,10 +248,7 @@ set_target_properties(web_dav_client PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-target_link_libraries(web_dav_client
-    PRIVATE
-        Qt6::Quick
-)
+target_link_libraries(web_dav_client PRIVATE Qt6::Quick)
 
 include(GNUInstallDirs)
 install(TARGETS web_dav_client

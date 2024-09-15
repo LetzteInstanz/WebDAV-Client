@@ -1,6 +1,7 @@
 #include "ServerInfoManager.h"
 
 #include "ServerInfo.h"
+#include "pch.h"
 
 ServerInfoManager::ServerInfoManager() { _infos = _json_file.read_servers(); }
 

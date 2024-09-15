@@ -1,5 +1,7 @@
 #include "FSObjectStruct.h"
 
+#include "../../pch.h"
+
 QString FSObjectStruct::extract_name(const QStringView& abs_path) {
     if (abs_path.empty())
         return QString();

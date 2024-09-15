@@ -6,6 +6,7 @@
 #include "../ServerInfo.h"
 #include "../ServerInfoManager.h"
 #include "../Util.h"
+#include "../pch.h"
 #include "FileItemModel/FileItemModel.h"
 #include "Logger/LogItemModel.h"
 #include "ServerItemModel.h"

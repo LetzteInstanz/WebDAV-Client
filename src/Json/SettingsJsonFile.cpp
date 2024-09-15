@@ -4,6 +4,7 @@
 #include "../Qml/Sort/SortParam.h"
 #include "../Qml/FileItemModel/Role.h"
 #include "../Util.h"
+#include "../pch.h"
 
 namespace Qml {
     using Role = FileItemModelRole;

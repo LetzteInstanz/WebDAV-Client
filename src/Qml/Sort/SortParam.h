@@ -14,7 +14,7 @@ namespace Qml {
         FileItemModelRole role;
         QString description;
         bool descending;
-        std::function<CompResult(const QVariant&, const QVariant&, bool)> comp_func;
+        std::function<CompResult (const QVariant&, const QVariant&, bool)> comp_func;
 
         bool operator==(const SortParam& rhs) const noexcept;
 
