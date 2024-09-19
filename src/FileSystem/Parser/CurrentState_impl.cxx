@@ -1,8 +1,19 @@
-#include "CurrentState.h"
+module;
 
-#include "../../pch.h"
+#include <memory>
+#include <stdexcept>
+#include <type_traits>
+#include <utility>
 
-import Parser;
+#include <QObject>
+#include <QString>
+#include <QStringView>
+#include <QUrl>
+#include <QtGlobal>
+
+#include "../FileSystemObject.h"
+
+module Parser;
 
 Parser::CurrentState::CurrentState(const QStringView& current_path, TagOrderMap::const_iterator first, Result& result) : _current_path(current_path), _result(result) {
 #ifndef NDEBUG

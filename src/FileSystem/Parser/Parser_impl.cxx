@@ -1,7 +1,20 @@
-#include "Parser.h"
+module;
 
-#include "../../pch.h"
-#include "CurrentState.h"
+#include <cassert>
+#include <stdexcept>
+
+#include <QObject>
+#include <QStringLiteral>
+#include <QXmlStreamReader>
+#include <QtGlobal>
+
+#include "../../Util.h"
+
+#ifndef NDEBUG
+#include "../FileSystemObject.h"
+#endif
+
+module Parser;
 
 const std::unordered_map<QString, Parser::Tag> Parser::_propfind_tag_by_str_map{{"multistatus", Tag::Multistatus},
                                                                                 {"response", Tag::Response},

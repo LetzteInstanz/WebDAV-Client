@@ -20,9 +20,7 @@ target_sources(web_dav_client
         src/FileSystem/FileSystemModel.h
         src/FileSystem/FileSystemObject.cpp
         src/FileSystem/FileSystemObject.h
-        src/FileSystem/Parser/CurrentState.h
         src/FileSystem/Parser/CurrentState_impl.cxx
-        src/FileSystem/Parser/FSObjectStruct.h
         src/FileSystem/Parser/FSObjectStruct_impl.cxx
         src/FileSystem/Parser/Parser_impl.cxx
         src/FileSystem/Parser/TimeParser_impl.cxx

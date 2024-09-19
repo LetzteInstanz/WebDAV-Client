@@ -2,7 +2,8 @@
 
 #include "../pch.h"
 #include "Client.h"
-#include "Parser/Parser.h"
+
+import Parser;
 
 FileSystemModel::FileSystemModel()
     : _client(std::make_unique<Client>(std::bind(&FileSystemModel::handle_reply, this, std::placeholders::_1),
