@@ -26,8 +26,6 @@ target_sources(web_dav_client
         src/FileSystem/Parser/FSObjectStruct.h
         src/FileSystem/Parser/Parser.cpp
         src/FileSystem/Parser/Parser.h
-        src/FileSystem/Parser/TimeParser.cpp
-        src/FileSystem/Parser/TimeParser.h
         src/Json/DataJsonFile.cpp
         src/Json/DataJsonFile.h
         src/Json/JsonFile.cpp
@@ -44,6 +42,10 @@ target_sources(web_dav_client
         src/ServerInfoManager.h
         src/Util.cpp
         src/Util.h
+)
+
+target_sources(web_dav_client PUBLIC FILE_SET CXX_MODULES FILES
+    src/FileSystem/Parser/TimeParser.cpp
 )
 
 qt_add_qml_module(web_dav_client

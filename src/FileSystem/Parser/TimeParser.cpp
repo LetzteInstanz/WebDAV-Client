@@ -1,9 +1,59 @@
-#include "TimeParser.h"
+module;
 
-#include "../../pch.h"
+#include <chrono>
+#include <stdexcept>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#include <QChar>
+#include <QHash>
+#include <QString>
+#include <QStringView>
+
 #include "../Util.h"
 
-std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(const QStringView& str, Format f) {
+export module Parser;
+
+export class TimeParser {
+public:
+    enum class Format {Rfc2616, Rfc3339};
+
+    static std::chrono::sys_seconds to_sys_seconds(const QStringView& str, Format f);
+
+#ifndef NDEBUG
+    static void test();
+#endif
+
+private:
+    struct CustomTime {
+        std::chrono::year year;
+        std::chrono::month month;
+        std::chrono::day day;
+        std::chrono::hours hours;
+        std::chrono::minutes minutes;
+        std::chrono::seconds seconds;
+        int time_zone_sign;
+    };
+    enum class Token {DayName, Day, Month, MonthName, Year, Hours, Minutes, Seconds, ZoneHours, ZoneMinutes};
+    using CharSet = std::unordered_set<QChar>;
+    using TokenOrder = std::vector<Token>;
+
+    static const CharSet& get_delimiters(Format f);
+    static const TokenOrder& get_order(const QStringView& str, Format f);
+    static void parse(CustomTime& time, const QStringView& lexem, bool& ok, Token token);
+
+private:
+    static const CharSet _rfc2616_delimiters;
+    static const CharSet _rfc3339_delimiters;
+    static const std::unordered_map<QString, std::chrono::month> _month_map;
+    static const TokenOrder _rfc2616_order_1;
+    static const TokenOrder _rfc2616_order_2;
+    static const TokenOrder _rfc3339_order_1;
+    static const TokenOrder _rfc3339_order_2;
+};
+
+std::chrono::sys_seconds TimeParser::to_sys_seconds(const QStringView& str, Format f) {
     CustomTime time;
     const auto str_end = std::end(str);
     const CharSet& delimiters = get_delimiters(f);
@@ -49,7 +99,7 @@ std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(const 
 }
 
 #ifndef NDEBUG
-void Parser::CurrentState::TimeParser::test() {
+void TimeParser::test() {
     using namespace std::chrono_literals;
 
     for (const auto& str : std::vector<QString>{"Sun, 06 Nov 1999 08:49:37 GMT", "Sunday, 06-Nov-99 08:49:37 GMT", "Sun Nov 6 08:49:37 1999"}) {
@@ -99,9 +149,9 @@ void Parser::CurrentState::TimeParser::test() {
 }
 #endif
 
-const Parser::CurrentState::TimeParser::CharSet& Parser::CurrentState::TimeParser::get_delimiters(Format f) { return f == Format::Rfc2616 ? _rfc2616_delimiters : _rfc3339_delimiters; }
+const TimeParser::CharSet& TimeParser::get_delimiters(Format f) { return f == Format::Rfc2616 ? _rfc2616_delimiters : _rfc3339_delimiters; }
 
-const Parser::CurrentState::TimeParser::TokenOrder& Parser::CurrentState::TimeParser::get_order(const QStringView& str, Format f) {
+const TimeParser::TokenOrder& TimeParser::get_order(const QStringView& str, Format f) {
     switch (f) {
         case Format::Rfc2616:
             return str.back() == 'T' ? _rfc2616_order_1 : _rfc2616_order_2;
@@ -111,7 +161,7 @@ const Parser::CurrentState::TimeParser::TokenOrder& Parser::CurrentState::TimePa
     }
 }
 
-void Parser::CurrentState::TimeParser::parse(CustomTime& time, const QStringView& lexem, bool& ok, Token token) {
+void TimeParser::parse(CustomTime& time, const QStringView& lexem, bool& ok, Token token) {
     switch (token) {
         case Token::DayName: {
             break;
@@ -172,13 +222,13 @@ void Parser::CurrentState::TimeParser::parse(CustomTime& time, const QStringView
     }
 }
 
-const Parser::CurrentState::TimeParser::CharSet Parser::CurrentState::TimeParser::_rfc2616_delimiters{' ', ',', '-', ':'};
-const Parser::CurrentState::TimeParser::CharSet Parser::CurrentState::TimeParser::_rfc3339_delimiters{'-', '+', ':', 'T', 'Z', 't', 'z'};
+const TimeParser::CharSet TimeParser::_rfc2616_delimiters{' ', ',', '-', ':'};
+const TimeParser::CharSet TimeParser::_rfc3339_delimiters{'-', '+', ':', 'T', 'Z', 't', 'z'};
 
-const std::unordered_map<QString, std::chrono::month> Parser::CurrentState::TimeParser::_month_map{{"Jan", std::chrono::January}, {"Feb", std::chrono::February}, {"Mar", std::chrono::March}, {"Apr", std::chrono::April}, {"May", std::chrono::May}, {"Jun", std::chrono::June},
-                                                                                                   {"Jul", std::chrono::July}, {"Aug", std::chrono::August}, {"Sep", std::chrono::September}, {"Oct", std::chrono::October}, {"Nov", std::chrono::November}, {"Dec", std::chrono::December}};
+const std::unordered_map<QString, std::chrono::month> TimeParser::_month_map{{"Jan", std::chrono::January}, {"Feb", std::chrono::February}, {"Mar", std::chrono::March}, {"Apr", std::chrono::April}, {"May", std::chrono::May}, {"Jun", std::chrono::June},
+                                                                             {"Jul", std::chrono::July}, {"Aug", std::chrono::August}, {"Sep", std::chrono::September}, {"Oct", std::chrono::October}, {"Nov", std::chrono::November}, {"Dec", std::chrono::December}};
 
-const Parser::CurrentState::TimeParser::TokenOrder Parser::CurrentState::TimeParser::_rfc2616_order_1{Token::DayName, Token::Day, Token::MonthName, Token::Year, Token::Hours, Token::Minutes, Token::Seconds};
-const Parser::CurrentState::TimeParser::TokenOrder Parser::CurrentState::TimeParser::_rfc2616_order_2{Token::DayName, Token::MonthName, Token::Day, Token::Hours, Token::Minutes, Token::Seconds, Token::Year};
-const Parser::CurrentState::TimeParser::TokenOrder Parser::CurrentState::TimeParser::_rfc3339_order_1{Token::Year, Token::Month, Token::Day, Token::Hours, Token::Minutes, Token::Seconds};
-const Parser::CurrentState::TimeParser::TokenOrder Parser::CurrentState::TimeParser::_rfc3339_order_2{Token::Year, Token::Month, Token::Day, Token::Hours, Token::Minutes, Token::Seconds, Token::ZoneHours, Token::ZoneMinutes};
+const TimeParser::TokenOrder TimeParser::_rfc2616_order_1{Token::DayName, Token::Day, Token::MonthName, Token::Year, Token::Hours, Token::Minutes, Token::Seconds};
+const TimeParser::TokenOrder TimeParser::_rfc2616_order_2{Token::DayName, Token::MonthName, Token::Day, Token::Hours, Token::Minutes, Token::Seconds, Token::Year};
+const TimeParser::TokenOrder TimeParser::_rfc3339_order_1{Token::Year, Token::Month, Token::Day, Token::Hours, Token::Minutes, Token::Seconds};
+const TimeParser::TokenOrder TimeParser::_rfc3339_order_2{Token::Year, Token::Month, Token::Day, Token::Hours, Token::Minutes, Token::Seconds, Token::ZoneHours, Token::ZoneMinutes};
