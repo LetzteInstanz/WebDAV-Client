@@ -3,7 +3,7 @@
 Client::Client(ReplyHandler&& reply_handler, ErrorHandler&& error_handler) noexcept
     : _reply_handler(std::move(reply_handler)), _error_handler(std::move(error_handler)) {}
 
-void Client::set_server_info(const QStringView& addr, uint16_t port) noexcept {
+void Client::set_server_info(const QStringView& addr, std::uint16_t port) noexcept {
     _addr = addr.toString();
     _port = port;
 }

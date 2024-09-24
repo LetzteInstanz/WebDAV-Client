@@ -427,9 +427,9 @@ const std::unordered_set<QString>  FileItemModel::_special_icon_name_set{
 
 class SizeDisplayer {
 public:
-    constexpr static size_t size = 7;
+    constexpr static std::size_t size = 7;
 
-    static QString to_string(uint64_t bytes) {
+    static QString to_string(std::uint64_t bytes) {
         double sz = bytes;
         int i = 0;
         for (; sz >= 1024 && i < SizeDisplayer::size; ++i)

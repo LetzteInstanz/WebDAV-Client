@@ -12,7 +12,7 @@ Qml::FileSystemModel::~FileSystemModel() {
 
 void Qml::FileSystemModel::setRootPath(const QString& absolute_path) { _fs_model->set_root_path(absolute_path); }
 
-void Qml::FileSystemModel::setServerInfo(const QString& addr, uint16_t port) { _fs_model->set_server_info(addr, port); }
+void Qml::FileSystemModel::setServerInfo(const QString& addr, std::uint16_t port) { _fs_model->set_server_info(addr, port); }
 
 void Qml::FileSystemModel::requestFileList(const QString& relative_path) {
     maxProgressEnabled(false);

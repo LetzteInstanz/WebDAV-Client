@@ -59,9 +59,9 @@ SortParam::CompResult SortParam::compare_uint64_t(const QVariant& lhs, const QVa
     if (left_is_null || right_is_null)
         return left_is_null == right_is_null ? CompResult::Equal : left_is_less_if_ascending(right_is_null, descending);
 
-    assert(lhs.canConvert<uint64_t>());
-    assert(rhs.canConvert<uint64_t>());
-    const auto left_size = lhs.value<uint64_t>();
-    const auto right_size = rhs.value<uint64_t>();
+    assert(lhs.canConvert<std::uint64_t>());
+    assert(rhs.canConvert<std::uint64_t>());
+    const auto left_size = lhs.value<std::uint64_t>();
+    const auto right_size = rhs.value<std::uint64_t>();
     return left_size == right_size ? CompResult::Equal : left_is_less_if_ascending(left_size < right_size, descending);
 }

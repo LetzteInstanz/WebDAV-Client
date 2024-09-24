@@ -7,7 +7,7 @@ const char* const ServerInfo::_desc_key = "description",
           * const ServerInfo::_port_key = "port",
           * const ServerInfo::_path_key = "path";
 
-ServerInfo::ServerInfo(const QString& description, const QString& addr, uint16_t port, const QString& path) noexcept : _description(description), _addr(addr), _port(port), _path(path) {}
+ServerInfo::ServerInfo(const QString& description, const QString& addr, std::uint16_t port, const QString& path) noexcept : _description(description), _addr(addr), _port(port), _path(path) {}
 
 ServerInfo ServerInfo::from_json(const QJsonObject& obj) {
     const auto throw_ = []() { throw std::runtime_error("JSON parsing error for ServerInfo object"); };

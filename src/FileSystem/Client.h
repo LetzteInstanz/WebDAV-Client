@@ -18,7 +18,7 @@ public:
 
     Client(ReplyHandler&& reply_handler, ErrorHandler&& error_handler) noexcept;
 
-    void set_server_info(const QStringView& addr, uint16_t port) noexcept;
+    void set_server_info(const QStringView& addr, std::uint16_t port) noexcept;
     void request_file_list(const QStringView& path);
     void abort();
 
@@ -36,7 +36,7 @@ private:
     const ReplyHandler _reply_handler;
     const ErrorHandler _error_handler;
     QString _addr;
-    uint16_t _port;
+    std::uint16_t _port;
     QNetworkAccessManager _network_access_mgr;
     std::unique_ptr<QNetworkReply, QScopedPointerDeleteLater> _reply;
 };

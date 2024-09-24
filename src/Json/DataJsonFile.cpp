@@ -33,10 +33,10 @@ std::vector<ServerInfo> DataJsonFile::read_servers() const {
 
 void DataJsonFile::add(const ServerInfo& srv) { _json_servers.append(srv.to_json()); }
 
-void DataJsonFile::edit(size_t index, const ServerInfo& srv) { _json_servers[index] = srv.to_json(); }
+void DataJsonFile::edit(std::size_t index, const ServerInfo& srv) { _json_servers[index] = srv.to_json(); }
 
-void DataJsonFile::remove(size_t row, size_t count) {
+void DataJsonFile::remove(std::size_t row, std::size_t count) {
     auto it = std::next(std::begin(_json_servers), row);
-    for (size_t i = 0; i < count; ++i)
+    for (std::size_t i = 0; i < count; ++i)
         it = _json_servers.erase(it);
 }

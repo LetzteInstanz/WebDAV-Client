@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <deque>
 #include <functional>
@@ -27,7 +28,7 @@ public:
 
     bool is_cur_dir_root_path() const noexcept;
     QString get_current_path() const noexcept;
-    void set_server_info(const QStringView& addr, uint16_t port);
+    void set_server_info(const QStringView& addr, std::uint16_t port);
     void set_root_path(const QStringView& absolute_path);
     void request_file_list(const QStringView& relative_path);
     void abort_request();
@@ -36,8 +37,8 @@ public:
     void remove_notification_func(const void* obj);
     void set_error_func(NotifyAboutErrorFunc&& func) noexcept;
     FileSystemObject get_curr_dir_object() const noexcept;
-    FileSystemObject get_object(size_t index) const noexcept;
-    size_t size() const noexcept;
+    FileSystemObject get_object(std::size_t index) const noexcept;
+    std::size_t size() const noexcept;
 
 private:
     static QString&& add_slash_to_start(QString&& path);

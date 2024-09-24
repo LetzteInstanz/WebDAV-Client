@@ -57,7 +57,7 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
         }
 
         case Role::Port: {
-            const uint16_t port = value.toUInt();
+            const std::uint16_t port = value.toUInt();
             if (info.get_port() == port)
                 return false;
 
@@ -106,7 +106,7 @@ QHash<int, QByteArray> ServerItemModel::roleNames() const {
     return names;
 }
 
-void ServerItemModel::addServerInfo(const QString& description, const QString& addr, uint16_t port, const QString& path) {
+void ServerItemModel::addServerInfo(const QString& description, const QString& addr, std::uint16_t port, const QString& path) {
     const int row = rowCount();
     beginInsertRows(QModelIndex(), row, row);
     _srv_manager->add(ServerInfo(description, addr, port, path));

@@ -7,7 +7,7 @@
 
 class ServerInfo {
 public:
-    ServerInfo(const QString& description, const QString& addr, uint16_t port, const QString& path) noexcept;
+    ServerInfo(const QString& description, const QString& addr, std::uint16_t port, const QString& path) noexcept;
 
     QString get_description() const noexcept { return _description; }
     void set_description(const QString& desc) noexcept { _description = desc; }
@@ -15,8 +15,8 @@ public:
     QString get_addr() const noexcept { return _addr; }
     void set_addr(const QString& addr) noexcept { _addr = addr; }
 
-    uint16_t get_port() const noexcept { return _port; }
-    void set_port(uint16_t port) noexcept { _port = port; }
+    std::uint16_t get_port() const noexcept { return _port; }
+    void set_port(std::uint16_t port) noexcept { _port = port; }
 
     QString get_path() const noexcept { return _path; }
     void set_path(const QString& path) noexcept { _path = path; }
@@ -32,6 +32,6 @@ private:
 
     QString _description;
     QString _addr;
-    uint16_t _port;
+    std::uint16_t _port;
     QString _path;
 };

@@ -31,7 +31,7 @@ bool FileSystemModel::is_cur_dir_root_path() const noexcept { return _root_path 
 
 QString FileSystemModel::get_current_path() const noexcept { return _current_path; }
 
-void FileSystemModel::set_server_info(const QStringView& addr, uint16_t port) { _client->set_server_info(addr, port); }
+void FileSystemModel::set_server_info(const QStringView& addr, std::uint16_t port) { _client->set_server_info(addr, port); }
 
 void FileSystemModel::set_root_path(const QStringView& absolute_path) {
     _root_path = add_slash_to_end(add_slash_to_start(absolute_path.toString()));
@@ -71,9 +71,9 @@ FileSystemObject FileSystemModel::get_curr_dir_object() const noexcept {
     return *_curr_dir_obj;
 }
 
-FileSystemObject FileSystemModel::get_object(size_t index) const noexcept { return _objects[index]; }
+FileSystemObject FileSystemModel::get_object(std::size_t index) const noexcept { return _objects[index]; }
 
-size_t FileSystemModel::size() const noexcept { return _objects.size(); }
+std::size_t FileSystemModel::size() const noexcept { return _objects.size(); }
 
 QString&& FileSystemModel::add_slash_to_start(QString&& path) {
     if (path.isEmpty() || path.front() != '/')
