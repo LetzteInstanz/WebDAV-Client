@@ -14,8 +14,8 @@ struct FSObjectStruct {
     using Status = FileSystemObject::Status;
     using Type = FileSystemObject::Type;
 
-    static QString extract_name(const QStringView& abs_path);
-    static Status to_status(const QStringView& str);
+    static QString extract_name(QStringView abs_path);
+    static Status to_status(QStringView str);
 
     void replace_unknown_status(Status s);
 

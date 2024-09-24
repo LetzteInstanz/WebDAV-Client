@@ -1,6 +1,6 @@
 #include "FSObjectStruct.h"
 
-QString FSObjectStruct::extract_name(const QStringView& abs_path) {
+QString FSObjectStruct::extract_name(QStringView abs_path) {
     if (abs_path.empty())
         return QString();
 
@@ -13,7 +13,7 @@ QString FSObjectStruct::extract_name(const QStringView& abs_path) {
     return QStringView(std::begin(abs_path) + pos + 1, std::end(abs_path) + from + 1).toString();
 }
 
-FSObjectStruct::Status FSObjectStruct::to_status(const QStringView& str) {
+FSObjectStruct::Status FSObjectStruct::to_status(QStringView str) {
     for (const std::pair<QString, Status>& pair : _str_code_pairs) {
         if (str.indexOf(pair.first) != -1)
             return pair.second;

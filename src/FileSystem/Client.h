@@ -18,8 +18,8 @@ public:
 
     Client(ReplyHandler&& reply_handler, ErrorHandler&& error_handler) noexcept;
 
-    void set_server_info(const QStringView& addr, std::uint16_t port) noexcept;
-    void request_file_list(const QStringView& path);
+    void set_server_info(QStringView addr, std::uint16_t port) noexcept;
+    void request_file_list(QStringView path);
     void abort();
 
 private:

@@ -21,7 +21,7 @@ public:
     using Objects = std::deque<FileSystemObject>;
     using Result = std::pair<CurrDirObj, Objects>;
 
-    static Result parse_propfind_reply(const QStringView& current_path, const QByteArray& data);
+    static Result parse_propfind_reply(QStringView current_path, const QByteArray& data);
 
 #ifndef NDEBUG
     static void test();

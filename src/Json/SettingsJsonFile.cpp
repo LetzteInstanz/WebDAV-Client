@@ -91,7 +91,7 @@ SettingsJsonFile::SettingsJsonFile(std::shared_ptr<Logger> logger) : JsonFile("c
 
 QString SettingsJsonFile::get_download_path() const { return _download_path; }
 
-void SettingsJsonFile::set_download_path(const QStringView& path) {
+void SettingsJsonFile::set_download_path(QStringView path) {
     if (_download_path == path)
         return;
 

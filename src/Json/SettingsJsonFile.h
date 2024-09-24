@@ -25,7 +25,7 @@ public:
     SettingsJsonFile(std::shared_ptr<Logger> logger);
 
     QString get_download_path() const;
-    void set_download_path(const QStringView& path);
+    void set_download_path(QStringView path);
     QtMsgType get_max_log_level() const noexcept;
     void set_max_log_level(QtMsgType level);
     std::vector<Qml::SortParam> get_sort_params() const;

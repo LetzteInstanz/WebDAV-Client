@@ -2,7 +2,7 @@
 
 #include "../Util.h"
 
-std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(const QStringView& str, Format f) {
+std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(QStringView str, Format f) {
     CustomTime time;
     const auto str_end = std::end(str);
     const CharSet& delimiters = get_delimiters(f);
@@ -100,7 +100,7 @@ void Parser::CurrentState::TimeParser::test() {
 
 const Parser::CurrentState::TimeParser::CharSet& Parser::CurrentState::TimeParser::get_delimiters(Format f) { return f == Format::Rfc2616 ? _rfc2616_delimiters : _rfc3339_delimiters; }
 
-const Parser::CurrentState::TimeParser::TokenOrder& Parser::CurrentState::TimeParser::get_order(const QStringView& str, Format f) {
+const Parser::CurrentState::TimeParser::TokenOrder& Parser::CurrentState::TimeParser::get_order(QStringView str, Format f) {
     switch (f) {
         case Format::Rfc2616:
             return str.back() == 'T' ? _rfc2616_order_1 : _rfc2616_order_2;
@@ -110,7 +110,7 @@ const Parser::CurrentState::TimeParser::TokenOrder& Parser::CurrentState::TimePa
     }
 }
 
-void Parser::CurrentState::TimeParser::parse(CustomTime& time, const QStringView& lexem, bool& ok, Token token) {
+void Parser::CurrentState::TimeParser::parse(CustomTime& time, QStringView lexem, bool& ok, Token token) {
     switch (token) {
         case Token::DayName: {
             break;

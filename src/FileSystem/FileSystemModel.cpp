@@ -31,15 +31,15 @@ bool FileSystemModel::is_cur_dir_root_path() const noexcept { return _root_path 
 
 QString FileSystemModel::get_current_path() const noexcept { return _current_path; }
 
-void FileSystemModel::set_server_info(const QStringView& addr, std::uint16_t port) { _client->set_server_info(addr, port); }
+void FileSystemModel::set_server_info(QStringView addr, std::uint16_t port) { _client->set_server_info(addr, port); }
 
-void FileSystemModel::set_root_path(const QStringView& absolute_path) {
+void FileSystemModel::set_root_path(QStringView absolute_path) {
     _root_path = add_slash_to_end(add_slash_to_start(absolute_path.toString()));
     _current_path = _root_path;
     _prev_path.clear();
 }
 
-void FileSystemModel::request_file_list(const QStringView& relative_path) {
+void FileSystemModel::request_file_list(QStringView relative_path) {
     _prev_path = _current_path;
     _current_path = handle_double_dots(_current_path + add_slash_to_end(relative_path.toString()));
     _client->request_file_list(_current_path);
@@ -89,7 +89,7 @@ QString&& FileSystemModel::add_slash_to_end(QString&& path) {
     return std::move(path);
 }
 
-QString FileSystemModel::handle_double_dots(const QStringView& path) {
+QString FileSystemModel::handle_double_dots(QStringView path) {
     assert(!path.empty());
     assert(path[0] == '/');
     assert(path.back() == '/');

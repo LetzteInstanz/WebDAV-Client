@@ -28,9 +28,9 @@ public:
 
     bool is_cur_dir_root_path() const noexcept;
     QString get_current_path() const noexcept;
-    void set_server_info(const QStringView& addr, std::uint16_t port);
-    void set_root_path(const QStringView& absolute_path);
-    void request_file_list(const QStringView& relative_path);
+    void set_server_info(QStringView addr, std::uint16_t port);
+    void set_root_path(QStringView absolute_path);
+    void request_file_list(QStringView relative_path);
     void abort_request();
     void disconnect();
     void add_notification_func(const void* obj, NotifyAboutUpdateFunc&& func) noexcept;
@@ -43,7 +43,7 @@ public:
 private:
     static QString&& add_slash_to_start(QString&& path);
     static QString&& add_slash_to_end(QString&& path);
-    static QString handle_double_dots(const QStringView& path);
+    static QString handle_double_dots(QStringView path);
     void handle_reply(QByteArray&& data);
     void handle_error(QNetworkReply::NetworkError error);
 

@@ -491,9 +491,9 @@ const std::array<QString, SizeDisplayer::size> SizeDisplayer::_prefixes{QObject:
 const QLocale SizeDisplayer::_locale;
 
 namespace {
-    bool is_valid_dot_pos(const QStringView& name, qsizetype pos) { return pos != -1 && pos != name.size() - 1; }
+    bool is_valid_dot_pos(QStringView name, qsizetype pos) { return pos != -1 && pos != name.size() - 1; }
 
-    QString extract_extension(const QStringView& name, qsizetype dot_pos) { return QStringView(std::begin(name) + dot_pos + 1, std::end(name)).toString().toLower(); }
+    QString extract_extension(QStringView name, qsizetype dot_pos) { return QStringView(std::begin(name) + dot_pos + 1, std::end(name)).toString().toLower(); }
 
     QString to_string(std::chrono::sys_seconds t) {
         const time_t c_time = std::chrono::system_clock::to_time_t(t);

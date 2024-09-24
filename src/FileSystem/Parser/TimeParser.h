@@ -15,7 +15,7 @@ class Parser::CurrentState::TimeParser {
 public:
     enum class Format {Rfc2616, Rfc3339};
 
-    static std::chrono::sys_seconds to_sys_seconds(const QStringView& str, Format f);
+    static std::chrono::sys_seconds to_sys_seconds(QStringView str, Format f);
 
 #ifndef NDEBUG
     static void test();
@@ -36,8 +36,8 @@ private:
     using TokenOrder = std::vector<Token>;
 
     static const CharSet& get_delimiters(Format f);
-    static const TokenOrder& get_order(const QStringView& str, Format f);
-    static void parse(CustomTime& time, const QStringView& lexem, bool& ok, Token token);
+    static const TokenOrder& get_order(QStringView str, Format f);
+    static void parse(CustomTime& time, QStringView lexem, bool& ok, Token token);
 
 private:
     static const CharSet _rfc2616_delimiters;
