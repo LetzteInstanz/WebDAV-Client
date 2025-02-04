@@ -1,31 +1,35 @@
 #include "JsonFile.h"
 
-JsonFile::JsonFile(const QString& filename) {
-    QString path = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
+JsonFile::JsonFile(std::string_view filename) {
+    auto path_to_dir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation).toStdString();
 #ifndef Q_OS_ANDROID
-    path += "/WebDAVClient_2212ca02-1a86-4707-b731-492959a8fd40";
+    path_to_dir += "/WebDAVClient_2212ca02-1a86-4707-b731-492959a8fd40";
 #endif
-    QDir dir;
-    qDebug(qUtf8Printable(QObject::tr("Settings path: \"%s\"")), qUtf8Printable(path));
-    if (!dir.mkpath(path)) {
-        qCritical(qUtf8Printable(QObject::tr("Could not create directory \"%s\"")), qUtf8Printable(path));
+    qDebug(qUtf8Printable(QObject::tr("Settings path: \"%s\"")), qUtf8Printable(path_to_dir.c_str()));
+    try {
+        std::filesystem::create_directory(path_to_dir);
+    } catch (const std::filesystem::filesystem_error&) {
+        qCritical(qUtf8Printable(QObject::tr("Could not create directory \"%s\"")), qUtf8Printable(path_to_dir.c_str()));
         return;
     }
-    _file.setFileName(path + '/' + filename);
-    if (!_file.open(QIODeviceBase::ReadWrite, QFileDevice::ReadOwner | QFileDevice::WriteOwner)) {
-        qCritical(qUtf8Printable(QObject::tr("Could not create file \"%s\"")), qUtf8Printable(_file.fileName()));
+    _path_to_file = path_to_dir + '/' + std::string(filename);
+    _file.open(_path_to_file, std::ios_base::in);
+    if (!_file.is_open())
         return;
-    }
-    const auto doc = QJsonDocument::fromJson(_file.readAll());
-    _file.seek(0);
-    if (doc.isObject())
-        _obj = doc.object();
+
+    _json_data = nlohmann::json::parse(_file);
+    _file.close();
 }
 
 JsonFile::~JsonFile() {
-    if (!_file.isOpen())
+    _file.open(_path_to_file, std::ios_base::out | std::ios_base::trunc);
+    if (!_file.is_open()) {
+        qCritical(qUtf8Printable(QObject::tr("Could not create file \"%s\"")), qUtf8Printable(_path_to_file.c_str()));
         return;
-
-    _file.seek(0);
-    _file.resize(_file.write(QJsonDocument(_obj).toJson()));
+    }
+    _file << std::setw(4) << _json_data << std::endl;
+    if (_file.fail())
+        qCritical(qUtf8Printable(QObject::tr("Could not write to the file \"%s\"")), qUtf8Printable(_path_to_file.c_str()));
 }
+
+void JsonFile::set_root_obj(nlohmann::json&& json) { _json_data = std::move(json); }

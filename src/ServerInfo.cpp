@@ -2,47 +2,47 @@
 
 #include "Util.h"
 
-const char* const ServerInfo::_desc_key = "description",
-          * const ServerInfo::_addr_key = "address",
-          * const ServerInfo::_port_key = "port",
-          * const ServerInfo::_path_key = "path";
+ServerInfo::ServerInfo(std::string_view description, std::string_view addr, std::uint16_t port, std::string_view path) noexcept : _description(description), _addr(addr), _port(port), _path(path) {}
 
-ServerInfo::ServerInfo(const QString& description, const QString& addr, std::uint16_t port, const QString& path) noexcept : _description(description), _addr(addr), _port(port), _path(path) {}
-
-ServerInfo ServerInfo::from_json(const QJsonObject& obj) {
+ServerInfo ServerInfo::from_json(const nlohmann::json& object) {
     const auto throw_ = []() { throw std::runtime_error("JSON parsing error for ServerInfo object"); };
-    const auto to_str = [throw_](const QJsonObject& obj, const char* key) {
-        const auto it = obj.find(key);
-        if (it == std::end(obj)) {
+    const auto to_str = [throw_](const nlohmann::json& object, const char* key) {
+        const auto it = object.find(key);
+        if (it == std::end(object)) {
             json_value_exist_warning(key);
             throw_();
         }
-        if (!it->isString()) {
+        if (!it->is_string()) {
             json_value_type_warning(key, QObject::tr("a string"));
             throw_();
         }
-        return it->toString();
+        return it->get<std::string>();
     };
-    const auto to_uint16 = [throw_](const QJsonObject& obj, const char* key) {
-        const auto it = obj.find(key);
-        if (it == std::end(obj)) {
+    const auto to_uint16 = [throw_](const nlohmann::json& object, const char* key) {
+        const auto it = object.find(key);
+        if (it == std::end(object)) {
             json_value_exist_warning(key);
             throw_();
         }
-        if (!it->isDouble()) {
+        if (!it->is_number_unsigned()) {
             json_value_type_warning(key, QObject::tr("a number"));
             throw_();
         }
-        return it->toInteger();
+        const auto number = it->get<std::uint16_t>();
+        if (number == 0) {
+            json_value_type_warning(key, QObject::tr("a number greater than 0"));
+            throw_();
+        }
+        return number;
     };
-    return ServerInfo(to_str(obj, _desc_key), to_str(obj, _addr_key), to_uint16(obj, _port_key), to_str(obj, _path_key));
+    return ServerInfo(to_str(object, _desc_key), to_str(object, _addr_key), to_uint16(object, _port_key), to_str(object, _path_key));
 }
 
-QJsonObject ServerInfo::to_json() const {
-    QJsonObject obj;
-    obj[_desc_key] = _description;
-    obj[_addr_key] = _addr;
-    obj[_port_key] = _port;
-    obj[_path_key] = _path;
-    return obj;
+nlohmann::json ServerInfo::to_json() const {
+    nlohmann::json object = nlohmann::json::object();
+    object[_desc_key] = _description;
+    object[_addr_key] = _addr;
+    object[_port_key] = _port;
+    object[_path_key] = _path;
+    return object;
 }

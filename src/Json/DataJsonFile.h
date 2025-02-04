@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <vector>
 
-#include <QJsonArray>
+#include <nlohmann/json.hpp>
 
 #include "JsonFile.h"
 
@@ -20,7 +20,6 @@ public:
     void remove(std::size_t row, std::size_t count);
 
 private:
-    static const char* const _server_key;
-
-    QJsonArray _json_servers;
+    static const constexpr char* _server_key = "servers";
+    nlohmann::json _servers_json;
 };

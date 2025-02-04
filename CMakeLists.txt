@@ -1,10 +1,22 @@
 cmake_minimum_required(VERSION 3.28.3)
 project("WebDAV Client" VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+include(CMakePrintHelpers)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Quick)
 if (NOT Qt6_FOUND)
     message(SEND_ERROR "Failed to find Quick in Qt6")
+    return()
+endif()
+
+if (CMAKE_CROSSCOMPILING)
+    set(WDC_3RD_PARTY_DEPEND_PATH $ENV{WDC_3RD_PARTY_DEPEND_PATH})
+    cmake_print_variables(WDC_3RD_PARTY_DEPEND_PATH)
+    LIST(APPEND CMAKE_FIND_ROOT_PATH ${WDC_3RD_PARTY_DEPEND_PATH})
+endif()
+find_package(nlohmann_json 3.11.3 REQUIRED)
+if (NOT nlohmann_json_FOUND)
+    message(SEND_ERROR "Failed to find nlohmann_json")
     return()
 endif()
 
@@ -265,6 +277,7 @@ set_target_properties(wdc
 target_link_libraries(wdc
     PRIVATE
         Qt6::Quick
+        nlohmann_json::nlohmann_json
 )
 
 include(GNUInstallDirs)
