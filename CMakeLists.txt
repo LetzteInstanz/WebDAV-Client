@@ -1,14 +1,16 @@
-cmake_minimum_required(VERSION 3.16)
-
-project(web_dav_client VERSION 1.0 LANGUAGES CXX)
-
+cmake_minimum_required(VERSION 3.28.3)
+project("WebDAV Client" VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Quick)
+if (NOT Qt6_FOUND)
+    message(SEND_ERROR "Failed to find Quick in Qt6")
+    return()
+endif()
 
 qt_standard_project_setup(REQUIRES 6.5)
 
-qt_add_executable(web_dav_client
+qt_add_executable(wdc
     src/App.cpp
     src/App.h
     src/FileSystem/Client.cpp
@@ -43,7 +45,7 @@ qt_add_executable(web_dav_client
     src/Util.h
 )
 
-qt_add_qml_module(web_dav_client
+qt_add_qml_module(wdc
     URI WebDavClient
     VERSION 1.0
     QML_FILES
@@ -89,9 +91,19 @@ qt_add_qml_module(web_dav_client
         src/Qml/Sort/SortParam.h
         src/Qml/Sort/SortParamItemModel.cpp
         src/Qml/Sort/SortParamItemModel.h
+#    RESOURCES
+#        android/AndroidManifest.xml
+#        android/build.gradle
+#        android/res/values/libs.xml
+#        android/res/xml/qtprovider_paths.xml
+#        android/gradle/wrapper/gradle-wrapper.jar
+#        android/gradle/wrapper/gradle-wrapper.properties
+#        android/gradle.properties
+#        android/gradlew
+#        android/gradlew.bat
 )
 
-qt_add_resources(web_dav_client "images"
+qt_add_resources(wdc "images"
     PREFIX "/"
     FILES
         res/icons/application-apk.png
@@ -232,31 +244,31 @@ qt_add_resources(web_dav_client "images"
         res/icons/video-x-generic.png
 )
 
-include_directories(src/Qml) # note: https://doc.qt.io/qt-6/qtqml-cppintegration-definetypes.html: All headers that declare QML types need to be accessible without any prefix from the project's include path.
+target_include_directories(wdc PRIVATE src/Qml) # note: https://doc.qt.io/qt-6/qtqml-cppintegration-definetypes.html: All headers that declare QML types need to be accessible without any prefix from the project's include path.
+target_precompile_headers(wdc PRIVATE src/pch.h)
 
-target_precompile_headers(web_dav_client PRIVATE src/pch.h)
-
-set_property(TARGET web_dav_client PROPERTY CXX_STANDARD 20)
-set_property(TARGET web_dav_client APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android)
+set_property(TARGET wdc APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android)
+set_property(TARGET wdc PROPERTY CXX_STANDARD 20)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
-set_target_properties(web_dav_client PROPERTIES
-#    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.web_dav_client
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
+set_target_properties(wdc
+    PROPERTIES
+#        MACOSX_BUNDLE_GUI_IDENTIFIER com.example.web_dav_client
+        MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+        MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        MACOSX_BUNDLE TRUE
+        WIN32_EXECUTABLE TRUE
 )
 
-target_link_libraries(web_dav_client
+target_link_libraries(wdc
     PRIVATE
         Qt6::Quick
 )
 
 include(GNUInstallDirs)
-install(TARGETS web_dav_client
+install(TARGETS wdc
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

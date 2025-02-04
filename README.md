@@ -5,16 +5,16 @@ WebDAVClient is a client implementation of [WebDAV](https://en.wikipedia.org/wik
 Build Requirements
 -------
 
-The project can be built for Linux at least by:
-* Qt 6.6.1
-* CMake 3.22.1
-* Ninja 1.10.1
-* GCC 12.3.0
+The project can be built for [Android](https://doc.qt.io/qt-6.8/android.html) at least by:
+* Android SDK 10–14 (API level 29–34)
+* OpenJDK 21.0.5
+* NDK 26.1.10909125
 
-The project can be built for [Android](https://doc.qt.io/qt-6/android.html) as well at least by:
-* Android SDK 13 (API level 33)
-* OpenJDK 19.0.2
-* NDK 25.1.8937393
+The project can be built for Linux as well at least by:
+* Qt 6.8.2
+* CMake 3.28.3
+* Ninja 1.11.1
+* GCC 14.2.0
 
 Deployment
 -------
