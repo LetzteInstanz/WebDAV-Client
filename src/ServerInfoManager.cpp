@@ -2,7 +2,7 @@
 
 #include "ServerInfo.h"
 
-ServerInfoManager::ServerInfoManager() { _infos = _json_file.read_servers(); }
+ServerInfoManager::ServerInfoManager() : _infos(_json_file.read_servers()) {}
 
 ServerInfo ServerInfoManager::get(std::size_t row) const noexcept { return _infos[row]; }
 

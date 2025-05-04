@@ -4,8 +4,6 @@
 #include <string>
 #include <string_view>
 
-#include <nlohmann/json.hpp>
-
 class ServerInfo {
 public:
     ServerInfo(std::string_view description, std::string_view addr, std::uint16_t port, std::string_view path) noexcept;
@@ -22,15 +20,7 @@ public:
     std::string get_path() const noexcept { return _path; }
     void set_path(std::string_view path) noexcept { _path = path; }
 
-    static ServerInfo from_json(const nlohmann::json& object);
-    nlohmann::json to_json() const;
-
 private:
-    static const constexpr char* _desc_key = "description",
-                               * _addr_key = "address",
-                               * _port_key = "port",
-                               * _path_key = "path";
-
     std::string _description;
     std::string _addr;
     std::uint16_t _port;
