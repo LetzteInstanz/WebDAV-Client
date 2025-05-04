@@ -4,6 +4,7 @@ WebDAVClient is a client implementation of [WebDAV](https://en.wikipedia.org/wik
 
 Build Requirements
 -------
+It is necessary to install the [nlohmann/json](https://github.com/nlohmann/json) 3.11.3 package or specify a path in the `WDC_3RD_PARTY_DEPEND_PATH` environment variable to the library binaries.
 
 The project can be built for [Android](https://doc.qt.io/qt-6.8/android.html) at least by:
 * Android SDK 10–14 (API level 29–34)
