@@ -25,7 +25,7 @@ public:
 private:
     QString _name;
     Type _type;
-    std::pair<Status, std::chrono::sys_seconds> _creation_time;
+    std::pair<Status, std::chrono::sys_seconds> _creation_time; // todo: use std::optional<std::chrono::sys_seconds>
     std::pair<Status, std::chrono::sys_seconds> _modification_time;
     std::pair<Status, std::uint64_t> _size;
 };

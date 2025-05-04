@@ -26,8 +26,8 @@ std::unordered_map<Qml::Role, std::string> sort_param_json_id_by_role_map;
 const std::unordered_map<std::string, Qml::SortParam> supported_sort_params{
     {"type",              {Qml::Role::FileFlag,     QObject::tr("Type (directories are higher)"), false, Qml::SortParam::compare_file_flag}},
     {"name",              {Qml::Role::Name,         QObject::tr("Name"),                          false, Qml::SortParam::compare_qstring}},
-    {"modification_time", {Qml::Role::ModTime,      QObject::tr("Modification time"),             false, Qml::SortParam::compare_time_t}},
-    {"creation_time",     {Qml::Role::CreationTime, QObject::tr("Creation time"),                 false, Qml::SortParam::compare_time_t}},
+    {"modification_time", {Qml::Role::ModTime,      QObject::tr("Modification time"),             false, Qml::SortParam::compare_sys_seconds}},
+    {"creation_time",     {Qml::Role::CreationTime, QObject::tr("Creation time"),                 false, Qml::SortParam::compare_sys_seconds}},
     {"size",              {Qml::Role::Size,         QObject::tr("Size"),                          false, Qml::SortParam::compare_uint64_t}},
     {"extension",         {Qml::Role::Extension,    QObject::tr("Filename extension"),            false, Qml::SortParam::compare_extension}}
 };
