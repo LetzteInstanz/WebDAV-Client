@@ -499,7 +499,7 @@ namespace {
         const time_t c_time = std::chrono::system_clock::to_time_t(t);
         const std::tm tm = *std::localtime(&c_time); // todo: replace with std::chrono::zoned_time() and std::chrono::current_zone(), when GCC will support this
         std::ostringstream stream;
-        stream.imbue(std::locale("")); // todo: take into account the translation setting, when it will be introduced
+        stream.imbue(std::locale()); // todo: take into account the translation setting, when it will be introduced
         stream << std::put_time(&tm, "%c");
         return QString::fromStdString(stream.rdbuf()->str());
     }
