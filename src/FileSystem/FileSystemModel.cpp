@@ -1,6 +1,9 @@
 #include "FileSystemModel.h"
 
 #include "Client.h"
+#ifndef ANDROID
+#include "FileSystemObject.h"
+#endif
 #include "Parser/Parser.h"
 
 FileSystemModel::FileSystemModel()

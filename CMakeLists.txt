@@ -260,7 +260,7 @@ target_include_directories(wdc PRIVATE src/Qml) # note: https://doc.qt.io/qt-6/q
 target_precompile_headers(wdc PRIVATE src/pch.h)
 
 set_property(TARGET wdc APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android)
-set_property(TARGET wdc PROPERTY CXX_STANDARD 20)
+set_property(TARGET wdc PROPERTY CXX_STANDARD 23)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
@@ -286,3 +286,5 @@ install(TARGETS wdc
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+qt_finalize_executable(wdc)

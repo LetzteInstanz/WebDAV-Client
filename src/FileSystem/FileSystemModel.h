@@ -11,7 +11,11 @@
 #include <QString>
 #include <QStringView>
 
+#ifdef ANDROID
 #include "FileSystemObject.h" // note: Building under Android fails with forward declaration
+#else
+class FileSystemObject;
+#endif
 
 class Client;
 class Parser;
