@@ -2,7 +2,7 @@
 
 #include "TimeParser.h"
 
-Parser::CurrentState::CurrentState(const QStringView& current_path, TagOrderMap::const_iterator first, Result& result) : _current_path(current_path), _result(result) {
+Parser::CurrentState::CurrentState(QStringView current_path, TagOrderMap::const_iterator first, Result& result) : _current_path(current_path), _result(result) {
 #ifndef NDEBUG
     TimeParser::test();
 #endif
@@ -81,7 +81,7 @@ void Parser::CurrentState::update_if_end_tag(Tag t) {
     }
 }
 
-void Parser::CurrentState::update_if_data(Tag t, const QStringView& data) {
+void Parser::CurrentState::update_if_data(Tag t, QStringView data) {
     switch (t) {
         case Tag::Href: {
             QString abs_path = QUrl::fromPercentEncoding(data.toLatin1());

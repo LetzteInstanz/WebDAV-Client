@@ -14,8 +14,8 @@ struct FSObjectStruct {
     using Status = FileSystemObject::Status;
     using Type = FileSystemObject::Type;
 
-    static QString extract_name(const QStringView& abs_path);
-    static Status to_status(const QStringView& str);
+    static QString extract_name(QStringView abs_path);
+    static Status to_status(QStringView str);
 
     void replace_unknown_status(Status s);
 
@@ -24,7 +24,7 @@ struct FSObjectStruct {
     std::pair<Status, Type> type = {Status::None, Type::File};
     std::pair<Status, std::chrono::sys_seconds> creation_date = {Status::None, {}};
     std::pair<Status, std::chrono::sys_seconds> last_modified = {Status::None, {}};
-    std::pair<Status, uint64_t> content_length = {Status::None, 0};
+    std::pair<Status, std::uint64_t> content_length = {Status::None, 0};
 
 private:
     constexpr static Status ret_second_if_first_is_unknown(Status first, Status second);

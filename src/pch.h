@@ -9,16 +9,21 @@
 #include <cstdint>
 #include <ctime>
 #include <deque>
+#include <filesystem>
+#include <fstream>
 #include <functional>
 #include <iomanip>
 #include <iterator>
 #include <locale>
+#include <map>
 #include <memory>
 #include <mutex>
+#include <ostream>
 #include <sstream>
 #include <stack>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
@@ -30,15 +35,9 @@
 #include <QChar>
 #include <QClipboard>
 #include <QColor>
-#include <QDir>
-#include <QFile>
 #include <QGuiApplication>
 #include <QHash>
 #include <QIODevice>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonValue>
 #include <QLocale>
 #include <QModelIndex>
 #include <QNetworkAccessManager>
@@ -65,3 +64,5 @@
 #include <QtGlobal>
 #include <QtLogging>
 #include <QtSystemDetection>
+
+#include <nlohmann/json.hpp>

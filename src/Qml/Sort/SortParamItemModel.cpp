@@ -57,12 +57,12 @@ void SortParamItemModel::moveUp(int row) {
 }
 
 void SortParamItemModel::invert() {
-    const size_t true_sz = _data.size();
+    const std::size_t true_sz = _data.size();
     const auto sz = true_sz / 2;
     if (sz == 0)
         return;
 
-    for (size_t i = 0; i < sz; ++i)
+    for (std::size_t i = 0; i < sz; ++i)
         std::swap(_data[i], _data[true_sz - 1 - i]);
 
     dataChanged(index(0, 0), index(rowCount() - 1, 0), {Qt::DisplayRole, to_int(Role::Descending)});

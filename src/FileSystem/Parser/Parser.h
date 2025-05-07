@@ -21,7 +21,7 @@ public:
     using Objects = std::deque<FileSystemObject>;
     using Result = std::pair<CurrDirObj, Objects>;
 
-    static Result parse_propfind_reply(const QStringView& current_path, const QByteArray& data);
+    static Result parse_propfind_reply(QStringView current_path, const QByteArray& data);
 
 #ifndef NDEBUG
     static void test();
@@ -31,7 +31,7 @@ private:
     enum class Tag {None, Multistatus, Response, PropStat, Prop, Href, ResourceType, CreationDate, GetLastModified, Collection, GetContentLength, Status};
 
     struct TagHasher {
-        size_t operator()(Tag t) const noexcept { return to_type<size_t>(t); }
+        std::size_t operator()(Tag t) const noexcept { return to_type<std::size_t>(t); }
     };
     using TagSet = std::unordered_set<Tag, TagHasher>;
     using TagOrderMap = std::unordered_map<Tag, TagSet, TagHasher>;

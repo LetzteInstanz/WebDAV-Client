@@ -39,18 +39,17 @@ SortParam::CompResult SortParam::compare_extension(const QVariant& lhs, const QV
     return compare_qstring(lhs, rhs, descending);
 }
 
-SortParam::CompResult SortParam::compare_time_t(const QVariant& lhs, const QVariant& rhs, bool descending) {
+SortParam::CompResult SortParam::compare_sys_seconds(const QVariant& lhs, const QVariant& rhs, bool descending) {
     const auto left_is_null = lhs.isNull();
     const auto right_is_null = rhs.isNull();
     if (left_is_null || right_is_null)
         return left_is_null == right_is_null ? CompResult::Equal : left_is_less_if_ascending(right_is_null, descending);
 
-    assert(lhs.canConvert<time_t>());
-    assert(rhs.canConvert<time_t>());
-    const auto left_time = lhs.value<time_t>();
-    const auto right_time = rhs.value<time_t>();
-    const double diff = std::difftime(right_time, left_time);
-    return diff == 0 ? CompResult::Equal : left_is_less_if_ascending(diff > 0, descending);
+    assert(lhs.canConvert<std::chrono::sys_seconds>());
+    assert(rhs.canConvert<std::chrono::sys_seconds>());
+    const auto left_time = lhs.value<std::chrono::sys_seconds>();
+    const auto right_time = rhs.value<std::chrono::sys_seconds>();
+    return left_time == right_time ? CompResult::Equal : left_is_less_if_ascending(left_time < right_time, descending);
 }
 
 SortParam::CompResult SortParam::compare_uint64_t(const QVariant& lhs, const QVariant& rhs, bool descending) {
@@ -59,9 +58,9 @@ SortParam::CompResult SortParam::compare_uint64_t(const QVariant& lhs, const QVa
     if (left_is_null || right_is_null)
         return left_is_null == right_is_null ? CompResult::Equal : left_is_less_if_ascending(right_is_null, descending);
 
-    assert(lhs.canConvert<uint64_t>());
-    assert(rhs.canConvert<uint64_t>());
-    const auto left_size = lhs.value<uint64_t>();
-    const auto right_size = rhs.value<uint64_t>();
+    assert(lhs.canConvert<std::uint64_t>());
+    assert(rhs.canConvert<std::uint64_t>());
+    const auto left_size = lhs.value<std::uint64_t>();
+    const auto right_size = rhs.value<std::uint64_t>();
     return left_size == right_size ? CompResult::Equal : left_is_less_if_ascending(left_size < right_size, descending);
 }

@@ -96,7 +96,7 @@ void LogItemModel::update() {
     if (!_needs_to_update.load(std::memory_order::relaxed))
         return;
 
-    const size_t sz = _log.size();
+    const std::size_t sz = _log.size();
     {
         const std::lock_guard<std::mutex> locker(_mutex);
         beginInsertRows(QModelIndex(), sz, sz + _sync_log.size() - 1);

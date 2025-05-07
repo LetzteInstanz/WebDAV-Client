@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <deque>
 #include <functional>
@@ -10,7 +11,11 @@
 #include <QString>
 #include <QStringView>
 
+#ifdef ANDROID
 #include "FileSystemObject.h" // note: Building under Android fails with forward declaration
+#else
+class FileSystemObject;
+#endif
 
 class Client;
 class Parser;
@@ -27,22 +32,22 @@ public:
 
     bool is_cur_dir_root_path() const noexcept;
     QString get_current_path() const noexcept;
-    void set_server_info(const QStringView& addr, uint16_t port);
-    void set_root_path(const QStringView& absolute_path);
-    void request_file_list(const QStringView& relative_path);
+    void set_server_info(QStringView addr, std::uint16_t port);
+    void set_root_path(QStringView absolute_path);
+    void request_file_list(QStringView relative_path);
     void abort_request();
     void disconnect();
     void add_notification_func(const void* obj, NotifyAboutUpdateFunc&& func) noexcept;
     void remove_notification_func(const void* obj);
     void set_error_func(NotifyAboutErrorFunc&& func) noexcept;
     FileSystemObject get_curr_dir_object() const noexcept;
-    FileSystemObject get_object(size_t index) const noexcept;
-    size_t size() const noexcept;
+    FileSystemObject get_object(std::size_t index) const noexcept;
+    std::size_t size() const noexcept;
 
 private:
     static QString&& add_slash_to_start(QString&& path);
     static QString&& add_slash_to_end(QString&& path);
-    static QString handle_double_dots(const QStringView& path);
+    static QString handle_double_dots(QStringView path);
     void handle_reply(QByteArray&& data);
     void handle_error(QNetworkReply::NetworkError error);
 

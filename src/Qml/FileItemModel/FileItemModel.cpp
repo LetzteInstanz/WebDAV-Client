@@ -427,9 +427,9 @@ const std::unordered_set<QString>  FileItemModel::_special_icon_name_set{
 
 class SizeDisplayer {
 public:
-    constexpr static size_t size = 7;
+    constexpr static std::size_t size = 7;
 
-    static QString to_string(uint64_t bytes) {
+    static QString to_string(std::uint64_t bytes) {
         double sz = bytes;
         int i = 0;
         for (; sz >= 1024 && i < SizeDisplayer::size; ++i)
@@ -491,15 +491,15 @@ const std::array<QString, SizeDisplayer::size> SizeDisplayer::_prefixes{QObject:
 const QLocale SizeDisplayer::_locale;
 
 namespace {
-    bool is_valid_dot_pos(const QStringView& name, qsizetype pos) { return pos != -1 && pos != name.size() - 1; }
+    bool is_valid_dot_pos(QStringView name, qsizetype pos) { return pos != -1 && pos != name.size() - 1; }
 
-    QString extract_extension(const QStringView& name, qsizetype dot_pos) { return QStringView(std::begin(name) + dot_pos + 1, std::end(name)).toString().toLower(); }
+    QString extract_extension(QStringView name, qsizetype dot_pos) { return QStringView(std::begin(name) + dot_pos + 1, std::end(name)).toString().toLower(); }
 
     QString to_string(std::chrono::sys_seconds t) {
         const time_t c_time = std::chrono::system_clock::to_time_t(t);
         const std::tm tm = *std::localtime(&c_time); // todo: replace with std::chrono::zoned_time() and std::chrono::current_zone(), when GCC will support this
         std::ostringstream stream;
-        stream.imbue(std::locale("")); // todo: take into account the translation setting, when it will be introduced
+        stream.imbue(std::locale()); // todo: take into account the translation setting, when it will be introduced
         stream << std::put_time(&tm, "%c");
         return QString::fromStdString(stream.rdbuf()->str());
     }

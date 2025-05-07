@@ -21,16 +21,16 @@ QVariant ServerItemModel::data(const QModelIndex& index, int role) const {
     const ServerInfo info = _srv_manager->get(index.row());
     switch (to_type<Role>(role)) {
         case Role::Desc:
-            return info.get_description();
+            return QString::fromStdString(info.get_description());
 
         case Role::Addr:
-            return info.get_addr();
+            return QString::fromStdString(info.get_addr());
 
         case Role::Port:
             return info.get_port();
 
         case Role::Path:
-            return info.get_path();
+            return QString::fromStdString(info.get_path());
     }
     return QVariant();
 }
@@ -40,8 +40,8 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
         return false;
 
     ServerInfo info = _srv_manager->get(index.row());
-    std::function<QString()> get;
-    std::function<void (const QString&)> set;
+    std::function<std::string ()> get;
+    std::function<void (std::string_view)> set;
     auto is_port = false;
     switch (to_type<Role>(role)) {
         case Role::Desc: {
@@ -57,7 +57,7 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
         }
 
         case Role::Port: {
-            const uint16_t port = value.toUInt();
+            const std::uint16_t port = value.toUInt();
             if (info.get_port() == port)
                 return false;
 
@@ -73,7 +73,7 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
         }
     }
     if (!is_port) {
-        const auto str = value.toString();
+        const auto str = value.toString().toStdString();
         if (get() == str)
             return false;
 
@@ -106,9 +106,9 @@ QHash<int, QByteArray> ServerItemModel::roleNames() const {
     return names;
 }
 
-void ServerItemModel::addServerInfo(const QString& description, const QString& addr, uint16_t port, const QString& path) {
+void ServerItemModel::addServerInfo(const QString& description, const QString& addr, std::uint16_t port, const QString& path) {
     const int row = rowCount();
     beginInsertRows(QModelIndex(), row, row);
-    _srv_manager->add(ServerInfo(description, addr, port, path));
+    _srv_manager->add(ServerInfo(description.toStdString(), addr.toStdString(), port, path.toStdString()));
     endInsertRows();
 }

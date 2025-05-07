@@ -11,12 +11,12 @@ class ServerInfoManager {
 public:
     ServerInfoManager();
 
-    ServerInfo get(size_t row) const noexcept;
-    size_t amount() const noexcept;
+    ServerInfo get(std::size_t row) const noexcept;
+    std::size_t amount() const noexcept;
 
     void add(ServerInfo&& info);
-    void edit(size_t row, const ServerInfo& info);
-    void remove(size_t row, size_t count);
+    void edit(std::size_t row, const ServerInfo& info);
+    void remove(std::size_t row, std::size_t count);
 
 private:
     DataJsonFile _json_file;
