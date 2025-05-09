@@ -4,12 +4,12 @@
 
 std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(QStringView str, Format f) {
     CustomTime time;
-    const auto str_end = std::end(str);
+    const auto str_end = std::cend(str);
     const CharSet& delimiters = get_delimiters(f);
     const TokenOrder& order = get_order(str, f);
     const auto token_end = std::end(order);
     auto token_it = std::begin(order);
-    auto from = std::begin(str);
+    auto from = std::cbegin(str);
     bool prev_is_delimiter = false;
     for (auto it = from; token_it != token_end; ++it) {
         const auto is_str_end = it == str_end;
@@ -20,7 +20,7 @@ std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(QStrin
             const Token token = *token_it;
             const auto prev_delimiter_is_sign = token == Token::ZoneHours;
             if (prev_delimiter_is_sign) {
-                assert(from != std::begin(str));
+                assert(from != std::cbegin(str));
                 --from;
             }
             const QStringView lexem(from, it - from);

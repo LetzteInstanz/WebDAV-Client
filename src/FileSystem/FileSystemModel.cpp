@@ -48,7 +48,7 @@ void FileSystemModel::add_notification_func(const void* obj, NotifyAboutUpdateFu
 
 void FileSystemModel::remove_notification_func(const void* obj) {
     const auto it = _notify_func_by_obj_map.find(obj);
-    if (it != std::end(_notify_func_by_obj_map))
+    if (it != std::cend(_notify_func_by_obj_map))
         _notify_func_by_obj_map.erase(it);
 }
 
@@ -82,7 +82,7 @@ void FileSystemModel::handle_reply(QByteArray&& data) {
         Parser::Result result = Parser::parse_propfind_reply(_current_path, data);
         _curr_dir_obj = std::move(result.first);
         _objects = std::move(result.second);
-        std::for_each(std::begin(_notify_func_by_obj_map), std::end(_notify_func_by_obj_map), [](const auto& pair) { pair.second(); });
+        std::for_each(std::cbegin(_notify_func_by_obj_map), std::cend(_notify_func_by_obj_map), [](const auto& pair) { pair.second(); });
     } catch (const std::runtime_error& e) {
         _current_path = _prev_path;
         qCritical(qUtf8Printable(QObject::tr("An error has occured during reply parse: %s. The reply text: \n%s")), qUtf8Printable(QObject::tr(e.what())), qUtf8Printable(data));

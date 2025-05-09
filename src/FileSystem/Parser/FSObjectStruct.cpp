@@ -10,7 +10,7 @@ QString FSObjectStruct::extract_name(QStringView abs_path) {
     const qsizetype from = abs_path.back() == '/' ? -2 : -1;
     const qsizetype pos = abs_path.lastIndexOf('/', from);
     assert(pos != -1);
-    return QStringView(std::begin(abs_path) + pos + 1, std::end(abs_path) + from + 1).toString();
+    return QStringView(std::cbegin(abs_path) + pos + 1, std::cend(abs_path) + from + 1).toString();
 }
 
 FSObjectStruct::Status FSObjectStruct::to_status(QStringView str) {
