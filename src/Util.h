@@ -1,5 +1,10 @@
 #pragma once
 
+#include <QObject>
+#include <QString>
+#include <QStringView>
+#include <QtLogging>
+
 #include <nlohmann/json.hpp>
 
 template <typename T>
@@ -17,3 +22,5 @@ auto get_value_from_json(const nlohmann::json& json, const char* key) {
         throw e;
     }
 };
+
+QString process_two_dots_in_path(QStringView path);

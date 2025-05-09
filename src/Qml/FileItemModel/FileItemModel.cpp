@@ -1,9 +1,10 @@
 #include "FileItemModel.h"
 
+#include "../../Util.h"
 #include "../FileSystem/FileSystemModel.h"
 #include "../FileSystem/FileSystemObject.h"
-#include "../Util.h"
 #include "FileItemModel/Role.h"
+#include "SizeDisplayer.h"
 
 using namespace Qml;
 
@@ -412,7 +413,7 @@ const std::unordered_map<QString, QString> FileItemModel::_icon_name_by_extensio
     //{"fods", "x-office-spreadsheet.png"}
 };
 
-const std::unordered_set<QString>  FileItemModel::_special_icon_name_set{
+const std::unordered_set<QString> FileItemModel::_special_icon_name_set{
     "application-x-executable.png",
     "application-x-karbon.png",
     "application-x-krita.png",
@@ -425,75 +426,10 @@ const std::unordered_set<QString>  FileItemModel::_special_icon_name_set{
     "video-x-generic.png"
 };
 
-class SizeDisplayer {
-public:
-    constexpr static std::size_t size = 7;
-
-    static QString to_string(std::uint64_t bytes) {
-        double sz = bytes;
-        int i = 0;
-        for (; sz >= 1024 && i < SizeDisplayer::size; ++i)
-            sz /= 1024;
-
-        assert(i < _prefixes.size());
-        return QString("%1 %2").arg(_locale.toString(sz, 'g', 3), _prefixes[i]);
-    }
-
-#ifndef NDEBUG
-    static void test() {
-        QString str = SizeDisplayer::to_string(1023);
-        assert(str.indexOf(QObject::tr("B")) != -1);
-
-        str = SizeDisplayer::to_string(1024);
-        assert(str.indexOf(QObject::tr("K")) != -1);
-
-        str = SizeDisplayer::to_string(std::pow(1024, 2) - 1);
-        assert(str.indexOf(QObject::tr("K")) != -1);
-
-        str = SizeDisplayer::to_string(std::pow(1024, 2));
-        assert(str.indexOf(QObject::tr("M")) != -1);
-
-        str = SizeDisplayer::to_string(std::pow(1024, 3) - 1);
-        assert(str.indexOf(QObject::tr("M")) != -1);
-
-        str = SizeDisplayer::to_string(std::pow(1024, 3));
-        assert(str.indexOf(QObject::tr("G")) != -1);
-
-        str = SizeDisplayer::to_string(std::pow(1024, 4) - 1);
-        assert(str.indexOf(QObject::tr("G")) != -1);
-
-        str = SizeDisplayer::to_string(std::pow(1024, 4));
-        assert(str.indexOf(QObject::tr("T")) != -1);
-
-        str = SizeDisplayer::to_string(std::pow(1024, 5) - 1);
-        assert(str.indexOf(QObject::tr("T")) != -1);
-
-        str = SizeDisplayer::to_string(std::pow(1024, 5));
-        assert(str.indexOf(QObject::tr("P")) != -1);
-
-        //str = SizeDisplayer::to_string(std::pow(1024, 6) - 1); // note: the precision of double type isn't enough; long double isn't supported by Qt
-        //assert(str.indexOf(QObject::tr("P")) != -1);
-
-        str = SizeDisplayer::to_string(std::pow(1024, 6));
-        assert(str.indexOf(QObject::tr("E")) != -1);
-
-        str = SizeDisplayer::to_string(0xFFFFFFFFFFFFFFFF);
-        assert(str.indexOf(QObject::tr("E")) != -1);
-    }
-#endif
-
-private:
-    static const std::array<QString, size> _prefixes;
-    static const QLocale _locale;
-};
-
-const std::array<QString, SizeDisplayer::size> SizeDisplayer::_prefixes{QObject::tr("B"), QObject::tr("K"), QObject::tr("M"), QObject::tr("G"), QObject::tr("T"), QObject::tr("P"), QObject::tr("E")};
-const QLocale SizeDisplayer::_locale;
-
 namespace {
     bool is_valid_dot_pos(QStringView name, qsizetype pos) { return pos != -1 && pos != name.size() - 1; }
 
-    QString extract_extension(QStringView name, qsizetype dot_pos) { return QStringView(std::begin(name) + dot_pos + 1, std::end(name)).toString().toLower(); }
+    QString extract_extension(QStringView name, qsizetype dot_pos) { return QStringView(std::cbegin(name) + dot_pos + 1, std::cend(name)).toString().toLower(); }
 
     QString to_string(std::chrono::sys_seconds t) {
         const time_t c_time = std::chrono::system_clock::to_time_t(t);
@@ -511,7 +447,6 @@ FileItemModel::FileItemModel(std::shared_ptr<::FileSystemModel> model, QObject* 
     _root = _fs_model->is_cur_dir_root_path();
 #ifndef NDEBUG
     std::for_each(std::begin(_icon_name_by_extension_map), std::end(_icon_name_by_extension_map), [](const auto& pair) { const QPixmap pixmap(":/res/icons/" + pair.second); assert(!pixmap.isNull()); });
-    SizeDisplayer::test();
 #endif
 }
 

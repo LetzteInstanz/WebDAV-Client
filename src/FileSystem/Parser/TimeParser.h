@@ -13,13 +13,9 @@
 
 class Parser::CurrentState::TimeParser {
 public:
-    enum class Format {Rfc2616, Rfc3339};
+    enum class Format {Rfc2068, Rfc3339};
 
     static std::chrono::sys_seconds to_sys_seconds(QStringView str, Format f);
-
-#ifndef NDEBUG
-    static void test();
-#endif
 
 private:
     struct CustomTime {

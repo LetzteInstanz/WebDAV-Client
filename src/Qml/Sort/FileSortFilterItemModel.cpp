@@ -1,9 +1,9 @@
 #include "FileSortFilterItemModel.h"
 
 #include "../../Json/SettingsJsonFile.h"
+#include "../../Util.h"
 #include "../FileItemModel/FileItemModel.h"
 #include "../FileItemModel/Role.h"
-#include "../Util.h"
 #include "SortParam.h"
 
 using namespace Qml;

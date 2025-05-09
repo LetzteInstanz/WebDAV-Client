@@ -47,7 +47,6 @@ public:
 private:
     static QString&& add_slash_to_start(QString&& path);
     static QString&& add_slash_to_end(QString&& path);
-    static QString handle_double_dots(QStringView path);
     void handle_reply(QByteArray&& data);
     void handle_error(QNetworkReply::NetworkError error);
 

@@ -1,7 +1,7 @@
 #include "SortParamItemModel.h"
 
+#include "../../Util.h"
 #include "../Json/SettingsJsonFile.h"
-#include "../Util.h"
 #include "SortParam.h"
 
 using namespace Qml;

@@ -20,6 +20,8 @@ if (NOT nlohmann_json_FOUND)
     return()
 endif()
 
+include(GNUInstallDirs)
+
 qt_standard_project_setup(REQUIRES 6.5)
 
 qt_add_executable(wdc
@@ -85,6 +87,8 @@ qt_add_qml_module(wdc
         src/Qml/FileItemModel/FileItemModel.cpp
         src/Qml/FileItemModel/FileItemModel.h
         src/Qml/FileItemModel/Role.h
+        src/Qml/FileItemModel/SizeDisplayer.cpp
+        src/Qml/FileItemModel/SizeDisplayer.h
         src/Qml/FileSystemModel.cpp
         src/Qml/FileSystemModel.h
         src/Qml/IconProvider.cpp
@@ -255,10 +259,8 @@ qt_add_resources(wdc "images"
         res/icons/unknown.png
         res/icons/video-x-generic.png
 )
-
 target_include_directories(wdc PRIVATE src/Qml) # note: https://doc.qt.io/qt-6/qtqml-cppintegration-definetypes.html: All headers that declare QML types need to be accessible without any prefix from the project's include path.
 target_precompile_headers(wdc PRIVATE src/pch.h)
-
 set_property(TARGET wdc APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android)
 set_property(TARGET wdc PROPERTY CXX_STANDARD 23)
 
@@ -273,18 +275,54 @@ set_target_properties(wdc
         MACOSX_BUNDLE TRUE
         WIN32_EXECUTABLE TRUE
 )
-
 target_link_libraries(wdc
     PRIVATE
         Qt6::Quick
         nlohmann_json::nlohmann_json
 )
-
-include(GNUInstallDirs)
 install(TARGETS wdc
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-
 qt_finalize_executable(wdc)
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # todo: enable for Clang, when it will begin to support the stacktrace library
+    qt_add_executable(tests
+        src/FileSystem/FileSystemObject.cpp
+        src/FileSystem/FileSystemObject.h
+        src/FileSystem/Parser/CurrentState.cpp
+        src/FileSystem/Parser/CurrentState.h
+        src/FileSystem/Parser/FSObjectStruct.cpp
+        src/FileSystem/Parser/FSObjectStruct.h
+        src/FileSystem/Parser/Parser.cpp
+        src/FileSystem/Parser/Parser.h
+        src/FileSystem/Parser/TimeParser.cpp
+        src/FileSystem/Parser/TimeParser.h
+        src/Qml/FileItemModel/SizeDisplayer.cpp
+        src/Qml/FileItemModel/SizeDisplayer.h
+        src/Tests/ParserTest.cpp
+        src/Tests/ParserTest.h
+        src/Tests/SizeDisplayerTest.cpp
+        src/Tests/SizeDisplayerTest.h
+        src/Tests/Tests.cpp
+        src/Tests/Tests.h
+        src/Tests/Util.cpp
+        src/Tests/Util.h
+        src/Tests/UtilTest.cpp
+        src/Tests/UtilTest.h
+        src/Tests/main.cpp
+        src/Tests/pch.h
+        src/Util.cpp
+        src/Util.h
+    )
+    target_precompile_headers(tests PRIVATE src/Tests/pch.h)
+    set_property(TARGET tests PROPERTY CXX_STANDARD 23)
+    target_link_libraries(tests PRIVATE stdc++exp)
+    install(TARGETS tests
+        BUNDLE DESTINATION .
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+    qt_finalize_executable(tests)
+endif()
