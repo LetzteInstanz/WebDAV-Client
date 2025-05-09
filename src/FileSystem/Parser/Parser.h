@@ -23,10 +23,6 @@ public:
 
     static Result parse_propfind_reply(QStringView current_path, const QByteArray& data);
 
-#ifndef NDEBUG
-    static void test();
-#endif
-
 private:
     enum class Tag {None, Multistatus, Response, PropStat, Prop, Href, ResourceType, CreationDate, GetLastModified, Collection, GetContentLength, Status};
 

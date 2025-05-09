@@ -1,6 +1,6 @@
 #include "TimeParser.h"
 
-#include "../Util.h"
+#include "../../Util.h"
 
 std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(QStringView str, Format f) {
     CustomTime time;
@@ -47,62 +47,11 @@ std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(QStrin
     return seconds;
 }
 
-#ifndef NDEBUG
-void Parser::CurrentState::TimeParser::test() {
-    using namespace std::chrono_literals;
-
-    for (const auto& str : std::vector<QString>{"Sun, 06 Nov 1999 08:49:37 GMT", "Sunday, 06-Nov-99 08:49:37 GMT", "Sun Nov 6 08:49:37 1999"}) {
-        const std::chrono::sys_seconds seconds = TimeParser::to_sys_seconds(str, TimeParser::Format::Rfc2616);
-        const std::chrono::year_month_day yyyy_mm_dd(std::chrono::time_point_cast<std::chrono::days>(seconds));
-        assert(yyyy_mm_dd.year() == 1999y);
-        assert(yyyy_mm_dd.month() == std::chrono::November);
-        assert(yyyy_mm_dd.day() == 6d);
-        const std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration> hh_mm_ss(seconds - to_type<std::chrono::sys_days>(yyyy_mm_dd));
-        assert(hh_mm_ss.hours() == 8h);
-        assert(hh_mm_ss.minutes() == 49min);
-        assert(hh_mm_ss.seconds() == 37s);
-    }
-    std::chrono::sys_seconds seconds = TimeParser::to_sys_seconds(QString("Sun, 06 Nov 2024 08:49:37 GMT"), TimeParser::Format::Rfc2616);
-    std::chrono::year_month_day yyyy_mm_dd(std::chrono::time_point_cast<std::chrono::days>(seconds));
-    assert(yyyy_mm_dd.year() == 2024y);
-
-    seconds = TimeParser::to_sys_seconds(QString("1985-04-12T23:20:50.52Z"), TimeParser::Format::Rfc3339);
-    yyyy_mm_dd = std::chrono::year_month_day(std::chrono::time_point_cast<std::chrono::days>(seconds));
-    assert(yyyy_mm_dd.year() == 1985y);
-    assert(yyyy_mm_dd.month() == std::chrono::April);
-    assert(yyyy_mm_dd.day() == 12d);
-    std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration> hh_mm_ss(seconds - to_type<std::chrono::sys_days>(yyyy_mm_dd));
-    assert(hh_mm_ss.hours() == 23h);
-    assert(hh_mm_ss.minutes() == 20min);
-    assert(hh_mm_ss.seconds() == 51s);
-
-    seconds = TimeParser::to_sys_seconds(QString("1996-12-19T16:39:57.473-08:21"), TimeParser::Format::Rfc3339);
-    yyyy_mm_dd = std::chrono::year_month_day(std::chrono::time_point_cast<std::chrono::days>(seconds));
-    assert(yyyy_mm_dd.year() == 1996y);
-    assert(yyyy_mm_dd.month() == std::chrono::December);
-    assert(yyyy_mm_dd.day() == 20d);
-    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - to_type<std::chrono::sys_days>(yyyy_mm_dd));
-    assert(hh_mm_ss.hours() == 1h);
-    assert(hh_mm_ss.minutes() == 0min);
-    assert(hh_mm_ss.seconds() == 57s);
-
-    seconds = TimeParser::to_sys_seconds(QString("1996-12-19T16:29:57+08:30"), TimeParser::Format::Rfc3339);
-    yyyy_mm_dd = std::chrono::year_month_day(std::chrono::time_point_cast<std::chrono::days>(seconds));
-    assert(yyyy_mm_dd.year() == 1996y);
-    assert(yyyy_mm_dd.month() == std::chrono::December);
-    assert(yyyy_mm_dd.day() == 19d);
-    hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(seconds - to_type<std::chrono::sys_days>(yyyy_mm_dd));
-    assert(hh_mm_ss.hours() == 7h);
-    assert(hh_mm_ss.minutes() == 59min);
-    assert(hh_mm_ss.seconds() == 57s);
-}
-#endif
-
-const Parser::CurrentState::TimeParser::CharSet& Parser::CurrentState::TimeParser::get_delimiters(Format f) { return f == Format::Rfc2616 ? _rfc2616_delimiters : _rfc3339_delimiters; }
+const Parser::CurrentState::TimeParser::CharSet& Parser::CurrentState::TimeParser::get_delimiters(Format f) { return f == Format::Rfc2068 ? _rfc2616_delimiters : _rfc3339_delimiters; }
 
 const Parser::CurrentState::TimeParser::TokenOrder& Parser::CurrentState::TimeParser::get_order(QStringView str, Format f) {
     switch (f) {
-        case Format::Rfc2616:
+        case Format::Rfc2068:
             return str.back() == 'T' ? _rfc2616_order_1 : _rfc2616_order_2;
 
         default:
@@ -117,12 +66,12 @@ void Parser::CurrentState::TimeParser::parse(CustomTime& time, QStringView lexem
         }
 
         case Token::Day: {
-            time.day = std::chrono::day(lexem.toInt(&ok));
+            time.day = std::chrono::day(lexem.toUInt(&ok));
             break;
         }
 
         case Token::Month: {
-            time.month = std::chrono::month(lexem.toInt(&ok));
+            time.month = std::chrono::month(lexem.toUInt(&ok));
             break;
         }
 
@@ -136,18 +85,23 @@ void Parser::CurrentState::TimeParser::parse(CustomTime& time, QStringView lexem
         }
 
         case Token::Year: {
-            const auto number = lexem.toInt(&ok);
-            time.year = std::chrono::year(number <= 99 ? number + 1900 : number);
+            auto number = lexem.toUInt(&ok);
+            if (number >= 0 && number <= 69) // note: https://datatracker.ietf.org/doc/html/rfc6265#section-5.1.1
+                number += 2000;
+            else if (number <= 99)
+                number += 1900;
+
+            time.year = std::chrono::year(number);
             break;
         }
 
         case Token::Hours: {
-            time.hours = std::chrono::hours(lexem.toInt(&ok));
+            time.hours = std::chrono::hours(lexem.toUInt(&ok));
             break;
         }
 
         case Token::Minutes: {
-            time.minutes = std::chrono::minutes(lexem.toInt(&ok));
+            time.minutes = std::chrono::minutes(lexem.toUInt(&ok));
             break;
         }
 
@@ -165,7 +119,7 @@ void Parser::CurrentState::TimeParser::parse(CustomTime& time, QStringView lexem
         }
 
         case Token::ZoneMinutes: {
-            time.minutes -= time.time_zone_sign * std::chrono::minutes(lexem.toInt(&ok));
+            time.minutes -= time.time_zone_sign * std::chrono::minutes(lexem.toUInt(&ok));
             break;
         }
     }

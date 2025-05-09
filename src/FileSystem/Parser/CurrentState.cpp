@@ -3,9 +3,6 @@
 #include "TimeParser.h"
 
 Parser::CurrentState::CurrentState(QStringView current_path, TagOrderMap::const_iterator first, Result& result) : _current_path(current_path), _result(result) {
-#ifndef NDEBUG
-    TimeParser::test();
-#endif
     stack.push(first);
 }
 
@@ -105,7 +102,7 @@ void Parser::CurrentState::update_if_data(Tag t, QStringView data) {
 
         case Tag::GetLastModified: {
             try {
-                _obj.last_modified = std::make_pair(std::remove_reference_t<FSObjectStruct::Status>(_status), TimeParser::to_sys_seconds(data, TimeParser::Format::Rfc2616));
+                _obj.last_modified = std::make_pair(std::remove_reference_t<FSObjectStruct::Status>(_status), TimeParser::to_sys_seconds(data, TimeParser::Format::Rfc2068));
             } catch (const std::runtime_error& e) {
                 _obj.last_modified.first = FSObjectStruct::Status::None;
                 set_error(QObject::tr(e.what()));

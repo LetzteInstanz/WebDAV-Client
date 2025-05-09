@@ -1,5 +1,6 @@
 #include "FileSystemModel.h"
 
+#include "../Util.h"
 #include "Client.h"
 #ifndef ANDROID
 #include "FileSystemObject.h"
@@ -10,22 +11,6 @@ FileSystemModel::FileSystemModel()
     : _client(std::make_unique<Client>(std::bind(&FileSystemModel::handle_reply, this, std::placeholders::_1),
                                        std::bind(&FileSystemModel::handle_error, this, std::placeholders::_1)))
 {
-#ifndef NDEBUG
-    Parser::test();
-
-    QString test = "/";
-    assert(handle_double_dots(test) == "/");
-    test = "/test/test2/../../test3/test4/";
-    assert(handle_double_dots(test) == "/test3/test4/");
-    test = "/test/../test2/../test3/";
-    assert(handle_double_dots(test) == "/test3/");
-    test = "/test/..g/";
-    assert(handle_double_dots(test) == test);
-    test = "/test/g../";
-    assert(handle_double_dots(test) == test);
-    test = "/test/..../";
-    assert(handle_double_dots(test) == test);
-#endif
 }
 
 FileSystemModel::~FileSystemModel() = default;
@@ -44,7 +29,7 @@ void FileSystemModel::set_root_path(QStringView absolute_path) {
 
 void FileSystemModel::request_file_list(QStringView relative_path) {
     _prev_path = _current_path;
-    _current_path = handle_double_dots(_current_path + add_slash_to_end(relative_path.toString()));
+    _current_path = process_two_dots_in_path(_current_path + add_slash_to_end(relative_path.toString()));
     _client->request_file_list(_current_path);
 }
 
@@ -90,49 +75,6 @@ QString&& FileSystemModel::add_slash_to_end(QString&& path) {
         path += '/';
 
     return std::move(path);
-}
-
-QString FileSystemModel::handle_double_dots(QStringView path) {
-    assert(!path.empty());
-    assert(path[0] == '/');
-    assert(path.back() == '/');
-
-    if (path.size() == 1)
-        return path.toString();
-
-    struct {
-        bool after_slash = false;
-        int dots = 0;
-    } state;
-    std::vector<QStringView> dirs;
-    auto was_never_double_dots = true;
-    for (auto from = std::begin(path), it = std::begin(path), end = std::end(path); it != end; ++it) {
-        const QChar& ch = *it;
-        if (ch == '/') {
-            if (state.after_slash && state.dots == 2) {
-                assert(!dirs.empty());
-                dirs.pop_back();
-                was_never_double_dots = false;
-            } else {
-                if (from != it)
-                    dirs.emplace_back(QStringView(from, it));
-            }
-            state.after_slash = true;
-            state.dots = 0;
-            from = it;
-        } else if (ch == '.') {
-            ++state.dots;
-        } else {
-            state.after_slash = false;
-        }
-    }
-    if (was_never_double_dots)
-        return path.toString();
-
-    QString ret;
-    std::for_each(std::cbegin(dirs), std::cend(dirs), [&ret](const auto& dir) { ret += dir; });
-    ret += '/';
-    return ret;
 }
 
 void FileSystemModel::handle_reply(QByteArray&& data) {

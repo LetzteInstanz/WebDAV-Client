@@ -1,7 +1,7 @@
 #include "LogItemModel.h"
 
 #include "../../Logger.h"
-#include "../Util.h"
+#include "../../Util.h"
 
 using namespace Qml;
 
