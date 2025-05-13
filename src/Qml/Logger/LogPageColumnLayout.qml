@@ -9,7 +9,7 @@ import WebDavClient
 
 ColumnLayout {
     function prepare() {
-        listView.model = itemModelManager.createModel(ItemModel.Log)
+        listView.model = ItemModelManager.createModel(ItemModel.Log)
         listView.currentIndex = -1
         listView.positionViewAtEnd()
     }

@@ -49,14 +49,37 @@ qt_add_executable(wdc
     src/Json/SettingsJsonFile.h
     src/Logger.cpp
     src/Logger.h
-    src/main.cpp
-    src/pch.h
+    src/Qml/FileItemModel/FileItemModel.cpp
+    src/Qml/FileItemModel/FileItemModel.h
+    src/Qml/FileItemModel/Role.h
+    src/Qml/FileItemModel/SizeDisplayer.cpp
+    src/Qml/FileItemModel/SizeDisplayer.h
+    src/Qml/FileSystemModel.cpp
+    src/Qml/FileSystemModel.h
+    src/Qml/IconProvider.cpp
+    src/Qml/IconProvider.h
+    src/Qml/ItemModelManager.cpp
+    src/Qml/ItemModelManager.h
+    src/Qml/Logger/LogItemModel.cpp
+    src/Qml/Logger/LogItemModel.h
+    src/Qml/Settings.cpp
+    src/Qml/Settings.h
+    src/Qml/ServerItemModel.cpp
+    src/Qml/ServerItemModel.h
+    src/Qml/Sort/FileSortFilterItemModel.cpp
+    src/Qml/Sort/FileSortFilterItemModel.h
+    src/Qml/Sort/SortParam.cpp
+    src/Qml/Sort/SortParam.h
+    src/Qml/Sort/SortParamItemModel.cpp
+    src/Qml/Sort/SortParamItemModel.h
     src/ServerInfo.cpp
     src/ServerInfo.h
     src/ServerInfoManager.cpp
     src/ServerInfoManager.h
     src/Util.cpp
     src/Util.h
+    src/main.cpp
+    src/pch.h
 )
 
 qt_add_qml_module(wdc
@@ -83,30 +106,6 @@ qt_add_qml_module(wdc
         src/Qml/Sort/SortDialog.qml
         src/Qml/TextContextMenu.qml
         src/Qml/Util.js
-    SOURCES
-        src/Qml/FileItemModel/FileItemModel.cpp
-        src/Qml/FileItemModel/FileItemModel.h
-        src/Qml/FileItemModel/Role.h
-        src/Qml/FileItemModel/SizeDisplayer.cpp
-        src/Qml/FileItemModel/SizeDisplayer.h
-        src/Qml/FileSystemModel.cpp
-        src/Qml/FileSystemModel.h
-        src/Qml/IconProvider.cpp
-        src/Qml/IconProvider.h
-        src/Qml/ItemModelManager.cpp
-        src/Qml/ItemModelManager.h
-        src/Qml/Logger/LogItemModel.cpp
-        src/Qml/Logger/LogItemModel.h
-        src/Qml/Settings.cpp
-        src/Qml/Settings.h
-        src/Qml/ServerItemModel.cpp
-        src/Qml/ServerItemModel.h
-        src/Qml/Sort/FileSortFilterItemModel.cpp
-        src/Qml/Sort/FileSortFilterItemModel.h
-        src/Qml/Sort/SortParam.cpp
-        src/Qml/Sort/SortParam.h
-        src/Qml/Sort/SortParamItemModel.cpp
-        src/Qml/Sort/SortParamItemModel.h
 #    RESOURCES
 #        android/AndroidManifest.xml
 #        android/build.gradle

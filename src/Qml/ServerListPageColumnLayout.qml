@@ -32,12 +32,12 @@ ColumnLayout {
                     mainStackLayout.currentIndex = 1
                     fileListPage.prepare()
                     const _item = item
-                    fileSystemModel.setServerInfo(_item.addr, _item.port)
-                    fileSystemModel.setRootPath(_item.path)
-                    fileSystemModel.requestFileList("")
+                    FileSystemModel.setServerInfo(_item.addr, _item.port)
+                    FileSystemModel.setRootPath(_item.path)
+                    FileSystemModel.requestFileList("")
                 }
                 dlg.onOpened.connect(requestFileList)
-                const fsModel = fileSystemModel // note: An error occurs during closing the main window, if not to use the local variables
+                const fsModel = FileSystemModel // note: An error occurs during closing the main window, if not to use the local variables
                 function disconnect() {
                     mainStackLayout.currentIndex = 0
                     console.debug(qsTr("QML: The file system model is being disconnected"))
@@ -88,7 +88,7 @@ ColumnLayout {
         id: listView
         Layout.fillHeight: true
         Layout.fillWidth: true
-        model: itemModelManager.createModel(ItemModel.Server)
+        model: ItemModelManager.createModel(ItemModel.Server)
         currentIndex: -1
         property Component menuComponent
         Component.onCompleted: menuComponent = Qt.createComponent("ServerItemMenu.qml", Component.Asynchronous)

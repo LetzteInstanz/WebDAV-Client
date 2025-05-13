@@ -3,11 +3,12 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 import "Core" as Core
+import WebDavClient
 
 ColumnLayout {
     function prepare() {
-        //pathTxtField.text = settings.getDownloadPath()
-        logLevelComboBox.currentIndex = settings.getCurrentLogLevel()
+        //pathTxtField.text = Settings.getDownloadPath()
+        logLevelComboBox.currentIndex = Settings.getCurrentLogLevel()
         saveSettingsButton.enabled = false
     }
     function back() { stackLayout.currentIndex = 0 }
@@ -25,8 +26,8 @@ ColumnLayout {
             anchors.right: parent.right
             text: qsTr("Ok")
             onClicked: {
-                //settings.setDownloadPath(pathTxtField.text)
-                settings.setCurrentLogLevel(logLevelComboBox.currentIndex)
+                //Settings.setDownloadPath(pathTxtField.text)
+                Settings.setCurrentLogLevel(logLevelComboBox.currentIndex)
                 back()
             }
         }
@@ -40,7 +41,7 @@ ColumnLayout {
             anchors.fill: parent
             anchors.margins: 5
             spacing: 5
-            function hasChanges() { return /*settings.getDownloadPath() !== pathTxtField.text || */settings.getCurrentLogLevel() !== logLevelComboBox.currentIndex }
+            function hasChanges() { return /*Settings.getDownloadPath() !== pathTxtField.text || */Settings.getCurrentLogLevel() !== logLevelComboBox.currentIndex }
 
             // Label {
             //     text: qsTr("Path:")
@@ -70,7 +71,7 @@ ColumnLayout {
             }
             ComboBox {
                 id: logLevelComboBox
-                model: logLevelItemModel
+                model: Settings.getLevelDescList()//logLevelItemModel
                 delegate: ItemDelegate {
                     text: modelData
                     required property string modelData

@@ -4,7 +4,6 @@
 
 #include <QAbstractItemModel>
 #include <QObject>
-#include <QQmlEngine>
 
 class FileSystemModel;
 class Logger;
@@ -14,7 +13,6 @@ class SettingsJsonFile;
 namespace Qml {
     struct ItemModel {
         Q_GADGET
-        QML_ELEMENT
 
     public:
         enum class Model {Server, Log, File, SortParam};

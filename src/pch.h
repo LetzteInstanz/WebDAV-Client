@@ -45,7 +45,6 @@
 #include <QObject>
 #include <QPixmap>
 #include <QQmlApplicationEngine>
-#include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickImageProvider>
 #include <QRegularExpression>
@@ -62,6 +61,7 @@
 #include <QXmlStreamReader>
 #include <Qt>
 #include <QtGlobal>
+#include <QtQml/qqml.h>
 #include <QtLogging>
 #include <QtSystemDetection>
 

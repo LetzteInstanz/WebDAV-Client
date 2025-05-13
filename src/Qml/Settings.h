@@ -26,7 +26,7 @@ namespace Qml {
         Q_INVOKABLE void setCurrentLogLevel(int index);
         Q_INVOKABLE bool getSearchCSFlag() const;
         Q_INVOKABLE void setSearchCSFlag(bool caseSensitive);
-        QStringList get_level_desc_list() const;
+        Q_INVOKABLE QStringList getLevelDescList() const;
 
     private:
         std::shared_ptr<SettingsJsonFile> _settings;

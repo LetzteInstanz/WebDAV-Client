@@ -15,7 +15,7 @@ Dialog {
     standardButtons: Dialog.Ok | Dialog.Cancel
     title: qsTr("Sort parameters")
     onOpened: {
-        listView.model = itemModelManager.createModel(ItemModel.SortParam)
+        listView.model = ItemModelManager.createModel(ItemModel.SortParam)
         enableEditButtons()
         enableOkButton()
     }
