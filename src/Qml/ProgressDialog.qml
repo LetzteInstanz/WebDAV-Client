@@ -5,6 +5,7 @@ import QtQuick.Layouts
 
 import "Core" as Core
 import "Util.js" as Util
+import WebDavClient
 
 Dialog {
     anchors.centerIn: parent
@@ -27,7 +28,7 @@ Dialog {
             Layout.alignment: Qt.AlignHCenter
         }
         Connections {
-            target: fileSystemModel
+            target: FileSystemModel
             function onMaxProgressEnabled(enabled) { progressBar.indeterminate = !enabled }
             function onProgressChanged(value) { progressBar.value = value }
             function onMaxProgressChanged(max) { progressBar.to = max }

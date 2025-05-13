@@ -13,24 +13,24 @@ ColumnLayout {
         currPathLabel.text = ""
 
         function setModel() {
-            listView.model = itemModelManager.createModel(ItemModel.File)
+            listView.model = ItemModelManager.createModel(ItemModel.File)
             listView.model.modelReset.connect(() => { listView.currentIndex = -1 })
             listView.currentIndex = -1
-            fileSystemModel.replyGot.disconnect(setModel)
+            FileSystemModel.replyGot.disconnect(setModel)
         }
-        fileSystemModel.replyGot.connect(setModel)
-        fileSystemModel.errorOccurred.connect(() => { fileSystemModel.replyGot.disconnect(setModel) })
+        FileSystemModel.replyGot.connect(setModel)
+        FileSystemModel.errorOccurred.connect(() => { FileSystemModel.replyGot.disconnect(setModel) })
     }
     function back() {
         listView.destroyModel()
         console.debug(qsTr("QML: The file system model is being disconnected"))
-        fileSystemModel.disconnect()
+        FileSystemModel.disconnect()
         stackLayout.currentIndex = 0
     }
 
     Connections {
-        target: fileSystemModel
-        function onReplyGot() { currPathLabel.text = fileSystemModel.getCurrentPath() }
+        target: FileSystemModel
+        function onReplyGot() { currPathLabel.text = FileSystemModel.getCurrentPath() }
     }
     Core.SelectionSequentialAnimation {
         id: animation
@@ -46,8 +46,8 @@ ColumnLayout {
                     return
 
                 const mainStackLayout = stackLayout
-                dlg.onOpened.connect(() => { console.debug(qsTr("QML: A new file list was requested")); fileSystemModel.requestFileList(model.name) })
-                dlg.rejected.connect(() => { console.debug(qsTr("QML: The request is being aborted")); fileSystemModel.abortRequest() })
+                dlg.onOpened.connect(() => { console.debug(qsTr("QML: A new file list was requested")); FileSystemModel.requestFileList(model.name) })
+                dlg.rejected.connect(() => { console.debug(qsTr("QML: The request is being aborted")); FileSystemModel.abortRequest() })
                 dlg.closed.connect(() => { mainStackLayout.enabled = true })
                 dlg.open()
             }
@@ -74,10 +74,10 @@ ColumnLayout {
         }
         CheckBox {
             text: qsTr("Case\nsensitive")
-            checkState: settings.getSearchCSFlag() ? Qt.Checked : Qt.Unchecked
+            checkState: Settings.getSearchCSFlag() ? Qt.Checked : Qt.Unchecked
             onClicked: {
-                const cs = settings.getSearchCSFlag()
-                settings.setSearchCSFlag(!cs)
+                const cs = Settings.getSearchCSFlag()
+                Settings.setSearchCSFlag(!cs)
                 listView.model.repeatSearch(0)
             }
         }
