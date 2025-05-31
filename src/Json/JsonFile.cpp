@@ -2,7 +2,7 @@
 
 JsonFile::JsonFile(std::string_view filename) {
     auto path_to_dir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation).toStdString();
-#ifndef Q_OS_ANDROID
+#ifndef ANDROID
     path_to_dir += "/WebDAVClient";
 #endif
     qDebug(qUtf8Printable(QObject::tr("Settings path: \"%s\"")), qUtf8Printable(path_to_dir.c_str()));

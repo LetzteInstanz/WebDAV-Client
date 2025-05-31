@@ -35,6 +35,7 @@
 #include <QChar>
 #include <QClipboard>
 #include <QColor>
+#include <QCoreApplication>
 #include <QGuiApplication>
 #include <QHash>
 #include <QIODevice>
@@ -63,6 +64,12 @@
 #include <QtGlobal>
 #include <QtQml/qqml.h>
 #include <QtLogging>
-#include <QtSystemDetection>
+
+#ifdef ANDROID
+#include <QFuture>
+#include <QJniEnvironment>
+#include <QJniObject>
+#include <QtCore/private/qandroidextras_p.h>
+#endif
 
 #include <nlohmann/json.hpp>

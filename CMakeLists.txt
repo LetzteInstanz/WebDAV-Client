@@ -25,6 +25,8 @@ include(GNUInstallDirs)
 qt_standard_project_setup(REQUIRES 6.5)
 
 qt_add_executable(wdc
+    android/src/org/qtproject/webdavclient/NotificationClient.java
+    android/src/org/qtproject/webdavclient/MyBroadcastReceiver.java
     src/App.cpp
     src/App.h
     src/FileSystem/Client.cpp
@@ -81,6 +83,14 @@ qt_add_executable(wdc
     src/main.cpp
     src/pch.h
 )
+
+if (ANDROID)
+    target_sources(wdc
+        PRIVATE
+            src/NotificationClient.cpp
+            src/NotificationClient.h
+    )
+endif()
 
 qt_add_qml_module(wdc
     URI WebDavClient
