@@ -3,6 +3,9 @@
 #include "FileSystem/FileSystemModel.h"
 #include "Json/SettingsJsonFile.h"
 #include "Logger.h"
+#ifdef ANDROID
+#include "NotificationClient.h"
+#endif
 #include "Qml/FileSystemModel.h"
 #include "Qml/IconProvider.h"
 #include "Qml/ItemModelManager.h"
@@ -20,9 +23,23 @@ App::App(int& argc, char** argv) : QGuiApplication(argc, argv) {
     auto fs_model = std::make_shared<FileSystemModel>();
     _qml_fs_client = std::make_unique<Qml::FileSystemModel>(fs_model);
     _item_model_mgr = std::make_unique<Qml::ItemModelManager>(logger, settings, std::move(srv_mgr), fs_model);
+#ifdef ANDROID
+    try {
+        _notification_client = std::make_unique<NotificationClient>(QObject::tr("Downloading"));
+    } catch (const std::runtime_error& e) {
+        qWarning(qUtf8Printable(QObject::tr("NotificationClient: %s")), e.what());
+    }
+#endif
 }
 
+#ifdef ANDROID
+App::~App() {
+    if (_notification_client)
+        _notification_client->hide_all_notifications();
+}
+#else
 App::~App() = default;
+#endif
 
 void App::initialize_engine(QQmlApplicationEngine& engine) {
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, this, []() { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
