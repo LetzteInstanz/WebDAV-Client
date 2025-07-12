@@ -1,14 +1,5 @@
 #pragma once
 
-#include <chrono>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-#include <QChar>
-#include <QString>
-#include <QStringView>
-
 #include "CurrentState.h"
 
 class Parser::CurrentState::TimeParser {

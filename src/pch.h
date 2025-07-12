@@ -4,6 +4,7 @@
 #include <array>
 #include <atomic>
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -24,12 +25,14 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
 
+#include <QAbstractItemModel>
 #include <QAbstractListModel>
 #include <QByteArray>
 #include <QChar>
@@ -51,10 +54,12 @@
 #include <QRegularExpression>
 #include <QScopedPointer>
 #include <QSize>
+#include <QSortFilterProxyModel>
 #include <QStandardPaths>
 #include <QString>
 #include <QStringList>
 #include <QStringLiteral>
+#include <QStringView>
 #include <QTextStream>
 #include <QTimer>
 #include <QUrl>
@@ -62,8 +67,8 @@
 #include <QXmlStreamReader>
 #include <Qt>
 #include <QtGlobal>
-#include <QtQml/qqml.h>
 #include <QtLogging>
+#include <qqml.h>
 
 #ifdef ANDROID
 #include <QFuture>

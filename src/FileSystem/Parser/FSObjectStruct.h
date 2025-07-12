@@ -1,13 +1,5 @@
 #pragma once
 
-#include <chrono>
-#include <cstdint>
-#include <utility>
-#include <vector>
-
-#include <QString>
-#include <QStringView>
-
 #include "../FileSystemObject.h"
 
 struct FSObjectStruct {

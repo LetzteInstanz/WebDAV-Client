@@ -1,10 +1,5 @@
 #pragma once
 
-#include <memory>
-
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
-
 #ifdef ANDROID
 class NotificationClient;
 #endif

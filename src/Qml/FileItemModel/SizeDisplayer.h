@@ -1,12 +1,5 @@
 #pragma once
 
-#include <array>
-#include <cstddef>
-#include <cstdint>
-
-#include <QLocale>
-#include <QString>
-
 class SizeDisplayer {
 public:
     static QString to_string(std::uint64_t bytes);

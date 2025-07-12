@@ -1,10 +1,5 @@
 #pragma once
 
-#include <functional>
-
-#include <QString>
-#include <QVariant>
-
 namespace Qml {
     enum class FileItemModelRole;
 

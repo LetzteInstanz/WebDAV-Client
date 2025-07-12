@@ -1,16 +1,5 @@
 #pragma once
 
-#include <cstddef>
-#include <deque>
-#include <memory>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-
-#include <QByteArray>
-#include <QString>
-#include <QStringView>
-
 #include "../../Util.h"
 
 class FileSystemObject;

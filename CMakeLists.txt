@@ -43,12 +43,12 @@ qt_add_executable(wdc
     src/FileSystem/Parser/Parser.h
     src/FileSystem/Parser/TimeParser.cpp
     src/FileSystem/Parser/TimeParser.h
-    src/Json/DataJsonFile.cpp
-    src/Json/DataJsonFile.h
     src/Json/JsonFile.cpp
     src/Json/JsonFile.h
-    src/Json/SettingsJsonFile.cpp
-    src/Json/SettingsJsonFile.h
+    src/Json/JsonObject.cpp
+    src/Json/JsonObject.h
+    src/Json/RootObject.cpp
+    src/Json/RootObject.h
     src/Logger.cpp
     src/Logger.h
     src/Qml/FileItemModel/FileItemModel.cpp
@@ -76,8 +76,16 @@ qt_add_executable(wdc
     src/Qml/Sort/SortParamItemModel.h
     src/ServerInfo.cpp
     src/ServerInfo.h
-    src/ServerInfoManager.cpp
-    src/ServerInfoManager.h
+    src/ServerInfoManager/RootSection.cpp
+    src/ServerInfoManager/RootSection.h
+    src/ServerInfoManager/ServerInfoManager.cpp
+    src/ServerInfoManager/ServerInfoManager.h
+    src/Settings/DownloadSection.cpp
+    src/Settings/DownloadSection.h
+    src/Settings/RootSection.cpp
+    src/Settings/RootSection.h
+    src/Settings/Settings.cpp
+    src/Settings/Settings.h
     src/Util.cpp
     src/Util.h
     src/main.cpp

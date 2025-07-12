@@ -1,16 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <memory>
-
-#include <QAbstractListModel>
-#include <QByteArray>
-#include <QHash>
-#include <QModelIndex>
-#include <QObject>
-#include <QVariant>
-#include <Qt>
-
 class ServerInfoManager;
 
 namespace Qml {

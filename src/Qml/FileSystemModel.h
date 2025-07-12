@@ -1,12 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <memory>
-
-#include <QNetworkReply>
-#include <QObject>
-#include <QString>
-
 #include "../FileSystem/FileSystemModel.h"
 
 namespace Qml {

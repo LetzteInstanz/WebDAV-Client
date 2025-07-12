@@ -1,12 +1,12 @@
 #include "SortParamItemModel.h"
 
 #include "../../Util.h"
-#include "../Json/SettingsJsonFile.h"
+#include "../Settings/Settings.h"
 #include "SortParam.h"
 
 using namespace Qml;
 
-SortParamItemModel::SortParamItemModel(std::shared_ptr<SettingsJsonFile> settings, QObject* parent) : QAbstractListModel(parent), _settings(std::move(settings)) {
+SortParamItemModel::SortParamItemModel(std::shared_ptr<::Settings> settings, QObject* parent) : QAbstractListModel(parent), _settings(std::move(settings)) {
     qDebug().noquote() << QObject::tr("The sort parameter item model is being created");
     resetChanges();
 }

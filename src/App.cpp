@@ -1,7 +1,8 @@
 #include "App.h"
 
 #include "FileSystem/FileSystemModel.h"
-#include "Json/SettingsJsonFile.h"
+#include "Json/JsonFile.h"
+#include "Settings/Settings.h"
 #include "Logger.h"
 #ifdef ANDROID
 #include "NotificationClient.h"
@@ -12,14 +13,15 @@
 #include "Qml/Settings.h"
 #include "Qml/Sort/SortParam.h"
 #include "ServerInfo.h"
-#include "ServerInfoManager.h"
+#include "ServerInfoManager/ServerInfoManager.h"
 
 App::App(int& argc, char** argv) : QGuiApplication(argc, argv) {
     auto logger = Logger::get_instance();
     logger->install_handler();
-    auto settings = std::make_shared<SettingsJsonFile>(logger);
+    auto config_file = std::make_shared<JsonFile>("config.json");
+    auto settings = std::make_shared<Settings>(logger, config_file);
     _qml_settings = std::make_unique<Qml::Settings>(settings);
-    auto srv_mgr = std::make_unique<ServerInfoManager>();
+    auto srv_mgr = std::make_unique<ServerInfoManager>(config_file);
     auto fs_model = std::make_shared<FileSystemModel>();
     _qml_fs_client = std::make_unique<Qml::FileSystemModel>(fs_model);
     _item_model_mgr = std::make_unique<Qml::ItemModelManager>(logger, settings, std::move(srv_mgr), fs_model);

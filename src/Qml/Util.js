@@ -2,11 +2,16 @@
 
 .import QtQml as QtQml
 
-function createObjAsync(comp, customFunc) {
-    if (comp.status === QtQml.Component.Ready)
-        customFunc(comp)
-    else
-        comp.statusChanged.connect(() => { customFunc(comp) })
+function createObjAsync(comp, createObjFunc) {
+    if (comp.status === QtQml.Component.Ready) {
+        createObjFunc(comp)
+    } else {
+        function callCreateObjFunc(status) {
+            if (status === Component.Ready)
+                createObjFunc(comp)
+        }
+        comp.statusChanged.connect(callCreateObjFunc)
+    }
 }
 
 function createObj(comp, parent, typeName, properties) {
@@ -37,6 +42,20 @@ function createPopup(comp, parent, typeName, properties) {
     }
     popup.closed.connect(destroy)
     return popup
+}
+
+function createDialog(comp, parent, typeName, properties) { // note: this function is for the dialogs from QtQuick.Dialogs
+    const dlg = createObj(comp, parent, typeName, properties)
+    if (dlg === null)
+        return dlg
+
+    function destroy() {
+        console.debug("QML: " + typeName + qsTr(" object was destroyed"));
+        dlg.destroy()
+    }
+    dlg.accepted.connect(destroy)
+    dlg.rejected.connect(destroy)
+    return dlg
 }
 
 function showTextContextMenu(parent, textItem, event) {

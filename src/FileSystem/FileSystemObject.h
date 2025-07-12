@@ -1,11 +1,5 @@
 #pragma once
 
-#include <chrono>
-#include <cstdint>
-#include <utility>
-
-#include <QString>
-
 class FileSystemObject {
 public:
     enum class Status {None, Unknown, Ok, Unauthorized, Forbidden, NotFound};

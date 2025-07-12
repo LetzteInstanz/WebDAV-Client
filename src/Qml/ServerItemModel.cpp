@@ -1,7 +1,7 @@
 #include "ServerItemModel.h"
 
 #include "../ServerInfo.h"
-#include "../ServerInfoManager.h"
+#include "../ServerInfoManager/ServerInfoManager.h"
 #include "../Util.h"
 
 using namespace Qml;
@@ -79,7 +79,7 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
 
         set(str);
     }
-    _srv_manager->edit(index.row(), info);
+    _srv_manager->edit(index.row(), std::move(info));
     dataChanged(index, index, {role});
     return true;
 }

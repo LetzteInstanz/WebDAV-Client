@@ -1,16 +1,5 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <deque>
-#include <functional>
-#include <memory>
-
-#include <QByteArray>
-#include <QNetworkReply>
-#include <QString>
-#include <QStringView>
-
 #ifdef ANDROID
 #include "FileSystemObject.h" // note: Building under Android fails with forward declaration
 #else

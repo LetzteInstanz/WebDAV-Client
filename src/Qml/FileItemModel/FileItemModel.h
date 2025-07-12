@@ -1,18 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <unordered_map>
-#include <unordered_set>
-
-#include <QAbstractListModel>
-#include <QByteArray>
-#include <QHash>
-#include <QModelIndex>
-#include <QObject>
-#include <QString>
-#include <QVariant>
-#include <Qt>
-
 class FileSystemModel;
 class FileSystemObject;
 

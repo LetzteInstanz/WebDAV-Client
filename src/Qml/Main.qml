@@ -2,7 +2,6 @@ import QtQml
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-//import Qt.labs.platform
 
 import "Core" as Core
 import "Logger" as Logger
@@ -43,23 +42,12 @@ ApplicationWindow {
     property Component editSrvDlgComponent
     property Component progressDlgComponent
     Component.onCompleted: {
-        msgBoxComponent = Qt.createComponent("Core/MessageBox.qml", Component.Asynchronous)
-        editSrvDlgComponent = Qt.createComponent("EditServerDialog.qml", Component.Asynchronous)
-        progressDlgComponent = Qt.createComponent("ProgressDialog.qml", Component.Asynchronous)
+        msgBoxComponent = Qt.createComponent("Core/MessageBox.qml", Component.Asynchronous, appWindow)
+        editSrvDlgComponent = Qt.createComponent("EditServerDialog.qml", Component.Asynchronous, appWindow)
+        progressDlgComponent = Qt.createComponent("ProgressDialog.qml", Component.Asynchronous, appWindow)
     }
     property Component textContextMenuComponent
 
-    // FolderDialog {
-    //     id: pathDlg
-    //     onAccepted: {
-    //         var path = decodeURIComponent(pathDlg.selectedFolder)
-    //         const prefix = "file://"
-    //         if (path.startsWith(prefix))
-    //             path = path.substring(prefix.length)
-
-    //         pathTxtField.text = path
-    //     }
-    // }
     StackLayout {
         id: stackLayout
         anchors.fill: parent

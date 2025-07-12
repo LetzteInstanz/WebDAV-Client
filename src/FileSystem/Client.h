@@ -1,16 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <functional>
-#include <memory>
-
-#include <QByteArray>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QScopedPointer>
-#include <QString>
-#include <QStringView>
-
 class Client {
 public:
     using ReplyHandler = std::function<void (QByteArray&&)>;

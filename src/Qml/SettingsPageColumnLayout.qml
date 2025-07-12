@@ -1,13 +1,16 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Dialogs
 import QtQuick.Layouts
 
 import "Core" as Core
+import "Util.js" as Util
 import WebDavClient
 
 ColumnLayout {
     function prepare() {
-        //pathTxtField.text = Settings.getDownloadPath()
+        askPathCheckBox.checkState = Settings.getAskPathFlag() ? Qt.Checked : Qt.Unchecked
+        pathTxtField.text = Settings.getDownloadPath()
         logLevelComboBox.currentIndex = Settings.getCurrentLogLevel()
         saveSettingsButton.enabled = false
     }
@@ -26,7 +29,8 @@ ColumnLayout {
             anchors.right: parent.right
             text: qsTr("Ok")
             onClicked: {
-                //Settings.setDownloadPath(pathTxtField.text)
+                Settings.setAskPathFlag(askPathCheckBox.checkState === Qt.Checked)
+                Settings.setDownloadPath(pathTxtField.text)
                 Settings.setCurrentLogLevel(logLevelComboBox.currentIndex)
                 back()
             }
@@ -41,37 +45,76 @@ ColumnLayout {
             anchors.fill: parent
             anchors.margins: 5
             spacing: 5
-            function hasChanges() { return /*Settings.getDownloadPath() !== pathTxtField.text || */Settings.getCurrentLogLevel() !== logLevelComboBox.currentIndex }
+            function hasChanges() { return Settings.getAskPathFlag() !== (askPathCheckBox.checkState === Qt.Checked) || Settings.getDownloadPath() !== pathTxtField.text || Settings.getCurrentLogLevel() !== logLevelComboBox.currentIndex }
 
-            // Label {
-            //     text: qsTr("Path:")
-            // }
-            // Row {
-            //     width: parent.width
-            //     spacing: 5
+            GroupBox {
+                width: parent.width
+                title: qsTr("Download path")
 
-            //     TextField {
-            //         id: pathTxtField
-            //         width: parent.width - parent.spacing - pathButton.width
-            //         readOnly: true
-            //         onTextChanged: saveSettingsButton.enabled = settingsColumnLayout.hasChanges()
-            //         onReleased: (event) => { textContextMenu.hanldeReleaseEvent(pathTxtField, event) }
-            //     }
-            //     Button {
-            //         id: pathButton
-            //         text: qsTr("Select")
-            //         onClicked: {
-            //             pathDlg.currentFolder = encodeURIComponent("file://" + pathTxtField.text)
-            //             pathDlg.open()
-            //         }
-            //     }
-            // }
+                Column {
+                    anchors.fill: parent
+
+                    CheckBox {
+                        id: askPathCheckBox
+                        leftPadding: 0
+                        rightPadding: 0
+                        text: qsTr("Always ask")
+                        onClicked: saveSettingsButton.enabled = settingsColumnLayout.hasChanges()
+                    }
+                    Label {
+                        id: pathLabel
+                        text: qsTr("Path:")
+                    }
+                    Row {
+                        width: parent.width
+                        spacing: 5
+
+                        TextField {
+                            id: pathTxtField
+                            width: parent.width - parent.spacing - pathButton.width
+                            readOnly: true
+                            onTextChanged: saveSettingsButton.enabled = settingsColumnLayout.hasChanges()
+                            onReleased: (event) => { Util.showTextContextMenu(appWindow, pathTxtField, event) }
+                        }
+                        Button {
+                            id: pathButton
+                            text: qsTr("Select")
+                            onClicked: {
+                                function createDlg(comp) {
+                                    const dlg = Util.createDialog(folderDlgComp, parent, "FolderDialog", {"currentFolder": Settings.addScheme(pathTxtField.text)})
+                                    if (dlg === null)
+                                        return
+
+                                    function setPath() {
+                                        const path = Settings.removeScheme(dlg.selectedFolder)
+                                        if (path === "") {
+                                            console.error(qsTr("QML: Invalid URI: " + dlg.selectedFolder))
+                                            return;
+                                        }
+                                        console.debug(qsTr("QML: The download path is set: " + path))
+                                        pathTxtField.text = path
+                                    }
+                                    dlg.accepted.connect(setPath)
+                                    dlg.open()
+                                }
+
+                                Util.createObjAsync(folderDlgComp, createDlg)
+                            }
+
+                            Component {
+                                id: folderDlgComp
+                                FolderDialog {}
+                            }
+                        }
+                    }
+                }
+            }
             Label {
                 text: qsTr("Maximum log level:")
             }
             ComboBox {
                 id: logLevelComboBox
-                model: Settings.getLevelDescList()//logLevelItemModel
+                model: Settings.getLevelDescList()
                 delegate: ItemDelegate {
                     text: modelData
                     required property string modelData

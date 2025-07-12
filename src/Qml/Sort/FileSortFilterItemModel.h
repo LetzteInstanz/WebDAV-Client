@@ -1,16 +1,6 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-
-#include <QModelIndex>
-#include <QObject>
-#include <QScopedPointer>
-#include <QString>
-#include <QSortFilterProxyModel>
-#include <QTimer>
-
-class SettingsJsonFile;
+class Settings;
 
 namespace Qml {
     class FileItemModel;
@@ -20,7 +10,7 @@ namespace Qml {
         Q_OBJECT
 
     public:
-        FileSortFilterItemModel(std::shared_ptr<SettingsJsonFile> settings, std::unique_ptr<FileItemModel, QScopedPointerDeleteLater>&& source, QObject* parent = nullptr);
+        FileSortFilterItemModel(std::shared_ptr<::Settings> settings, std::unique_ptr<FileItemModel, QScopedPointerDeleteLater>&& source, QObject* parent = nullptr);
         ~FileSortFilterItemModel() override;
 
         Q_INVOKABLE void search(const QString& text);
@@ -35,7 +25,7 @@ namespace Qml {
         void update();
 
     private:
-        std::shared_ptr<SettingsJsonFile> _settings;
+        std::shared_ptr<::Settings> _settings;
         std::unique_ptr<FileItemModel, QScopedPointerDeleteLater> _source;
 
         std::vector<SortParam> _params;

@@ -1,6 +1,6 @@
 #include "FileSortFilterItemModel.h"
 
-#include "../../Json/SettingsJsonFile.h"
+#include "../../Settings/Settings.h"
 #include "../../Util.h"
 #include "../FileItemModel/FileItemModel.h"
 #include "../FileItemModel/Role.h"
@@ -8,11 +8,11 @@
 
 using namespace Qml;
 
-FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<SettingsJsonFile> settings, std::unique_ptr<FileItemModel, QScopedPointerDeleteLater>&& source, QObject* parent)
+FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<::Settings> settings, std::unique_ptr<FileItemModel, QScopedPointerDeleteLater>&& source, QObject* parent)
     : QSortFilterProxyModel(parent), _settings(std::move(settings)), _source(std::move(source))
 {
     qDebug().noquote() << QObject::tr("The file sort filter item model is being created");
-    _settings->set_notification_func([this](){ update(); });
+    _settings->set_sort_param_changed_notif_func([this]() { update(); });
     _params = _settings->get_sort_params();
     setSourceModel(_source.get());
     sort(0);
@@ -27,7 +27,7 @@ FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<SettingsJsonFil
 FileSortFilterItemModel::~FileSortFilterItemModel() {
     qDebug().noquote() << QObject::tr("The file sort filter item model is being destroyed");
     setSourceModel(nullptr);
-    _settings->set_notification_func(nullptr);
+    _settings->set_sort_param_changed_notif_func(nullptr);
 }
 
 void FileSortFilterItemModel::search(const QString& text) {

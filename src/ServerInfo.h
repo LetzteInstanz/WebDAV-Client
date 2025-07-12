@@ -1,12 +1,10 @@
 #pragma once
 
-#include <cstdint>
-#include <string>
-#include <string_view>
-
 class ServerInfo {
 public:
     ServerInfo(std::string_view description, std::string_view addr, std::uint16_t port, std::string_view path) noexcept;
+
+    bool operator==(const ServerInfo& rhs) const = default;
 
     std::string get_description() const noexcept { return _description; }
     void set_description(std::string_view desc) noexcept { _description = desc; }

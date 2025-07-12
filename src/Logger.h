@@ -1,15 +1,5 @@
 #pragma once
 
-#include <atomic>
-#include <deque>
-#include <functional>
-#include <memory>
-#include <mutex>
-#include <utility>
-
-#include <QString>
-#include <QtLogging>
-
 class Logger {
 public:
     using Message = std::pair<QtMsgType, QString>;

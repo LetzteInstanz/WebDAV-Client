@@ -1,17 +1,6 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-
-#include <QAbstractListModel>
-#include <QByteArray>
-#include <QHash>
-#include <QModelIndex>
-#include <QObject>
-#include <QVariant>
-#include <Qt>
-
-class SettingsJsonFile;
+class Settings;
 
 namespace Qml {
     class SortParam;
@@ -20,7 +9,7 @@ namespace Qml {
         Q_OBJECT
 
     public:
-        explicit SortParamItemModel(std::shared_ptr<SettingsJsonFile> settings, QObject* parent = nullptr);
+        explicit SortParamItemModel(std::shared_ptr<::Settings> settings, QObject* parent = nullptr);
         ~SortParamItemModel() override;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -42,7 +31,7 @@ namespace Qml {
     private:
         enum class Role {Descending = Qt::UserRole};
 
-        std::shared_ptr<SettingsJsonFile> _settings;
+        std::shared_ptr<::Settings> _settings;
         std::vector<SortParam> _data;
     };
 }

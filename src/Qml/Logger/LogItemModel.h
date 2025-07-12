@@ -1,21 +1,5 @@
 #pragma once
 
-#include <atomic>
-#include <deque>
-#include <memory>
-#include <mutex>
-
-#include <QAbstractListModel>
-#include <QByteArray>
-#include <QColor>
-#include <QHash>
-#include <QModelIndex>
-#include <QObject>
-#include <QString>
-#include <QTimer>
-#include <QVariant>
-#include <Qt>
-
 class Logger;
 
 namespace Qml {

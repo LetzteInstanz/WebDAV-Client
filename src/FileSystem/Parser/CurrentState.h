@@ -1,11 +1,5 @@
 #pragma once
 
-#include <stack>
-#include <vector>
-
-#include <QString>
-#include <QStringView>
-
 #include "FSObjectStruct.h"
 #include "Parser.h"
 
