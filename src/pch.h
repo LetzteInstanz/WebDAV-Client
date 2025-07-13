@@ -43,6 +43,7 @@
 #include <QHash>
 #include <QIODevice>
 #include <QLocale>
+#include <QMessageLogContext>
 #include <QModelIndex>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>

@@ -3,5 +3,7 @@
 class Tests
 {
 public:
+    Tests();
+
     void run() const;
 };

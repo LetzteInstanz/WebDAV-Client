@@ -24,6 +24,7 @@
 #include <QByteArray>
 #include <QChar>
 #include <QLocale>
+#include <QMessageLogContext>
 #include <QObject>
 #include <QString>
 #include <QStringLiteral>
