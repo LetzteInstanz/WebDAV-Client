@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.28.3)
 project("WebDAV Client" VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(CMakePrintHelpers)
+include(GNUInstallDirs)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Quick)
 if (NOT Qt6_FOUND)
@@ -9,18 +10,18 @@ if (NOT Qt6_FOUND)
     return()
 endif()
 
-if (CMAKE_CROSSCOMPILING)
-    set(WDC_3RD_PARTY_DEPEND_PATH $ENV{WDC_3RD_PARTY_DEPEND_PATH})
-    cmake_print_variables(WDC_3RD_PARTY_DEPEND_PATH)
-    LIST(APPEND CMAKE_FIND_ROOT_PATH ${WDC_3RD_PARTY_DEPEND_PATH})
+include(FetchContent)
+if (CMAKE_MINOR_VERSION LESS 30)
+    set(FETCHCONTENT_QUIET FALSE)
 endif()
-find_package(nlohmann_json 3.11.3 REQUIRED)
-if (NOT nlohmann_json_FOUND)
-    message(SEND_ERROR "Failed to find nlohmann_json")
-    return()
-endif()
-
-include(GNUInstallDirs)
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.3
+    GIT_PROGRESS TRUE
+    FIND_PACKAGE_ARGS 3.11.3
+)
+FetchContent_MakeAvailable(nlohmann_json)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -98,6 +99,13 @@ if (ANDROID)
             src/NotificationClient.cpp
             src/NotificationClient.h
     )
+endif()
+
+if (QT_KNOWN_POLICY_QTP0002)
+    qt_policy(SET QTP0002 NEW)
+endif()
+if (QT_KNOWN_POLICY_QTP0004)
+    qt_policy(SET QTP0004 NEW)
 endif()
 
 qt_add_qml_module(wdc
@@ -302,7 +310,6 @@ install(TARGETS wdc
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-qt_finalize_executable(wdc)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # todo: enable for Clang, when it will begin to support the stacktrace library
     qt_add_executable(tests
@@ -341,5 +348,4 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # todo: enable for Clang, when it will
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
-    qt_finalize_executable(tests)
 endif()

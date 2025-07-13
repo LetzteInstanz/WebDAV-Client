@@ -1,18 +1,17 @@
 # WebDAVClient
-
 WebDAVClient is a client implementation of [WebDAV](https://en.wikipedia.org/wiki/WebDAV) for Android. The application supports at the moment only file system navigation over HTTP without authentication.
 
 Build Requirements
 -------
-It is necessary to install the [nlohmann/json](https://github.com/nlohmann/json) 3.11.3 package or specify a path in the `WDC_3RD_PARTY_DEPEND_PATH` environment variable to the library binaries.
+It is necessary to install a [nlohmann/json 3.11.3](https://github.com/nlohmann/json/tree/v3.11.3) [package](https://en.wikipedia.org/wiki/Package_manager) or a git version of 1.6.5 or later to CMake could download nlohmann/json code from the repository.
 
-The project can be built for [Android](https://doc.qt.io/qt-6.8/android.html) at least by:
+The project can be built for [Android](https://doc.qt.io/qt-6/android.html) at least by:
 * Android SDK 10–14 (API level 29–34)
-* OpenJDK 21.0.5
+* OpenJDK 21.0.7
 * NDK 26.1.10909125
 
 The project can be built for Linux as well at least by:
-* Qt 6.8.2
+* Qt 6.9.0
 * CMake 3.28.3
 * Ninja 1.11.1
 * GCC 14.2.0
