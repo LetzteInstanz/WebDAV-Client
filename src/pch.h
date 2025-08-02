@@ -20,6 +20,7 @@
 #include <memory>
 #include <mutex>
 #include <ostream>
+#include <ranges>
 #include <sstream>
 #include <stack>
 #include <stdexcept>

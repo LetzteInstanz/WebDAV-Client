@@ -445,6 +445,7 @@ FileItemModel::FileItemModel(std::shared_ptr<::FileSystemModel> model, QObject* 
     qDebug().noquote() << QObject::tr("The source file item model is being created");
     _fs_model->add_notification_func(this, std::bind(&FileItemModel::update, this));
     _root = _fs_model->is_cur_dir_root_path();
+    _ready_to_download_flags = std::vector<bool>(_fs_model->size());
 #ifndef NDEBUG
     std::for_each(std::begin(_icon_name_by_extension_map), std::end(_icon_name_by_extension_map), [](const auto& pair) { const QPixmap pixmap(":/res/icons/" + pair.second); assert(!pixmap.isNull()); });
 #endif
@@ -455,7 +456,7 @@ FileItemModel::~FileItemModel() {
     _fs_model->remove_notification_func(this);
 }
 
-int FileItemModel::rowCount(const QModelIndex& parent) const { return parent.isValid() ? 0 : _fs_model->size() + (_root ? 0 : 1); }
+int FileItemModel::rowCount(const QModelIndex& parent) const { return parent.isValid() ? 0 : _fs_model->size() + get_shift(); }
 
 QVariant FileItemModel::data(const QModelIndex& index, int role) const {
     if (role < to_int(Role::Name) || role >= to_int(Role::EnumSize))
@@ -465,7 +466,7 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
     if (role == to_int(Role::IsExit))
         return !_root && row == 0;
 
-    const FileSystemObject obj = get_object(_root, row);
+    const FileSystemObject obj = get_object(row);
     switch (to_type<Role>(role)) {
         case Role::Name: {
             return !_root && row == 0 ? ".." : obj.get_name();
@@ -477,10 +478,7 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
 
             const QString name = obj.get_name();
             const qsizetype i = name.lastIndexOf('.');
-            if (!is_valid_dot_pos(name, i))
-                return QVariant();
-
-            return extract_extension(name, i);
+            return is_valid_dot_pos(name, i) ? extract_extension(name, i) : QVariant();
         }
 
         case Role::IconName: {
@@ -488,36 +486,23 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
         }
 
         case Role::WideImageWidthFlag: {
-            const auto it = _special_icon_name_set.find(get_icon_name(obj, row));
-            return it != std::end(_special_icon_name_set);
+            return _special_icon_name_set.contains(get_icon_name(obj, row));
         }
 
         case Role::CreationTime: {
-            if (!obj.is_creation_time_valid())
-                return QVariant();
-
-            return QVariant::fromValue(obj.get_creation_time());
+            return obj.is_creation_time_valid() ? QVariant::fromValue(obj.get_creation_time()) : QVariant();
         }
 
         case Role::CreationTimeStr: {
-            if (!obj.is_creation_time_valid())
-                return QObject::tr("unknown");
-
-            return to_string(obj.get_creation_time());
+            return obj.is_creation_time_valid() ? to_string(obj.get_creation_time()) : QObject::tr("unknown");
         }
 
         case Role::ModTime: {
-            if (!obj.is_modification_time_valid())
-                return QVariant();
-
-            return QVariant::fromValue(obj.get_modification_time());
+            return obj.is_modification_time_valid() ? QVariant::fromValue(obj.get_modification_time()) : QVariant();
         }
 
         case Role::ModTimeStr: {
-            if (!obj.is_modification_time_valid())
-                return QObject::tr("unknown");
-
-            return to_string(obj.get_modification_time());
+            return obj.is_modification_time_valid() ? to_string(obj.get_modification_time()) : QObject::tr("unknown");
         }
 
         case Role::FileFlag: {
@@ -529,16 +514,34 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
         }
 
         case Role::SizeStr: {
-            if (!obj.is_size_valid())
-                return QString();
+            return obj.is_size_valid() ? SizeDisplayer::to_string(obj.get_size()) : QString();
+        }
 
-            return SizeDisplayer::to_string(obj.get_size());
+        case Role::IsReadyToDownload: {
+            assert(_root && index.row() >= 0 || !_root && index.row() > 0);
+            return _ready_to_download_flags[row - get_shift()];
         }
 
         default:
             break;
     }
     return QVariant();
+}
+
+bool FileItemModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+    if (role != to_int(Role::IsReadyToDownload))
+        return false;
+
+    assert(_root && index.row() >= 0 || !_root && index.row() > 0);
+    assert(value.canConvert<bool>());
+    const auto it = std::begin(_ready_to_download_flags) + index.row() - get_shift();
+    const auto new_value = value.toBool();
+    if (*it == new_value)
+        return false;
+
+    *it = new_value;
+    dataChanged(index, index, {role});
+    return true;
 }
 
 QHash<int, QByteArray> FileItemModel::roleNames() const {
@@ -550,16 +553,17 @@ QHash<int, QByteArray> FileItemModel::roleNames() const {
     names.emplace(to_int(Role::CreationTimeStr), "creationTime");
     names.emplace(to_int(Role::ModTimeStr), "modificationTime");
     names.emplace(to_int(Role::FileFlag), "isFile");
+    names.emplace(to_int(Role::IsExit), "isExit");
     names.emplace(to_int(Role::SizeStr), "size");
+    names.emplace(to_int(Role::IsReadyToDownload), "isReadyToDownload");
     return names;
 }
 
-FileSystemObject FileItemModel::get_object(bool root_path, int row) const {
-    if (row == 0)
-        return root_path ? _fs_model->get_object(row) : _fs_model->get_curr_dir_object();
+int FileItemModel::getCheckedToDownloadItemCount() const { return std::ranges::count(std::begin(_ready_to_download_flags), std::end(_ready_to_download_flags), true); }
 
-    return _fs_model->get_object(row - (root_path ? 0 : 1));
-}
+std::size_t FileItemModel::get_shift() const noexcept { return _root ? 0 : 1; }
+
+FileSystemObject FileItemModel::get_object(int row) const { return row == 0 && _root || row > 0 ? _fs_model->get_object(row - get_shift()) : _fs_model->get_curr_dir_object(); }
 
 QString FileItemModel::get_icon_name(const FileSystemObject& obj, int row) const {
     if (obj.get_type() == FileSystemObject::Type::Directory || !_root && row == 0)
@@ -570,13 +574,13 @@ QString FileItemModel::get_icon_name(const FileSystemObject& obj, int row) const
     if (!is_valid_dot_pos(name, i))
         return QStringLiteral("unknown.png");
 
-    const QString ext = extract_extension(name, i);
-    const auto icon_name_it = _icon_name_by_extension_map.find(ext);
+    const auto icon_name_it = _icon_name_by_extension_map.find(extract_extension(name, i));
     return icon_name_it == std::end(_icon_name_by_extension_map) ? QStringLiteral("unknown.png") : icon_name_it->second;
 }
 
 void FileItemModel::update() {
     beginResetModel();
     _root = _fs_model->is_cur_dir_root_path();
+    _ready_to_download_flags = std::vector<bool>(_fs_model->size());
     endResetModel();
 }

@@ -1,27 +1,30 @@
-import QtQuick
 import QtQuick.Controls
-
-import "Util.js" as Util
 
 Menu {
     implicitWidth: 120 // todo: Find a solution to resize to the content.
-    property Component sortDlgComponent
-    property var backFunc
+    required property bool checkAllToDownloadItem
+    required property bool enableDownloadItem
+    required property var checkAllToDownloadItemsFunc
+    required property var showSortDlgFunc
+    required property var disconnectFunc
 
     MenuItem {
+        text: qsTr("Check all to download")
+        checkable: true
+        checked: checkAllToDownloadItem
+        onTriggered: checkAllToDownloadItemsFunc(!checkAllToDownloadItem)
+    }
+    MenuItem {
+        text: qsTr("Download")
+        enabled: enableDownloadItem
+        //onTriggered: // todo: downLoad
+    }
+    MenuItem {
         text: qsTr("Sort")
-        onTriggered: {
-            function createDlg(comp) {
-                const dlg = Util.createPopup(comp, appWindow, "SortDialog", {})
-                if (dlg !== null)
-                    dlg.open()
-            }
-
-            Util.createObjAsync(sortDlgComponent, createDlg)
-        }
+        onTriggered: showSortDlgFunc()
     }
     MenuItem {
         text: qsTr("Disconnect")
-        onTriggered: backFunc()
+        onTriggered: disconnectFunc()
     }
 }

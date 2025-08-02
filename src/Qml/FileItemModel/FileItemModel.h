@@ -12,13 +12,15 @@ namespace Qml {
         ~FileItemModel() override;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-
+        bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
         QHash<int, QByteArray> roleNames() const override;
 
+        int getCheckedToDownloadItemCount() const;
+
     private:
-        FileSystemObject get_object(bool root_path, int row) const;
+        std::size_t get_shift() const noexcept;
+        FileSystemObject get_object(int row) const;
         QString get_icon_name(const FileSystemObject& obj, int row) const;
         void update();
 
@@ -28,5 +30,6 @@ namespace Qml {
 
         std::shared_ptr<::FileSystemModel> _fs_model;
         bool _root;
+        std::vector<bool> _ready_to_download_flags;
     };
 }

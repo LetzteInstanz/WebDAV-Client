@@ -56,8 +56,7 @@ ColumnLayout {
 
                     CheckBox {
                         id: askPathCheckBox
-                        leftPadding: 0
-                        rightPadding: 0
+                        leftPadding: 0 // todo: check on a cell
                         text: qsTr("Always ask")
                         onClicked: saveSettingsButton.enabled = settingsColumnLayout.hasChanges()
                     }

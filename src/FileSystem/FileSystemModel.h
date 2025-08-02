@@ -44,7 +44,7 @@ private:
     QString _root_path;
     std::unordered_map<const void*, const NotifyAboutUpdateFunc> _notify_func_by_obj_map;
     NotifyAboutErrorFunc _error_func;
-    QString _prev_path;
+    QString _prev_path; // todo: replace with std::filesystem::path
     QString _current_path;
     std::unique_ptr<FileSystemObject> _curr_dir_obj;
     std::deque<FileSystemObject> _objects;

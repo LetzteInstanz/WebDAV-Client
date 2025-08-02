@@ -8,6 +8,10 @@
 
 using namespace Qml;
 
+namespace Qml {
+    using Role = FileItemModelRole;
+}
+
 FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<::Settings> settings, std::unique_ptr<FileItemModel, QScopedPointerDeleteLater>&& source, QObject* parent)
     : QSortFilterProxyModel(parent), _settings(std::move(settings)), _source(std::move(source))
 {
@@ -51,24 +55,44 @@ void FileSortFilterItemModel::repeatSearch(int msec) {
     _timer.start(msec);
 }
 
+bool FileSortFilterItemModel::areAllItemsCheckedToDownload() const {
+    const auto sz = rowCount();
+    for (auto i = sz > 0 && index(0, 0).data(to_int(Role::IsExit)).toBool() ? 1 : 0; i < sz; ++i) {
+        const QModelIndex index = this->index(i, 0);
+        const QVariant data = index.data(to_int(Role::IsReadyToDownload));
+        if (!data.toBool())
+            return false;
+    }
+    return true;
+}
+
+int FileSortFilterItemModel::getCheckedToDownloadItemCount() const { return _source->getCheckedToDownloadItemCount(); }
+
+void FileSortFilterItemModel::checkAllToDownloadItems(bool check) {
+    const auto sz = rowCount();
+    for (auto i = sz > 0 && index(0, 0).data(to_int(Role::IsExit)).toBool() ? 1 : 0; i < sz; ++i) {
+        const QModelIndex index = this->index(i, 0);
+        setData(index, check, to_int(Role::IsReadyToDownload));
+    }
+}
+
 bool FileSortFilterItemModel::filterAcceptsRow(int source_row, const QModelIndex& source_parent) const {
     if (_text.isEmpty())
         return true;
 
     const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
-    auto role = to_int(FileItemModelRole::IsExit);
+    auto role = to_int(Role::IsExit);
     assert(index.data(role).canConvert<bool>());
     if (index.data(role).toBool())
         return false;
 
-    role = to_int(FileItemModelRole::Name);
+    role = to_int(Role::Name);
     assert(index.data(role).canConvert<QString>());
-    const auto name = index.data(to_int(FileItemModelRole::Name)).toString();
+    const auto name = index.data(to_int(Role::Name)).toString();
     return name.indexOf(_text, 0, _case_sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive) != -1;
 }
 
 bool FileSortFilterItemModel::lessThan(const QModelIndex& source_left, const QModelIndex& source_right) const {
-    using Role = FileItemModelRole;
     const QVariant left_data = source_left.data(to_int(Role::IsExit));
     const QVariant right_data = source_right.data(to_int(Role::IsExit));
     assert(left_data.canConvert<bool>());

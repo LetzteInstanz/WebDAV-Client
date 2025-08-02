@@ -63,8 +63,6 @@ Dialog {
                             }
                             CheckBox {
                                 id: descendingCheckBox
-                                leftPadding: 0
-                                rightPadding: 0
                                 text: qsTr("Descending")
                                 checkState: model.descending ? Qt.Checked : Qt.Unchecked
                                 onClicked: { model.descending = !model.descending; enableOkButton() }
