@@ -130,7 +130,6 @@ qt_add_qml_module(wdc
         src/Qml/ServerListPageColumnLayout.qml
         src/Qml/SettingsPageColumnLayout.qml
         src/Qml/Sort/SortDialog.qml
-        src/Qml/TextContextMenu.qml
         src/Qml/Util.js
 #    RESOURCES
 #        android/AndroidManifest.xml

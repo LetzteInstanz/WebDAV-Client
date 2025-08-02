@@ -66,19 +66,3 @@ function createDialog(comp, parent, typeName, properties) { // note: this functi
     dlg.rejected.connect(destroy)
     return dlg
 }
-
-function showTextContextMenu(parent, textItem, event) {
-    if (event.button !== Qt.RightButton)
-        return
-
-    if (!parent.textContextMenuComponent) {
-        console.debug(qsTr("QML: TextContextMenu.qml component isn't valid"))
-        parent.textContextMenuComponent = Qt.createComponent("TextContextMenu.qml", QtQml.Component.Asynchronous)
-    }
-    const comp = parent.textContextMenuComponent
-    function createMenu() {
-        const menu = createPopup(comp, parent, "TextContextMenu", {"textItem": textItem})
-        menu.popup()
-    }
-    createObjAsync(comp, createMenu)
-}

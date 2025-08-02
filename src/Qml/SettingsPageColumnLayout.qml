@@ -73,7 +73,6 @@ ColumnLayout {
                             width: parent.width - parent.spacing - pathButton.width
                             readOnly: true
                             onTextChanged: saveSettingsButton.enabled = settingsColumnLayout.hasChanges()
-                            onReleased: (event) => { Util.showTextContextMenu(appWindow, pathTxtField, event) }
                         }
                         Button {
                             id: pathButton

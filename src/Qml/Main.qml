@@ -46,7 +46,6 @@ ApplicationWindow {
         editSrvDlgComponent = Qt.createComponent("EditServerDialog.qml", Component.Asynchronous, appWindow)
         progressDlgComponent = Qt.createComponent("ProgressDialog.qml", Component.Asynchronous, appWindow)
     }
-    property Component textContextMenuComponent
 
     StackLayout {
         id: stackLayout
