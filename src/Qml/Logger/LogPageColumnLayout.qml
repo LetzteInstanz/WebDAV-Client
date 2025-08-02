@@ -62,7 +62,7 @@ ColumnLayout {
                     delegateItem.ListView.view.currentIndex = index
                     function createMenu(comp) {
                         const item = delegateItem.ListView.view.itemAtIndex(index)
-                        const menu = Util.createPopup(comp, item, "LogItemMenu", {"view": listView})
+                        const menu = Util.createPopup(comp, item, {"view": listView})
                         menu.popup(item, event.x, event.y)
                     }
                     Util.createObjAsync(listView.menuComponent, createMenu)

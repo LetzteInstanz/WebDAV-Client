@@ -22,7 +22,7 @@ ColumnLayout {
         property Item item
         onTriggered: {
             function createDlg(comp) {
-                const dlg = Util.createPopup(comp, appWindow, "ProgressDialog", {})
+                const dlg = Util.createPopup(comp, appWindow, {})
                 if (dlg === null)
                     return
 
@@ -57,7 +57,7 @@ ColumnLayout {
             text: qsTr("Add")
             onClicked: {
                 function createDlg(comp) {
-                    const dlg = Util.createPopup(comp, appWindow, "EditServerDialog", {"title": qsTr("Add server")})
+                    const dlg = Util.createPopup(comp, appWindow, {"title": qsTr("Add server")})
                     if (dlg === null)
                         return
 
@@ -150,7 +150,7 @@ ColumnLayout {
                     animation.start()
 
                     function createMenu(comp) {
-                        const menu = Util.createPopup(comp, item, "ServerItemMenu", {"view": listView})
+                        const menu = Util.createPopup(comp, item, {"view": listView})
                         menu.popup(item, event.x, event.y)
                     }
                     Util.createObjAsync(listView.menuComponent, createMenu)

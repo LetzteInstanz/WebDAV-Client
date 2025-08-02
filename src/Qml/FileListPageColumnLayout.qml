@@ -41,7 +41,7 @@ ColumnLayout {
         property var model: null
         onTriggered: {
             function createDlg(comp) {
-                const dlg = Util.createPopup(comp, appWindow, "ProgressDialog", {})
+                const dlg = Util.createPopup(comp, appWindow, {})
                 if (dlg === null)
                     return
 
@@ -136,7 +136,7 @@ ColumnLayout {
                             function checkAllItems(check) { listView.model.checkAllToDownloadItems(check) }
                             function showSortDlg() {
                                 function createDlg(comp) {
-                                    const dlg = Util.createPopup(comp, appWindow, "SortDialog", {})
+                                    const dlg = Util.createPopup(comp, appWindow, {})
                                     if (dlg !== null)
                                         dlg.open()
                                 }
@@ -144,7 +144,7 @@ ColumnLayout {
                                 const comp = Qt.createComponent("Sort/SortDialog.qml", Component.Asynchronous)
                                 Util.createObjAsync(comp, createDlg)
                             }
-                            const menu = Util.createPopup(comp, item, "FileItemMenu", {"checkAllToDownloadItem": check, "enableDownloadItem": enable, "checkAllToDownloadItemsFunc": checkAllItems, "showSortDlgFunc": showSortDlg, "disconnectFunc": back})
+                            const menu = Util.createPopup(comp, item, {"checkAllToDownloadItem": check, "enableDownloadItem": enable, "checkAllToDownloadItemsFunc": checkAllItems, "showSortDlgFunc": showSortDlg, "disconnectFunc": back})
                             menu.popup(item, event.x, event.y)
                         }
                         const comp = Qt.createComponent("FileItemMenu.qml", Component.Asynchronous)

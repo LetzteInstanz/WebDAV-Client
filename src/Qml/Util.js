@@ -10,7 +10,7 @@ function createObjAsync(comp, createObjFunc) {
                 break;
 
             case QtQml.Component.Error:
-                console.error("QML: " + qsTr("Component ") + comp.url + qsTr(" loading failed: "), comp.errorString())
+                console.error("QML: " + comp.url + ": " + qsTr("Component loading failed: "), comp.errorString())
                 break;
         }
     }
@@ -27,42 +27,37 @@ function createObjAsync(comp, createObjFunc) {
     }
 }
 
-function createObj(comp, parent, typeName, properties) {
+function createObj(comp, parent, properties) {
     const obj = comp.createObject(parent, properties)
     if (obj === null) {
-        console.error("QML: " + typeName + qsTr(" object creation failed")) // todo: use url property of Component type instead of typename
+        console.error("QML: " + comp.url + ": " + qsTr("Object creation failed"))
         return null
     }
-    console.debug("QML: " + typeName + qsTr(" object was created"))
+    console.debug("QML: " + comp.url + ": " + qsTr("Object was created"))
+    obj.QtQml.Component.destruction.connect(() => { console.debug("QML: " + comp.url + ": " + qsTr("Object was destroyed")) })
     return obj
 }
 
-function createPopup(comp, parent, typeName, properties) {
-    const popup = createObj(comp, parent, typeName, properties)
+function createPopup(comp, parent, properties) {
+    const popup = createObj(comp, parent, properties)
     if (popup === null)
         return null
 
     function destroy() {
-        if (!popup.parent) // note: If the popup is opened, an error occurs during closing the main window. This is a fix.
-            return
-
-        console.debug("QML: " + typeName + qsTr(" object was destroyed")); // todo: use url property of Component type instead of typename
-        popup.destroy()
+        if (popup.parent) // note: If the popup is opened, an error occurs during closing the main window. This is a fix.
+            popup.destroy()
     }
-    popup.closed.connect(destroy) // todo: use the attatched signals Component.onCompleted() and Component.onDestruction()
+    popup.closed.connect(destroy)
     return popup
 }
 
-function createDialog(comp, parent, typeName, properties) { // note: this function is for the dialogs from QtQuick.Dialogs
-    const dlg = createObj(comp, parent, typeName, properties)
+function createDialog(comp, parent, properties) { // note: this function is for the dialogs from QtQuick.Dialogs
+    const dlg = createObj(comp, parent, properties)
     if (dlg === null)
         return null
 
-    function destroy() {
-        console.debug("QML: " + typeName + qsTr(" object was destroyed")); // todo: use url property of Component type instead of typename
-        dlg.destroy()
-    }
-    dlg.accepted.connect(destroy) // todo: use the attatched signals Component.onCompleted() and Component.onDestruction()
+    function destroy() { dlg.destroy() }
+    dlg.accepted.connect(destroy)
     dlg.rejected.connect(destroy)
     return dlg
 }
