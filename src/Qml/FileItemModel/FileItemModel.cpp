@@ -519,7 +519,7 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
 
         case Role::IsReadyToDownload: {
             assert(_root && index.row() >= 0 || !_root && index.row() > 0);
-            return _ready_to_download_flags[row - get_shift()];
+            return to_type<bool>(_ready_to_download_flags[row - get_shift()]);
         }
 
         default:

@@ -5,18 +5,16 @@ import QtQuick.Layouts
 
 import "../Core" as Core
 import "../Util.js" as Util
-import WebDavClient
 
 ColumnLayout {
-    function prepare() {
+    id: mainColumnLayout
+    required property var backFunc
+    Component.onCompleted: {
         listView.model = ItemModelManager.createModel(ItemModel.Log)
         listView.currentIndex = -1
         listView.positionViewAtEnd()
     }
-    function back() {
-        listView.destroyModel()
-        stackLayout.currentIndex = 0
-    }
+    Component.onDestruction: listView.model.destroy()
 
     Item {
         Layout.fillWidth: true
@@ -25,7 +23,10 @@ ColumnLayout {
         Core.Button {
             id: backButton
             text: qsTr("Back")
-            onClicked: back()
+            onClicked: {
+                backFunc()
+                mainColumnLayout.destroy()
+            }
         }
     }
     Core.ListView {
@@ -36,8 +37,6 @@ ColumnLayout {
         ScrollBar.vertical: ScrollBar {
             policy: ScrollBar.AlwaysOn
         }
-        property Component menuComponent
-        Component.onCompleted: menuComponent = Qt.createComponent("LogItemMenu.qml", Component.Asynchronous)
         delegate: Item {
             id: delegateItem
             width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
@@ -65,7 +64,8 @@ ColumnLayout {
                         const menu = Util.createPopup(comp, item, {"view": listView})
                         menu.popup(item, event.x, event.y)
                     }
-                    Util.createObjAsync(listView.menuComponent, createMenu)
+                    const comp = Qt.createComponent("LogItemMenu.qml", Component.Asynchronous, listView)
+                    Util.createObjAsync(comp, createMenu)
                 }
             }
         }

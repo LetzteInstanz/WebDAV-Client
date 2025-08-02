@@ -2,21 +2,19 @@ import QtQuick.Controls
 
 Menu {
     implicitWidth: 120 // todo: Find a solution to resize to the content.
-    required property bool checkAllToDownloadItem
-    required property bool enableDownloadItem
-    required property var checkAllToDownloadItemsFunc
+    required property var viewModel
     required property var showSortDlgFunc
     required property var disconnectFunc
 
     MenuItem {
         text: qsTr("Check all to download")
         checkable: true
-        checked: checkAllToDownloadItem
-        onTriggered: checkAllToDownloadItemsFunc(!checkAllToDownloadItem)
+        checked: viewModel.areAllItemsCheckedToDownload()
+        onTriggered: viewModel.checkAllToDownloadItems(!viewModel.areAllItemsCheckedToDownload())
     }
     MenuItem {
         text: qsTr("Download")
-        enabled: enableDownloadItem
+        enabled: viewModel.getCheckedToDownloadItemCount() > 0
         //onTriggered: // todo: downLoad
     }
     MenuItem {

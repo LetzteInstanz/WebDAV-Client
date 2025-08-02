@@ -17,9 +17,4 @@ QtQuick.ListView {
         anchors.fill: parent
         color: "transparent"
     }
-    function destroyModel() {
-        const model_ = model
-        model = null
-        model_.destroy()
-    }
 }

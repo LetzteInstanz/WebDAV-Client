@@ -5,16 +5,11 @@ import QtQuick.Layouts
 
 import "Core" as Core
 import "Util.js" as Util
-import WebDavClient
 
 ColumnLayout {
-    function prepare() {
-        askPathCheckBox.checkState = Settings.getAskPathFlag() ? Qt.Checked : Qt.Unchecked
-        pathTxtField.text = Settings.getDownloadPath()
-        logLevelComboBox.currentIndex = Settings.getCurrentLogLevel()
-        saveSettingsButton.enabled = false
-    }
-    function back() { stackLayout.currentIndex = 0 }
+    id: mainColumnLayout
+    required property var backFunc
+    Component.onDestruction: backFunc()
 
     Item {
         Layout.fillWidth: true
@@ -22,17 +17,22 @@ ColumnLayout {
 
         Core.Button {
             text: qsTr("Back")
-            onClicked: back()
+            onClicked: {
+                backFunc()
+                mainColumnLayout.destroy()
+            }
         }
         Core.Button {
             id: saveSettingsButton
             anchors.right: parent.right
+            enabled: false
             text: qsTr("Ok")
             onClicked: {
+                backFunc()
                 Settings.setAskPathFlag(askPathCheckBox.checkState === Qt.Checked)
                 Settings.setDownloadPath(pathTxtField.text)
                 Settings.setCurrentLogLevel(logLevelComboBox.currentIndex)
-                back()
+                mainColumnLayout.destroy()
             }
         }
     }
@@ -58,6 +58,7 @@ ColumnLayout {
                         id: askPathCheckBox
                         leftPadding: 0 // todo: check on a cell
                         text: qsTr("Always ask")
+                        checkState: Settings.getAskPathFlag() ? Qt.Checked : Qt.Unchecked
                         onClicked: saveSettingsButton.enabled = settingsColumnLayout.hasChanges()
                     }
                     Label {
@@ -72,6 +73,7 @@ ColumnLayout {
                             id: pathTxtField
                             width: parent.width - parent.spacing - pathButton.width
                             readOnly: true
+                            text: Settings.getDownloadPath()
                             onTextChanged: saveSettingsButton.enabled = settingsColumnLayout.hasChanges()
                         }
                         Button {
@@ -113,6 +115,7 @@ ColumnLayout {
             ComboBox {
                 id: logLevelComboBox
                 model: Settings.getLevelDescList()
+                currentIndex: Settings.getCurrentLogLevel()
                 delegate: ItemDelegate {
                     text: modelData
                     required property string modelData

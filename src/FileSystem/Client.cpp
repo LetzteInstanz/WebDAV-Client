@@ -20,16 +20,24 @@ void Client::request_file_list(QStringView path) {
     _reply.reset(_network_access_mgr.sendCustomRequest(req, "PROPFIND", data));
     const auto read = [this]() {
         const QNetworkReply::NetworkError error = _reply->error();
-        if (error == QNetworkReply::NoError)
-            _reply_handler(_reply->readAll());
-        else
-            _error_handler(error);
+        switch (error) {
+            case QNetworkReply::NoError:
+                _reply_handler(_reply->readAll());
+                break;
+
+            case QNetworkReply::OperationCanceledError:
+                break;
+
+            default:
+                _error_handler(error);
+                break;
+        }
     };
     QObject::connect(_reply.get(), &QNetworkReply::finished, read);
 }
 
 void Client::abort() {
-    if (!_reply)
+    if (!_reply || _reply->isFinished())
         return;
 
     qDebug().noquote() << QObject::tr("The request is being aborted");

@@ -28,6 +28,7 @@ function createObjAsync(comp, createObjFunc) {
 }
 
 function createObj(comp, parent, properties) {
+    console.assert(comp.status === QtQml.Component.Ready)
     const obj = comp.createObject(parent, properties)
     if (obj === null) {
         console.error("QML: " + comp.url + ": " + qsTr("Object creation failed"))
@@ -43,11 +44,7 @@ function createPopup(comp, parent, properties) {
     if (popup === null)
         return null
 
-    function destroy() {
-        if (popup.parent) // note: If the popup is opened, an error occurs during closing the main window. This is a fix.
-            popup.destroy()
-    }
-    popup.closed.connect(destroy)
+    popup.closed.connect(() => { popup.destroy() })
     return popup
 }
 

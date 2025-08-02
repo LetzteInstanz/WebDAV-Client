@@ -5,7 +5,6 @@ import QtQuick.Layouts
 
 import "../"
 import "../Core" as Core
-import WebDavClient
 
 Dialog {
     anchors.centerIn: parent
@@ -14,16 +13,12 @@ Dialog {
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
     title: qsTr("Sort parameters")
-    onOpened: {
+    Component.onCompleted: {
         listView.model = ItemModelManager.createModel(ItemModel.SortParam)
         enableEditButtons()
         enableOkButton()
     }
-    onClosed: {
-        const model = listView.model
-        listView.model = null
-        model.destroy()
-    }
+    Component.onDestruction: listView.model.destroy()
     onAccepted: listView.model.save()
     background: Core.BorderRectangle {}
     contentItem: RowLayout {

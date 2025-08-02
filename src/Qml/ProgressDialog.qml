@@ -5,9 +5,9 @@ import QtQuick.Layouts
 
 import "Core" as Core
 import "Util.js" as Util
-import WebDavClient
 
 Dialog {
+    id: mainDialog
     anchors.centerIn: parent
     width: parent.width / 2
     modal: true
@@ -15,7 +15,6 @@ Dialog {
     standardButtons: Dialog.Cancel
     background: Core.BorderRectangle {}
     title: qsTr("Progress")
-
     contentItem: ColumnLayout {
         ProgressBar {
             id: progressBar
@@ -35,8 +34,9 @@ Dialog {
             function onProgressTextChanged(text) { textLabel.text = text }
             function onErrorOccurred(text) {
                 console.debug(qsTr("QML: An error occurred"))
+
                 function createDlg(comp) {
-                    const dlg = Util.createPopup(comp, appWindow, {"standardButtons": Dialog.Ok, "title": qsTr("Error"), "text": text})
+                    const dlg = Util.createPopup(comp, mainDialog.ApplicationWindow.window, {"standardButtons": Dialog.Ok, "title": qsTr("Error"), "text": text})
                     if (dlg === null)
                         return
 
@@ -44,7 +44,8 @@ Dialog {
                     dlg.open()
                 }
 
-                Util.createObjAsync(msgBoxComponent, createDlg)
+                var comp = Qt.createComponent("Core/MessageBox.qml", Component.Asynchronous)
+                Util.createObjAsync(comp, createDlg)
             }
             function onReplyGot() { console.debug(qsTr("QML: A reply was received")); accept() }
         }

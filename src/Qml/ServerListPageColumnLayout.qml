@@ -4,15 +4,9 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 import "Core" as Core
-import "Logger" as Logger
 import "Util.js" as Util
-import WebDavClient
 
 ColumnLayout {
-    property FileListPageColumnLayout fileListPage
-    property SettingsPageColumnLayout settingsPage
-    property Logger.LogPageColumnLayout logPage
-
     Core.SelectionSequentialAnimation {
         id: animation
         obj: null
@@ -21,35 +15,15 @@ ColumnLayout {
         id: delayTimer
         property Item item
         onTriggered: {
-            function createDlg(comp) {
-                const dlg = Util.createPopup(comp, appWindow, {})
-                if (dlg === null)
+            const comp = Qt.createComponent("FileListPageColumnLayout.qml", Component.Asynchronous)
+            function createPage(comp) {
+                const page = Util.createObj(comp, stackLayout, {"backFunc": () => { stackLayout.currentIndex = 0 }, "addr": item.addr, "port": item.port, "path": item.path})
+                if (page === null)
                     return
 
-                const mainStackLayout = stackLayout
-                function requestFileList() {
-                    console.debug(qsTr("QML: The first file list was requested"))
-                    mainStackLayout.currentIndex = 1
-                    fileListPage.prepare()
-                    const _item = item
-                    FileSystemModel.setServerInfo(_item.addr, _item.port)
-                    FileSystemModel.setRootPath(_item.path)
-                    FileSystemModel.requestFileList("")
-                }
-                dlg.onOpened.connect(requestFileList)
-                const fsModel = FileSystemModel // note: An error occurs during closing the main window, if not to use the local variables
-                function disconnect() {
-                    mainStackLayout.currentIndex = 0
-                    console.debug(qsTr("QML: The file system model is being disconnected"))
-                    fsModel.disconnect()
-                }
-                dlg.rejected.connect(disconnect)
-                dlg.closed.connect(() => { mainStackLayout.enabled = true })
-                dlg.open()
+                stackLayout.currentIndex = 1
             }
-
-            stackLayout.enabled = false
-            Util.createObjAsync(progressDlgComponent, createDlg)
+            Util.createObjAsync(comp, createPage)
         }
     }
     RowLayout {
@@ -57,7 +31,7 @@ ColumnLayout {
             text: qsTr("Add")
             onClicked: {
                 function createDlg(comp) {
-                    const dlg = Util.createPopup(comp, appWindow, {"title": qsTr("Add server")})
+                    const dlg = Util.createPopup(comp, ApplicationWindow.window, {"title": qsTr("Add server")})
                     if (dlg === null)
                         return
 
@@ -66,21 +40,36 @@ ColumnLayout {
                     dlg.open()
                 }
 
-                Util.createObjAsync(editSrvDlgComponent, createDlg)
+                const comp = Qt.createComponent("EditServerDialog.qml", Component.Asynchronous)
+                Util.createObjAsync(comp, createDlg)
             }
         }
         Core.Button {
             text: qsTr("Settings")
             onClicked: {
-                settingsPage.prepare()
-                stackLayout.currentIndex = 2
+                function createPage(comp) {
+                    const page = Util.createObj(comp, stackLayout, {"backFunc": () => { stackLayout.currentIndex = 0 }})
+                    if (page === null)
+                        return
+
+                    stackLayout.currentIndex = 1
+                }
+                const comp = Qt.createComponent("SettingsPageColumnLayout.qml", Component.Asynchronous)
+                Util.createObjAsync(comp, createPage)
             }
         }
         Core.Button {
             text: qsTr("Log")
             onClicked: {
-                logPage.prepare()
-                stackLayout.currentIndex = 3
+                function createPage(comp) {
+                    const page = Util.createObj(comp, stackLayout, {"backFunc": () => { stackLayout.currentIndex = 0 }})
+                    if (page === null)
+                        return
+
+                    stackLayout.currentIndex = 1
+                }
+                const comp = Qt.createComponent("Logger/LogPageColumnLayout.qml", Component.Asynchronous)
+                Util.createObjAsync(comp, createPage)
             }
         }
     }
@@ -90,8 +79,7 @@ ColumnLayout {
         Layout.fillWidth: true
         model: ItemModelManager.createModel(ItemModel.Server)
         currentIndex: -1
-        property Component menuComponent
-        Component.onCompleted: menuComponent = Qt.createComponent("ServerItemMenu.qml", Component.Asynchronous)
+        Component.onDestruction: model.destroy()
         delegate: Item {
             id: delegateItem
             width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
@@ -150,10 +138,49 @@ ColumnLayout {
                     animation.start()
 
                     function createMenu(comp) {
-                        const menu = Util.createPopup(comp, item, {"view": listView})
+                        function openEditSrvDlg() {
+                            const comp = Qt.createComponent("EditServerDialog.qml", Component.Asynchronous)
+                            function createDlg(comp) {
+                                const dlg = Util.createPopup(comp, ApplicationWindow.window, {"title": qsTr("Edit server")})
+                                if (dlg === null)
+                                    return
+
+                                dlg.enableHasChangesFunc(true)
+                                const item = view.currentItem
+                                dlg.setData(item.desc, item.addr, item.port, item.path)
+                                const model = item.model
+                                function writeIntoModel() {
+                                    console.debug(qsTr("QML: An item in the server item model was edited"))
+                                    model.desc = dlg.desc(); model.addr = dlg.addr(); model.port = dlg.port(); model.path = dlg.path()
+                                }
+                                dlg.accepted.connect(writeIntoModel)
+                                dlg.open()
+                            }
+
+                            Util.createObjAsync(comp, createDlg)
+                        }
+
+                        function removeServer() {
+                            function createDlg(comp) {
+                                const dlg = Util.createPopup(comp, ApplicationWindow.window, {"standardButtons": Dialog.Yes | Dialog.No, "title": qsTr("Confirmation"), "text": qsTr("Do you want to remove \"") + view.currentItem.desc + qsTr("\"?")})
+                                if (dlg === null)
+                                    return
+
+                                const model = view.model
+                                const index = view.currentIndex
+                                dlg.accepted.connect(() => { console.debug(qsTr("QML: An item was removed from the server item model")); model.removeRow(index) })
+                                dlg.open()
+                            }
+
+                            const comp = Qt.createComponent("Core/MessageBox.qml", Component.Asynchronous)
+                            Util.createObjAsync(comp, createDlg)
+                        }
+
+                        const menu = Util.createPopup(comp, item, {"openEditSrvDlgFunc": openEditSrvDlg, "removeItemFunc": removeServer})
                         menu.popup(item, event.x, event.y)
                     }
-                    Util.createObjAsync(listView.menuComponent, createMenu)
+                    const comp = Qt.createComponent("ServerItemMenu.qml", Component.Asynchronous, listView)
+                    Util.createObjAsync(comp, createMenu)
                 }
             }
         }

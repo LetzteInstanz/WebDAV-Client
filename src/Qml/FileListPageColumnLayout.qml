@@ -5,27 +5,47 @@ import QtQuick.Layouts
 
 import "Core" as Core
 import "Util.js" as Util
-import WebDavClient
 
 ColumnLayout {
-    function prepare() {
-        searchTextField.text = ""
-        currPathLabel.text = ""
+    id: mainColumnLayout
+    required property var backFunc
+    required property string addr
+    required property int port
+    required property string path
+    Component.onCompleted: {
+        function createProgressDlg(comp) {
+            const progressDlg = Util.createPopup(comp, ApplicationWindow.window)
+            if (progressDlg === null)
+                return
 
-        function setModel() {
-            listView.model = ItemModelManager.createModel(ItemModel.File)
-            listView.model.modelReset.connect(() => { listView.currentIndex = -1 })
-            listView.currentIndex = -1
-            FileSystemModel.replyGot.disconnect(setModel)
+            function setModel() {
+                listView.model = ItemModelManager.createModel(ItemModel.File)
+                listView.currentIndex = -1
+                FileSystemModel.replyGot.disconnect(setModel)
+            }
+            function cancel() {
+                backFunc()
+                FileSystemModel.replyGot.disconnect(setModel)
+                mainColumnLayout.destroy()
+            }
+            progressDlg.rejected.connect(cancel)
+            FileSystemModel.replyGot.connect(setModel)
+            FileSystemModel.errorOccurred.connect(() => { FileSystemModel.replyGot.disconnect(setModel) })
+            FileSystemModel.setServerInfo(addr, port)
+            FileSystemModel.setRootPath(path)
+            FileSystemModel.requestFileList("")
+            progressDlg.open()
         }
-        FileSystemModel.replyGot.connect(setModel)
-        FileSystemModel.errorOccurred.connect(() => { FileSystemModel.replyGot.disconnect(setModel) })
+
+        const comp = Qt.createComponent("ProgressDialog.qml", Component.Asynchronous)
+        Util.createObjAsync(comp, createProgressDlg)
     }
-    function back() {
-        listView.destroyModel()
+    Component.onDestruction: {
+        if (listView.model)
+            listView.model.destroy()
+
         console.debug(qsTr("QML: The file system model is being disconnected"))
         FileSystemModel.disconnect()
-        stackLayout.currentIndex = 0
     }
 
     Connections {
@@ -41,19 +61,17 @@ ColumnLayout {
         property var model: null
         onTriggered: {
             function createDlg(comp) {
-                const dlg = Util.createPopup(comp, appWindow, {})
+                const dlg = Util.createPopup(comp, mainColumnLayout.ApplicationWindow.window)
                 if (dlg === null)
                     return
 
-                const mainStackLayout = stackLayout
                 dlg.onOpened.connect(() => { console.debug(qsTr("QML: A new file list was requested")); FileSystemModel.requestFileList(model.name) })
                 dlg.rejected.connect(() => { console.debug(qsTr("QML: The request is being aborted")); FileSystemModel.abortRequest() })
-                dlg.closed.connect(() => { mainStackLayout.enabled = true })
                 dlg.open()
             }
 
-            stackLayout.enabled = false
-            Util.createObjAsync(progressDlgComponent, createDlg)
+            const comp = Qt.createComponent("ProgressDialog.qml", Component.Asynchronous)
+            Util.createObjAsync(comp, createDlg)
         }
     }
     RowLayout {
@@ -131,23 +149,20 @@ ColumnLayout {
                     onPressAndHold: (event) => {
                         function createMenu(comp) {
                             const item = delegateItem.ListView.view.itemAtIndex(index)
-                            const check = listView.model.areAllItemsCheckedToDownload()
-                            const enable = listView.model.getCheckedToDownloadItemCount() > 0
-                            function checkAllItems(check) { listView.model.checkAllToDownloadItems(check) }
                             function showSortDlg() {
                                 function createDlg(comp) {
-                                    const dlg = Util.createPopup(comp, appWindow, {})
+                                    const dlg = Util.createPopup(comp, ApplicationWindow.window)
                                     if (dlg !== null)
                                         dlg.open()
                                 }
 
-                                const comp = Qt.createComponent("Sort/SortDialog.qml", Component.Asynchronous)
+                                const comp = Qt.createComponent("Sort/SortDialog.qml", Component.Asynchronous, mainColumnLayout)
                                 Util.createObjAsync(comp, createDlg)
                             }
-                            const menu = Util.createPopup(comp, item, {"checkAllToDownloadItem": check, "enableDownloadItem": enable, "checkAllToDownloadItemsFunc": checkAllItems, "showSortDlgFunc": showSortDlg, "disconnectFunc": back})
+                            const menu = Util.createPopup(comp, item, {"viewModel": listView.model, "showSortDlgFunc": showSortDlg, "disconnectFunc": () => { backFunc(); mainColumnLayout.destroy() }})
                             menu.popup(item, event.x, event.y)
                         }
-                        const comp = Qt.createComponent("FileItemMenu.qml", Component.Asynchronous)
+                        const comp = Qt.createComponent("FileItemMenu.qml", Component.Asynchronous, listView)
                         Util.createObjAsync(comp, createMenu)
                     }
                 }

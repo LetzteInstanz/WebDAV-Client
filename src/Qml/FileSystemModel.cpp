@@ -55,11 +55,6 @@ void Qml::FileSystemModel::handle_error(::FileSystemModel::Error custom_error, Q
             log_str = "QNetworkReply::TimeoutError";
             break;
 
-        case QNetworkReply::OperationCanceledError:
-            display_str = QObject::tr("Operation cancel error");
-            log_str = "QNetworkReply::OperationCanceledError";
-            break;
-
         case QNetworkReply::SslHandshakeFailedError:
             display_str = QObject::tr("SSL/TLS handshake failed");
             log_str = "QNetworkReply::SslHandshakeFailedError";

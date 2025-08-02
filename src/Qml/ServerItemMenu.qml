@@ -5,46 +5,15 @@ import "Util.js" as Util
 
 Menu {
     implicitWidth: 100 // todo: Find a solution to resize to the content.
-    property ListView view
+    required property var openEditSrvDlgFunc
+    required property var removeItemFunc
 
     MenuItem {
         text: qsTr("Edit")
-        onTriggered: {
-            function createDlg(comp) {
-                const dlg = Util.createPopup(comp, appWindow, {"title": qsTr("Edit server")})
-                if (dlg === null)
-                    return
-
-                dlg.enableHasChangesFunc(true)
-                const item = view.currentItem
-                dlg.setData(item.desc, item.addr, item.port, item.path)
-                const model = item.model
-                function writeIntoModel() {
-                    console.debug(qsTr("QML: An item in the server item model was edited"))
-                    model.desc = dlg.desc(); model.addr = dlg.addr(); model.port = dlg.port(); model.path = dlg.path()
-                }
-                dlg.accepted.connect(writeIntoModel)
-                dlg.open()
-            }
-
-            Util.createObjAsync(editSrvDlgComponent, createDlg)
-        }
+        onTriggered: openEditSrvDlgFunc()
     }
     MenuItem {
         text: qsTr("Remove")
-        onTriggered: {
-            function createDlg(comp) {
-                const dlg = Util.createPopup(comp, appWindow, {"standardButtons": Dialog.Yes | Dialog.No, "title": qsTr("Confirmation"), "text": qsTr("Do you want to remove \"") + view.currentItem.desc + qsTr("\"?")})
-                if (dlg === null)
-                    return
-
-                const model = view.model
-                const index = view.currentIndex
-                dlg.accepted.connect(() => { console.debug(qsTr("QML: An item was removed from the server item model")); model.removeRow(index) })
-                dlg.open()
-            }
-
-            Util.createObjAsync(msgBoxComponent, createDlg)
-        }
+        onTriggered: removeItemFunc()
     }
 }
