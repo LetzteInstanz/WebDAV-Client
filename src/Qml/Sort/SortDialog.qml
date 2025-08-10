@@ -15,8 +15,8 @@ Dialog {
     title: qsTr("Sort parameters")
     Component.onCompleted: {
         listView.model = ItemModelManager.createModel(ItemModel.SortParam)
-        enableEditButtons()
-        enableOkButton()
+        privateObj.enableEditButtons()
+        privateObj.enableOkButton()
     }
     Component.onDestruction: listView.model.destroy()
     onAccepted: listView.model.save()
@@ -60,7 +60,7 @@ Dialog {
                                 id: descendingCheckBox
                                 text: qsTr("Descending")
                                 checkState: model.descending ? Qt.Checked : Qt.Unchecked
-                                onClicked: { model.descending = !model.descending; enableOkButton() }
+                                onClicked: { model.descending = !model.descending; privateObj.enableOkButton() }
                             }
                         }
                     }
@@ -73,7 +73,7 @@ Dialog {
                             view.currentIndex = index
                             animation.obj = view.itemAtIndex(index)
                             animation.start()
-                            enableEditButtons()
+                            privateObj.enableEditButtons()
                         }
                     }
                     MouseArea {
@@ -101,8 +101,8 @@ Dialog {
                 onClicked: {
                     listView.model.moveUp(listView.currentIndex)
                     --listView.currentIndex
-                    enableEditButtons()
-                    enableOkButton()
+                    privateObj.enableEditButtons()
+                    privateObj.enableOkButton()
                 }
             }
             Core.Button {
@@ -114,8 +114,8 @@ Dialog {
                 onClicked: {
                     listView.model.invert()
                     listView.currentIndex = listView.count - 1 - listView.currentIndex
-                    enableEditButtons()
-                    enableOkButton()
+                    privateObj.enableEditButtons()
+                    privateObj.enableOkButton()
                 }
             }
             Core.Button {
@@ -127,20 +127,23 @@ Dialog {
                 onClicked: {
                     listView.model.moveDown(listView.currentIndex)
                     ++listView.currentIndex
-                    enableEditButtons()
-                    enableOkButton()
+                    privateObj.enableEditButtons()
+                    privateObj.enableOkButton()
                 }
             }
         }
     }
-    function enableOkButton() { standardButton(Dialog.Ok).enabled = listView.model.hasChanges() }
-    function enableEditButtons() {
-        const index = listView.currentIndex
-        moveUpButton.enabled = index !== -1 && index !== 0
-        moveDownButton.enabled = index !== -1 && index !== listView.count - 1
-        invertButton.enabled = listView.count !== 0
-    }
 
+    QtObject {
+        id: privateObj
+        function enableOkButton() { standardButton(Dialog.Ok).enabled = listView.model.hasChanges() }
+        function enableEditButtons() {
+            const index = listView.currentIndex
+            moveUpButton.enabled = index !== -1 && index !== 0
+            moveDownButton.enabled = index !== -1 && index !== listView.count - 1
+            invertButton.enabled = listView.count !== 0
+        }
+    }
     Core.SelectionSequentialAnimation {
         id: animation
         obj: null
