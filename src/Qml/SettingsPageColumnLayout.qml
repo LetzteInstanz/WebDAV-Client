@@ -81,7 +81,7 @@ ColumnLayout {
                             text: qsTr("Select")
                             onClicked: {
                                 function createDlg(comp) {
-                                    const dlg = Util.createDialog(folderDlgComp, parent, {"currentFolder": Settings.addScheme(pathTxtField.text)})
+                                    const dlg = Util.createDialog(comp, parent, {"currentFolder": Settings.addScheme(pathTxtField.text)})
                                     if (dlg === null)
                                         return
 
