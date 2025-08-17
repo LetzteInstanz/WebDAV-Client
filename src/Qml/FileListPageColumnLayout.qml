@@ -19,7 +19,7 @@ ColumnLayout {
                 return
 
             function setModel() {
-                listView.model = ItemModelManager.createModel(ItemModel.File)
+                listView.model = ItemModelFactory.createModel(ItemModel.File)
                 listView.currentIndex = -1
                 FileSystemModel.replyGot.disconnect(setModel)
             }

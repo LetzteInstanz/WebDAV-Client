@@ -61,8 +61,8 @@ qt_add_executable(wdc
     src/Qml/FileSystemModel.h
     src/Qml/IconProvider.cpp
     src/Qml/IconProvider.h
-    src/Qml/ItemModelManager.cpp
-    src/Qml/ItemModelManager.h
+    src/Qml/ItemModelFactory.cpp
+    src/Qml/ItemModelFactory.h
     src/Qml/Logger/LogItemModel.cpp
     src/Qml/Logger/LogItemModel.h
     src/Qml/Settings.cpp

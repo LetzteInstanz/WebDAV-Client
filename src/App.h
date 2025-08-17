@@ -7,6 +7,7 @@ class NotificationClient;
 namespace Qml {
     class FileSystemModel;
     class ItemModelManager;
+    class ItemModelFactory;
     class Settings;
 }
 
@@ -20,7 +21,7 @@ public:
 private:
     std::unique_ptr<Qml::Settings> _qml_settings;
     std::unique_ptr<Qml::FileSystemModel> _qml_fs_client;
-    std::unique_ptr<Qml::ItemModelManager> _item_model_mgr;
+    std::unique_ptr<Qml::ItemModelFactory> _item_model_mgr;
 #ifdef ANDROID
     std::unique_ptr<NotificationClient> _notification_client;
 #endif

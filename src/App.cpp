@@ -9,7 +9,7 @@
 #endif
 #include "Qml/FileSystemModel.h"
 #include "Qml/IconProvider.h"
-#include "Qml/ItemModelManager.h"
+#include "Qml/ItemModelFactory.h"
 #include "Qml/Settings.h"
 #include "Qml/Sort/SortParam.h"
 #include "ServerInfo.h"
@@ -24,7 +24,7 @@ App::App(int& argc, char** argv) : QGuiApplication(argc, argv) {
     auto srv_mgr = std::make_unique<ServerInfoManager>(config_file);
     auto fs_model = std::make_shared<FileSystemModel>();
     _qml_fs_client = std::make_unique<Qml::FileSystemModel>(fs_model);
-    _item_model_mgr = std::make_unique<Qml::ItemModelManager>(logger, settings, std::move(srv_mgr), fs_model);
+    _item_model_mgr = std::make_unique<Qml::ItemModelFactory>(logger, settings, std::move(srv_mgr), fs_model);
 #ifdef ANDROID
     try {
         _notification_client = std::make_unique<NotificationClient>(QObject::tr("Downloading"));
@@ -49,5 +49,5 @@ void App::initialize_engine(QQmlApplicationEngine& engine) {
     qmlRegisterUncreatableType<Qml::ItemModel>("WebDavClient", 1, 0, "ItemModel", "This struct is for enum class");
     qmlRegisterSingletonInstance("WebDavClient", 1, 0, "Settings", _qml_settings.get());
     qmlRegisterSingletonInstance("WebDavClient", 1, 0, "FileSystemModel", _qml_fs_client.get());
-    qmlRegisterSingletonInstance("WebDavClient", 1, 0, "ItemModelManager", _item_model_mgr.get());
+    qmlRegisterSingletonInstance("WebDavClient", 1, 0, "ItemModelFactory", _item_model_mgr.get());
 }

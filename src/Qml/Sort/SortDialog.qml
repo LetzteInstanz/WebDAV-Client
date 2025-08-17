@@ -14,7 +14,7 @@ Dialog {
     standardButtons: Dialog.Ok | Dialog.Cancel
     title: qsTr("Sort parameters")
     Component.onCompleted: {
-        listView.model = ItemModelManager.createModel(ItemModel.SortParam)
+        listView.model = ItemModelFactory.createModel(ItemModel.SortParam)
         privateObj.enableEditButtons()
         privateObj.enableOkButton()
     }

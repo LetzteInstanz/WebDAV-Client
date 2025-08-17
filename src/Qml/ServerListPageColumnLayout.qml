@@ -77,7 +77,7 @@ ColumnLayout {
         id: listView
         Layout.fillHeight: true
         Layout.fillWidth: true
-        model: ItemModelManager.createModel(ItemModel.Server)
+        model: ItemModelFactory.createModel(ItemModel.Server)
         currentIndex: -1
         Component.onDestruction: model.destroy()
         delegate: Item {

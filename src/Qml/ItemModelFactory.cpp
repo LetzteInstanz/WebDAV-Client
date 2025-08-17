@@ -1,4 +1,4 @@
-#include "ItemModelManager.h"
+#include "ItemModelFactory.h"
 
 #include "../FileSystem/FileSystemModel.h"
 #include "../Settings/Settings.h"
@@ -11,10 +11,10 @@
 #include "Sort/FileSortFilterItemModel.h"
 #include "Sort/SortParamItemModel.h"
 
-Qml::ItemModelManager::ItemModelManager(std::shared_ptr<Logger> logger, std::shared_ptr<::Settings> settings, std::unique_ptr<ServerInfoManager>&& srv_mgr, std::shared_ptr<::FileSystemModel> fs_model, QObject* parent)
+Qml::ItemModelFactory::ItemModelFactory(std::shared_ptr<Logger> logger, std::shared_ptr<::Settings> settings, std::unique_ptr<ServerInfoManager>&& srv_mgr, std::shared_ptr<::FileSystemModel> fs_model, QObject* parent)
     : QObject(parent), _logger(std::move(logger)), _settings(std::move(settings)), _srv_mgr(std::move(srv_mgr)), _fs_model(std::move(fs_model)) {}
 
-QAbstractItemModel* Qml::ItemModelManager::createModel(ItemModel::Model model) {
+QAbstractItemModel* Qml::ItemModelFactory::createModel(ItemModel::Model model) {
     switch (model) {
         case ItemModel::Model::Server: {
             return new ServerItemModel(_srv_mgr);

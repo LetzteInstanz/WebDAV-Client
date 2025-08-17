@@ -14,11 +14,11 @@ namespace Qml {
         Q_ENUM(Model);
     };
 
-    class ItemModelManager : public QObject {
+    class ItemModelFactory : public QObject {
         Q_OBJECT
 
     public:
-        ItemModelManager(std::shared_ptr<Logger> logger, std::shared_ptr<::Settings> settings, std::unique_ptr<ServerInfoManager>&& srv_mgr, std::shared_ptr<::FileSystemModel> fs_model, QObject* parent = nullptr);
+        ItemModelFactory(std::shared_ptr<Logger> logger, std::shared_ptr<::Settings> settings, std::unique_ptr<ServerInfoManager>&& srv_mgr, std::shared_ptr<::FileSystemModel> fs_model, QObject* parent = nullptr);
 
         Q_INVOKABLE QAbstractItemModel* createModel(ItemModel::Model model);
 

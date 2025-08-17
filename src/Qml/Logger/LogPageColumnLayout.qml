@@ -10,7 +10,7 @@ ColumnLayout {
     id: mainColumnLayout
     required property var backFunc
     Component.onCompleted: {
-        listView.model = ItemModelManager.createModel(ItemModel.Log)
+        listView.model = ItemModelFactory.createModel(ItemModel.Log)
         listView.currentIndex = -1
         listView.positionViewAtEnd()
     }
