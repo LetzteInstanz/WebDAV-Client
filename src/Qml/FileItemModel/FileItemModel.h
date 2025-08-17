@@ -16,7 +16,7 @@ namespace Qml {
         bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
         QHash<int, QByteArray> roleNames() const override;
 
-        int getCheckedToDownloadItemCount() const;
+        Q_INVOKABLE int getCheckedToDownloadItemCount() const;
 
     private:
         std::size_t get_shift() const noexcept;

@@ -17,7 +17,6 @@ namespace Qml {
         Q_INVOKABLE void searchWithTimer(const QString& text);
         Q_INVOKABLE void repeatSearch(int msec);
         Q_INVOKABLE bool areAllItemsCheckedToDownload() const;
-        Q_INVOKABLE int getCheckedToDownloadItemCount() const;
         Q_INVOKABLE void checkAllToDownloadItems(bool check);
 
     protected:

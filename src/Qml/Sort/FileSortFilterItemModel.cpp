@@ -66,8 +66,6 @@ bool FileSortFilterItemModel::areAllItemsCheckedToDownload() const {
     return true;
 }
 
-int FileSortFilterItemModel::getCheckedToDownloadItemCount() const { return _source->getCheckedToDownloadItemCount(); }
-
 void FileSortFilterItemModel::checkAllToDownloadItems(bool check) {
     const auto sz = rowCount();
     for (auto i = sz > 0 && index(0, 0).data(to_int(Role::IsExit)).toBool() ? 1 : 0; i < sz; ++i) {

@@ -14,7 +14,7 @@ Menu {
     }
     MenuItem {
         text: qsTr("Download")
-        enabled: viewModel.getCheckedToDownloadItemCount() > 0
+        enabled: viewModel.sourceModel.getCheckedToDownloadItemCount() > 0
         //onTriggered: // todo: downLoad
     }
     MenuItem {
