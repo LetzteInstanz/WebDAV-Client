@@ -10,7 +10,6 @@ ColumnLayout {
     id: mainColumnLayout
     required property var backFunc
     Component.onCompleted: {
-        listView.model = ItemModelFactory.createModel(ItemModel.Log)
         listView.currentIndex = -1
         listView.positionViewAtEnd()
     }
@@ -33,7 +32,7 @@ ColumnLayout {
         Layout.fillHeight: true
         Layout.fillWidth: true
         id: listView
-        model: null
+        model: LogItemModelFactory.createModel()
         ScrollBar.vertical: ScrollBar {
             policy: ScrollBar.AlwaysOn
         }

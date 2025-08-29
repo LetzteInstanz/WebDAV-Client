@@ -4,7 +4,7 @@
 #include "../Json/JsonFile.h"
 #include "RootSection.h"
 
-ServerInfoManager::ServerInfoManager(std::shared_ptr<JsonFile> file) : _file(file) {
+ServerInfoManager::ServerInfoManager(std::shared_ptr<JsonFile> file) : _file(std::move(file)) {
     auto get_root_object = [this]() { return _file->get_root_object(); };
     auto set_root_object = [this](nlohmann::json&& object) { _file->set_root_object(std::move(object)); };
     _root_section = std::make_unique<RootSection>(std::move(get_root_object), std::move(set_root_object));

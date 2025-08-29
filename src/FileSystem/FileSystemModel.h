@@ -16,13 +16,11 @@ public:
     using NotifyAboutUpdateFunc = std::function<void ()>;
     using NotifyAboutErrorFunc = std::function<void (Error, QNetworkReply::NetworkError)>;
 
-    FileSystemModel();
+    FileSystemModel(QStringView addr, std::uint16_t port, QStringView root_path);
     ~FileSystemModel();
 
     bool is_cur_dir_root_path() const noexcept;
     QString get_current_path() const noexcept;
-    void set_server_info(QStringView addr, std::uint16_t port);
-    void set_root_path(QStringView absolute_path);
     void request_file_list(QStringView relative_path);
     void abort_request();
     void disconnect();

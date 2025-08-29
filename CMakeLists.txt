@@ -52,6 +52,18 @@ qt_add_executable(wdc
     src/Json/RootObject.h
     src/Logger.cpp
     src/Logger.h
+    src/Qml/Factory/AbstractFileSystemModelFactory.cpp
+    src/Qml/Factory/AbstractFileSystemModelFactory.h
+    src/Qml/Factory/FileItemModelFactory.cpp
+    src/Qml/Factory/FileItemModelFactory.h
+    src/Qml/Factory/FileSystemModelFactory.cpp
+    src/Qml/Factory/FileSystemModelFactory.h
+    src/Qml/Factory/LogItemModelFactory.cpp
+    src/Qml/Factory/LogItemModelFactory.h
+    src/Qml/Factory/ServerItemModelFactory.cpp
+    src/Qml/Factory/ServerItemModelFactory.h
+    src/Qml/Factory/SortParamItemModelFactory.cpp
+    src/Qml/Factory/SortParamItemModelFactory.h
     src/Qml/FileItemModel/FileItemModel.cpp
     src/Qml/FileItemModel/FileItemModel.h
     src/Qml/FileItemModel/Role.h
@@ -61,8 +73,6 @@ qt_add_executable(wdc
     src/Qml/FileSystemModel.h
     src/Qml/IconProvider.cpp
     src/Qml/IconProvider.h
-    src/Qml/ItemModelFactory.cpp
-    src/Qml/ItemModelFactory.h
     src/Qml/Logger/LogItemModel.cpp
     src/Qml/Logger/LogItemModel.h
     src/Qml/Settings.cpp

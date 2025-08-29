@@ -15,6 +15,7 @@ Dialog {
     standardButtons: Dialog.Cancel
     background: Core.BorderRectangle {}
     title: qsTr("Progress")
+    required property var fileSystemModel
     contentItem: ColumnLayout {
         ProgressBar {
             id: progressBar
@@ -27,7 +28,7 @@ Dialog {
             Layout.alignment: Qt.AlignHCenter
         }
         Connections {
-            target: FileSystemModel
+            target: fileSystemModel
             function onMaxProgressEnabled(enabled) { progressBar.indeterminate = !enabled }
             function onProgressChanged(value) { progressBar.value = value }
             function onMaxProgressChanged(max) { progressBar.to = max }

@@ -5,9 +5,8 @@ public:
     using ReplyHandler = std::function<void (QByteArray&&)>;
     using ErrorHandler = std::function<void (QNetworkReply::NetworkError)>;
 
-    Client(ReplyHandler&& reply_handler, ErrorHandler&& error_handler) noexcept;
+    Client(QStringView addr, std::uint16_t port, ReplyHandler&& reply_handler, ErrorHandler&& error_handler);
 
-    void set_server_info(QStringView addr, std::uint16_t port) noexcept;
     void request_file_list(QStringView path);
     void abort();
 
@@ -22,10 +21,10 @@ private:
                                                      "</D:prop>\n"
                                                  "</D:propfind>";
 
-    const ReplyHandler _reply_handler;
-    const ErrorHandler _error_handler;
     QString _addr;
     std::uint16_t _port;
+    const ReplyHandler _reply_handler;
+    const ErrorHandler _error_handler;
     QNetworkAccessManager _network_access_mgr;
     std::unique_ptr<QNetworkReply, QScopedPointerDeleteLater> _reply;
 };

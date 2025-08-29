@@ -14,26 +14,25 @@ ColumnLayout {
     required property string path
     Component.onCompleted: {
         function createProgressDlg(comp) {
-            const progressDlg = Util.createPopup(comp, ApplicationWindow.window)
-            if (progressDlg === null)
-                return
-
-            function setModel() {
-                listView.model = ItemModelFactory.createModel(ItemModel.File)
-                listView.currentIndex = -1
-                FileSystemModel.replyGot.disconnect(setModel)
-            }
+            const progressDlg = Util.createPopup(comp, ApplicationWindow.window, {"fileSystemModel": privateObj.fileSystemModel})
             function cancel() {
                 backFunc()
-                FileSystemModel.replyGot.disconnect(setModel)
                 mainColumnLayout.destroy()
             }
+            if (progressDlg === null) {
+                cancel()
+                return
+            }
             progressDlg.rejected.connect(cancel)
-            FileSystemModel.replyGot.connect(setModel)
-            FileSystemModel.errorOccurred.connect(() => { FileSystemModel.replyGot.disconnect(setModel) })
-            FileSystemModel.setServerInfo(addr, port)
-            FileSystemModel.setRootPath(path)
-            FileSystemModel.requestFileList("")
+            function setModel() {
+                privateObj.fileSystemModel.replyGot.disconnect(setModel)
+                listView.model = FileItemModelFactory.createModel()
+                listView.currentIndex = -1
+            }
+            privateObj.fileSystemModel.replyGot.connect(setModel)
+            privateObj.fileSystemModel.replyGot.connect(() => { currPathLabel.text = privateObj.fileSystemModel.getCurrentPath() })
+            privateObj.fileSystemModel.errorOccurred.connect(() => { privateObj.fileSystemModel.replyGot.disconnect(setModel) })
+            privateObj.fileSystemModel.requestFileList("")
             progressDlg.open()
         }
 
@@ -44,13 +43,12 @@ ColumnLayout {
         if (listView.model)
             listView.model.destroy()
 
-        console.debug(qsTr("QML: The file system model is being disconnected"))
-        FileSystemModel.disconnect()
+        privateObj.fileSystemModel.destroy()
     }
 
-    Connections {
-        target: FileSystemModel
-        function onReplyGot() { currPathLabel.text = FileSystemModel.getCurrentPath() }
+    QtObject {
+        id: privateObj
+        property var fileSystemModel: FileSystemModelFactory.createModel(addr, port, path)
     }
     Core.SelectionSequentialAnimation {
         id: animation
@@ -61,12 +59,12 @@ ColumnLayout {
         property var model: null
         onTriggered: {
             function createDlg(comp) {
-                const dlg = Util.createPopup(comp, mainColumnLayout.ApplicationWindow.window)
+                const dlg = Util.createPopup(comp, mainColumnLayout.ApplicationWindow.window, {"fileSystemModel": privateObj.fileSystemModel})
                 if (dlg === null)
                     return
 
-                dlg.onOpened.connect(() => { console.debug(qsTr("QML: A new file list was requested")); FileSystemModel.requestFileList(model.name) })
-                dlg.rejected.connect(() => { console.debug(qsTr("QML: The request is being aborted")); FileSystemModel.abortRequest() })
+                dlg.onOpened.connect(() => { console.debug(qsTr("QML: A new file list was requested")); privateObj.fileSystemModel.requestFileList(model.name) })
+                dlg.rejected.connect(() => { console.debug(qsTr("QML: The request is being aborted")); privateObj.fileSystemModel.abortRequest() })
                 dlg.open()
             }
 

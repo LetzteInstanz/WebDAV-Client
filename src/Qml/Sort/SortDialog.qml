@@ -14,7 +14,6 @@ Dialog {
     standardButtons: Dialog.Ok | Dialog.Cancel
     title: qsTr("Sort parameters")
     Component.onCompleted: {
-        listView.model = ItemModelFactory.createModel(ItemModel.SortParam)
         privateObj.enableEditButtons()
         privateObj.enableOkButton()
     }
@@ -31,7 +30,7 @@ Dialog {
                 id: listView
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                model: null
+                model: SortParamItemModelFactory.createModel()
                 ScrollBar.vertical: ScrollBar {
                     policy: ScrollBar.AlwaysOn
                 }

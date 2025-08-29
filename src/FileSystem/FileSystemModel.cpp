@@ -7,25 +7,18 @@
 #endif
 #include "Parser/Parser.h"
 
-FileSystemModel::FileSystemModel()
-    : _client(std::make_unique<Client>(std::bind(&FileSystemModel::handle_reply, this, std::placeholders::_1),
-                                       std::bind(&FileSystemModel::handle_error, this, std::placeholders::_1)))
+FileSystemModel::FileSystemModel(QStringView addr, std::uint16_t port, QStringView root_path)
+    : _client(std::make_unique<Client>(addr, port, std::bind(&FileSystemModel::handle_reply, this, std::placeholders::_1), std::bind(&FileSystemModel::handle_error, this, std::placeholders::_1))),
+      _root_path(add_slash_to_end(add_slash_to_start(root_path.toString()))), _current_path(_root_path)
 {
+    qDebug().noquote() << QObject::tr("The file system model is being created");
 }
 
-FileSystemModel::~FileSystemModel() = default;
+FileSystemModel::~FileSystemModel() { qDebug().noquote() << QObject::tr("The file system model is being destroyed"); }
 
 bool FileSystemModel::is_cur_dir_root_path() const noexcept { return _root_path == get_current_path(); }
 
 QString FileSystemModel::get_current_path() const noexcept { return _current_path; }
-
-void FileSystemModel::set_server_info(QStringView addr, std::uint16_t port) { _client->set_server_info(addr, port); }
-
-void FileSystemModel::set_root_path(QStringView absolute_path) {
-    _root_path = add_slash_to_end(add_slash_to_start(absolute_path.toString()));
-    _current_path = _root_path;
-    _prev_path.clear();
-}
 
 void FileSystemModel::request_file_list(QStringView relative_path) {
     _prev_path = _current_path;

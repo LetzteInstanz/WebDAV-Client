@@ -1,18 +1,16 @@
 #include "FileSystemModel.h"
 
 Qml::FileSystemModel::FileSystemModel(std::shared_ptr<::FileSystemModel> model) : _fs_model(std::move(model)) {
+    qDebug().noquote() << QObject::tr("The QML file system model is being created");
     _fs_model->set_error_func(std::bind(&FileSystemModel::handle_error, this, std::placeholders::_1, std::placeholders::_2));
     _fs_model->add_notification_func(this, std::bind(&FileSystemModel::replyGot, this));
 }
 
 Qml::FileSystemModel::~FileSystemModel() {
+    qDebug().noquote() << QObject::tr("The QML file system model is being destroyed");
     _fs_model->remove_notification_func(this);
     _fs_model->set_error_func(nullptr);
 }
-
-void Qml::FileSystemModel::setRootPath(const QString& absolute_path) { _fs_model->set_root_path(absolute_path); }
-
-void Qml::FileSystemModel::setServerInfo(const QString& addr, std::uint16_t port) { _fs_model->set_server_info(addr, port); }
 
 void Qml::FileSystemModel::requestFileList(const QString& relative_path) {
     maxProgressEnabled(false);

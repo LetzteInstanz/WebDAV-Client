@@ -5,10 +5,12 @@ class NotificationClient;
 #endif
 
 namespace Qml {
-    class FileSystemModel;
-    class ItemModelManager;
-    class ItemModelFactory;
+    class FileItemModelFactory;
+    class FileSystemModelFactory;
+    class LogItemModelFactory;
+    class ServerItemModelFactory;
     class Settings;
+    class SortParamItemModelFactory;
 }
 
 class App : public QGuiApplication {
@@ -19,9 +21,12 @@ public:
     void initialize_engine(QQmlApplicationEngine& engine);
 
 private:
+    std::unique_ptr<Qml::LogItemModelFactory> _log_item_model_factory;
     std::unique_ptr<Qml::Settings> _qml_settings;
-    std::unique_ptr<Qml::FileSystemModel> _qml_fs_client;
-    std::unique_ptr<Qml::ItemModelFactory> _item_model_mgr;
+    std::unique_ptr<Qml::FileItemModelFactory> _file_item_model_factory;
+    std::unique_ptr<Qml::SortParamItemModelFactory> _sort_param_item_model_factory;
+    std::unique_ptr<Qml::ServerItemModelFactory> _server_item_model_factory;
+    std::unique_ptr<Qml::FileSystemModelFactory> _file_system_model_factory;
 #ifdef ANDROID
     std::unique_ptr<NotificationClient> _notification_client;
 #endif
