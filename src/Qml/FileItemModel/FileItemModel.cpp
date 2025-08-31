@@ -12,7 +12,7 @@ namespace Qml {
     using Role = FileItemModelRole;
 }
 
-const std::unordered_map<QString, QString> FileItemModel::_icon_name_by_extension_map{
+const std::unordered_map<std::string, std::string> FileItemModel::_icon_name_by_extension_map{
     {"apk", "application-apk.png"},
     {"epub", "application-epub+zip.png"},
     {"geojson", "application-geo+json.png"},
@@ -413,7 +413,7 @@ const std::unordered_map<QString, QString> FileItemModel::_icon_name_by_extensio
     //{"fods", "x-office-spreadsheet.png"}
 };
 
-const std::unordered_set<QString> FileItemModel::_special_icon_name_set{
+const std::unordered_set<std::string> FileItemModel::_special_icon_name_set{
     "application-x-executable.png",
     "application-x-karbon.png",
     "application-x-krita.png",
@@ -427,8 +427,6 @@ const std::unordered_set<QString> FileItemModel::_special_icon_name_set{
 };
 
 namespace {
-    bool is_valid_dot_pos(QStringView name, qsizetype pos) { return pos != -1 && pos != name.size() - 1; }
-
     QString extract_extension(QStringView name, qsizetype dot_pos) { return QStringView(std::cbegin(name) + dot_pos + 1, std::cend(name)).toString().toLower(); }
 
     QString to_string(std::chrono::sys_seconds t) {
@@ -445,9 +443,9 @@ FileItemModel::FileItemModel(std::shared_ptr<::FileSystemModel> model, QObject* 
     qDebug().noquote() << QObject::tr("The source file item model is being created");
     _fs_model->add_notification_func(this, std::bind(&FileItemModel::update, this));
     _root = _fs_model->is_cur_dir_root_path();
-    _ready_to_download_flags = std::vector<bool>(_fs_model->size());
+    _ready_to_download_flags = std::vector<bool>(_fs_model->get_size());
 #ifndef NDEBUG
-    std::for_each(std::begin(_icon_name_by_extension_map), std::end(_icon_name_by_extension_map), [](const auto& pair) { const QPixmap pixmap(":/res/icons/" + pair.second); assert(!pixmap.isNull()); });
+    std::for_each(std::begin(_icon_name_by_extension_map), std::end(_icon_name_by_extension_map), [](const auto& pair) { const QPixmap pixmap(":/res/icons/" + QString::fromStdString(pair.second)); assert(!pixmap.isNull()); });
 #endif
 }
 
@@ -456,7 +454,7 @@ FileItemModel::~FileItemModel() {
     _fs_model->remove_notification_func(this);
 }
 
-int FileItemModel::rowCount(const QModelIndex& parent) const { return parent.isValid() ? 0 : _fs_model->size() + get_shift(); }
+int FileItemModel::rowCount(const QModelIndex& parent) const { return parent.isValid() ? 0 : _fs_model->get_size() + get_shift(); }
 
 QVariant FileItemModel::data(const QModelIndex& index, int role) const {
     if (role < to_int(Role::Name) || role >= to_int(Role::EnumSize))
@@ -469,20 +467,22 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
     const FileSystemObject obj = get_object(row);
     switch (to_type<Role>(role)) {
         case Role::Name: {
-            return !_root && row == 0 ? ".." : obj.get_name();
+            return !_root && row == 0 ? ".." : QString::fromStdString(obj.get_name());
         }
 
         case Role::Extension: {
             if (obj.get_type() == FileSystemObject::Type::Directory)
                 return QVariant();
 
-            const QString name = obj.get_name();
-            const qsizetype i = name.lastIndexOf('.');
-            return is_valid_dot_pos(name, i) ? extract_extension(name, i) : QVariant();
+            const std::string extension = obj.get_extension();
+            if (extension.empty())
+                return QVariant();
+
+            return QString::fromStdString(extension);
         }
 
         case Role::IconName: {
-            return get_icon_name(obj, row);
+            return QString::fromStdString(get_icon_name(obj, row));
         }
 
         case Role::WideImageWidthFlag: {
@@ -490,19 +490,23 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
         }
 
         case Role::CreationTime: {
-            return obj.is_creation_time_valid() ? QVariant::fromValue(obj.get_creation_time()) : QVariant();
+            const std::optional<std::chrono::sys_seconds> time = obj.get_creation_time();
+            return time ? QVariant::fromValue(*time) : QVariant();
         }
 
         case Role::CreationTimeStr: {
-            return obj.is_creation_time_valid() ? to_string(obj.get_creation_time()) : QObject::tr("unknown");
+            const std::optional<std::chrono::sys_seconds> time = obj.get_creation_time();
+            return time ? to_string(*time) : QObject::tr("unknown");
         }
 
         case Role::ModTime: {
-            return obj.is_modification_time_valid() ? QVariant::fromValue(obj.get_modification_time()) : QVariant();
+            const std::optional<std::chrono::sys_seconds> time = obj.get_modification_time();
+            return time ? QVariant::fromValue(*time) : QVariant();
         }
 
         case Role::ModTimeStr: {
-            return obj.is_modification_time_valid() ? to_string(obj.get_modification_time()) : QObject::tr("unknown");
+            const std::optional<std::chrono::sys_seconds> time = obj.get_modification_time();
+            return time ? to_string(*time) : QObject::tr("unknown");
         }
 
         case Role::FileFlag: {
@@ -510,11 +514,13 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
         }
 
         case Role::Size: {
-            return obj.is_size_valid() ? QVariant::fromValue(obj.get_size()) : QVariant();
+            std::optional<std::uint64_t> size = obj.get_size();
+            return size ? QVariant::fromValue(*size) : QVariant();
         }
 
         case Role::SizeStr: {
-            return obj.is_size_valid() ? SizeDisplayer::to_string(obj.get_size()) : QString();
+            std::optional<std::uint64_t> size = obj.get_size();
+            return size ? SizeDisplayer::to_string(*size) : QString();
         }
 
         case Role::IsReadyToDownload: {
@@ -565,22 +571,23 @@ std::size_t FileItemModel::get_shift() const noexcept { return _root ? 0 : 1; }
 
 FileSystemObject FileItemModel::get_object(int row) const { return row == 0 && _root || row > 0 ? _fs_model->get_object(row - get_shift()) : _fs_model->get_curr_dir_object(); }
 
-QString FileItemModel::get_icon_name(const FileSystemObject& obj, int row) const {
+std::string FileItemModel::get_icon_name(const FileSystemObject& obj, int row) const {
     if (obj.get_type() == FileSystemObject::Type::Directory || !_root && row == 0)
-        return QStringLiteral("folder.png");
+        return "folder.png";
 
-    const QString name = obj.get_name();
-    const qsizetype i = name.lastIndexOf('.');
-    if (!is_valid_dot_pos(name, i))
-        return QStringLiteral("unknown.png");
+    std::string extension = obj.get_extension();
+    if (extension.empty())
+        return "unknown.png";
 
-    const auto icon_name_it = _icon_name_by_extension_map.find(extract_extension(name, i));
-    return icon_name_it == std::end(_icon_name_by_extension_map) ? QStringLiteral("unknown.png") : icon_name_it->second;
+    const std::locale locale;
+    std::ranges::transform(std::begin(extension), std::end(extension), std::begin(extension), [&locale](char ch) { return std::tolower(ch, locale); });
+    const auto icon_name_it = _icon_name_by_extension_map.find(extension);
+    return icon_name_it == std::end(_icon_name_by_extension_map) ? "unknown.png" : icon_name_it->second;
 }
 
 void FileItemModel::update() {
     beginResetModel();
     _root = _fs_model->is_cur_dir_root_path();
-    _ready_to_download_flags = std::vector<bool>(_fs_model->size());
+    _ready_to_download_flags = std::vector<bool>(_fs_model->get_size());
     endResetModel();
 }

@@ -27,9 +27,9 @@ const Parser::TagOrderMap Parser::_propfind_tag_order{{Tag::None,             {T
                                                       {Tag::GetContentLength, {}},
                                                       {Tag::Status,           {}}};
 
-Parser::Result Parser::parse_propfind_reply(QStringView current_path, const QByteArray& data) {
+Parser::Result Parser::parse_propfind_reply(const std::filesystem::path& current_path, const QByteArray& data) {
     assert(!current_path.empty());
-    assert(current_path.back() == '/');
+    assert(!current_path.has_filename());
     assert(_propfind_tag_by_str_map.size() + 1 == _propfind_tag_order.size());
 
     Result result;

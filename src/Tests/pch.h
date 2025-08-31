@@ -10,6 +10,7 @@
 #include <deque>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <ostream>
 #include <print>
 #include <stack>

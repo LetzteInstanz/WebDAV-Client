@@ -11,7 +11,7 @@ public:
     RootSection(std::function<nlohmann::json ()>&& get_root_object, std::function<void (nlohmann::json&&)>&& set_root_object, std::shared_ptr<Logger> logger);
     ~RootSection() override;
 
-    QtMsgType get_log_level();
+    QtMsgType get_log_level() const noexcept;
     void set_log_level(QtMsgType level);
     void set_sort_param_changed_notif_func(std::function<void ()>&& func) noexcept;
     std::vector<Qml::SortParam> get_sort_params() const;

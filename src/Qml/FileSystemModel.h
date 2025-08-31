@@ -10,7 +10,7 @@ namespace Qml {
         explicit FileSystemModel(std::shared_ptr<::FileSystemModel> model);
         ~FileSystemModel() override;
 
-        Q_INVOKABLE void requestFileList(const QString& relative_path);
+        Q_INVOKABLE void requestFileList(const QString& path);
         Q_INVOKABLE void abortRequest();
         Q_INVOKABLE void disconnect();
         Q_INVOKABLE QString getCurrentPath() const;

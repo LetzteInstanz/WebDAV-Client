@@ -41,7 +41,7 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
 
     ServerInfo info = _srv_manager->get(index.row());
     std::function<std::string ()> get;
-    std::function<void (std::string_view)> set;
+    std::function<void (std::string&&)> set;
     auto is_port = false;
     switch (to_type<Role>(role)) {
         case Role::Desc: {
@@ -73,11 +73,11 @@ bool ServerItemModel::setData(const QModelIndex& index, const QVariant& value, i
         }
     }
     if (!is_port) {
-        const auto str = value.toString().toStdString();
+        auto str = value.toString().toStdString();
         if (get() == str)
             return false;
 
-        set(str);
+        set(std::move(str));
     }
     _srv_manager->edit(index.row(), std::move(info));
     dataChanged(index, index, {role});

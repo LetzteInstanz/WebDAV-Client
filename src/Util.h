@@ -15,5 +15,3 @@ auto get_value_from_json(const nlohmann::json& json, const char* log_title, cons
         throw e;
     }
 };
-
-QString process_two_dots_in_path(QStringView path);

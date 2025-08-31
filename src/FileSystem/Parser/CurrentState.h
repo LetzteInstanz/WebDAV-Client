@@ -4,7 +4,7 @@
 #include "Parser.h"
 
 struct Parser::CurrentState {
-    CurrentState(QStringView current_path, TagOrderMap::const_iterator first, Result& result);
+    CurrentState(const std::filesystem::path& current_path, TagOrderMap::const_iterator first, Result& result);
 
     void update_if_start_tag(Tag t);
     void update_if_end_tag(Tag t);
@@ -20,8 +20,8 @@ private:
 private:
     class TimeParser;
 
-    const QStringView _current_path;
+    const std::filesystem::path& _current_path;
     FSObjectStruct _obj;
-    FSObjectStruct::Status _status = FSObjectStruct::Status::None;
+    std::optional<FSObjectStruct::Status> _status;
     Result& _result;
 };

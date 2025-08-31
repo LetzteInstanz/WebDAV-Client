@@ -8,7 +8,7 @@ public:
     ServerInfoManager(std::shared_ptr<JsonFile> file);
     ~ServerInfoManager();
 
-    ServerInfo get(std::size_t row) const noexcept;
+    ServerInfo get(std::size_t row) const;
     std::size_t amount() const noexcept;
 
     void add(ServerInfo&& info);

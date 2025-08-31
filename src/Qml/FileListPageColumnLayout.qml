@@ -31,7 +31,6 @@ ColumnLayout {
             }
             privateObj.fileSystemModel.replyGot.connect(setModel)
             privateObj.fileSystemModel.replyGot.connect(() => { currPathLabel.text = privateObj.fileSystemModel.getCurrentPath() })
-            privateObj.fileSystemModel.errorOccurred.connect(() => { privateObj.fileSystemModel.replyGot.disconnect(setModel) })
             privateObj.fileSystemModel.requestFileList("")
             progressDlg.open()
         }

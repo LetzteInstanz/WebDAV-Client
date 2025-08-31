@@ -6,12 +6,15 @@
 using namespace std::chrono_literals;
 
 namespace {
-    void test_date_time(std::chrono::sys_seconds time, std::chrono::hours h, std::chrono::minutes min, std::chrono::seconds s, std::chrono::day d, std::chrono::month m, std::chrono::year y) {
-        const auto yyyy_mm_dd = std::chrono::year_month_day(std::chrono::time_point_cast<std::chrono::days>(time));
+    void test_date_time(const std::optional<std::chrono::sys_seconds>& time, std::chrono::hours h, std::chrono::minutes min, std::chrono::seconds s, std::chrono::day d, std::chrono::month m, std::chrono::year y) {
+        if (!time)
+            return;
+
+        const auto yyyy_mm_dd = std::chrono::year_month_day(std::chrono::time_point_cast<std::chrono::days>(*time));
         print_stack_if_false(yyyy_mm_dd.year() == y);
         print_stack_if_false(yyyy_mm_dd.month() == m);
         print_stack_if_false(yyyy_mm_dd.day() == d);
-        const auto hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(time - to_type<std::chrono::sys_days>(yyyy_mm_dd));
+        const auto hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::sys_seconds::duration>(*time - to_type<std::chrono::sys_days>(yyyy_mm_dd));
         print_stack_if_false(hh_mm_ss.hours() == h);
         print_stack_if_false(hh_mm_ss.minutes() == min);
         print_stack_if_false(hh_mm_ss.seconds() == s);
@@ -61,7 +64,7 @@ void ParserTest::run() {
                 "<lp1:creationdate>1985-04-12T23:20:50.554654956Z</lp1:creationdate>\n" // note: the date and time format is tested (https://www.rfc-editor.org/rfc/rfc4918#section-15)
             "</D:prop>\n"
         "</D:propstat>\n"
-        "<D:href>/dav/%d0%94%d0%b8%d1%81%d0%ba%201</D:href>\n"
+        "<D:href>/dav/%d0%94%d0%b8%d1%81%d0%ba%201</D:href>\n" // note: a directory path without the slash at the end is tested
     "</D:response>\n"
 
     "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n" // note: directory "Диск 2"
@@ -119,7 +122,7 @@ void ParserTest::run() {
                 "<lp1:creationdate />\n"
             "</D:prop>\n"
         "</D:propstat>\n"
-        "<D:href>/dav/%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9%20%D1%84%D0%B0%D0%B9%D0%BB.txt</D:href>\n"
+        "<D:href>/dav/%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9%20%D1%84%D0%B0%D0%B9%D0%BB.txt/</D:href>\n" // note: a file path with the slash at the end is tested
     "</D:response>\n"
 
     "<D:response xmlns:lp1=\"DAV:\" xmlns:lp2=\"http://apache.org/dav/props/\" xmlns:g0=\"DAV:\">\n" // note: file with the empty href-tag (invalid response)
@@ -163,7 +166,7 @@ void ParserTest::run() {
         "<D:href>/dav/%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9%20%D1%84%D0%B0%D0%B9%D0%BB%203.txt</D:href>\n"
     "</D:response>\n"
 "</D:multistatus>";
-    const Parser::Result result = Parser::parse_propfind_reply(QString("/dav/"), test_responce.toLatin1());
+    const Parser::Result result = Parser::parse_propfind_reply(std::filesystem::path("/dav/"), test_responce.toLatin1());
     print_stack_if_false(result.second.size() == 5);
     check_current_dir(result.first);
     auto it = std::begin(result.second);
@@ -180,12 +183,12 @@ void ParserTest::run() {
 
 void ParserTest::check_current_dir(const Parser::CurrDirObj& current_dir) {
     std::print("Testing current directory…\n");
-    print_stack_if_false(current_dir != nullptr);
+    print_stack_if_false(current_dir.has_value());
     print_stack_if_false(current_dir->get_name() == "dav");
     print_stack_if_false(current_dir->get_type() == FileSystemObject::Type::Directory);
-    print_stack_if_false(!current_dir->is_creation_time_valid());
-    print_stack_if_false(!current_dir->is_modification_time_valid());
-    print_stack_if_false(!current_dir->is_size_valid());
+    print_stack_if_false(!current_dir->get_creation_time());
+    print_stack_if_false(!current_dir->get_modification_time());
+    print_stack_if_false(!current_dir->get_size());
 }
 
 void ParserTest::check_dir1(Parser::Objects::const_iterator it) {
@@ -193,13 +196,15 @@ void ParserTest::check_dir1(Parser::Objects::const_iterator it) {
     print_stack_if_false(it->get_name() == "Диск 1");
     print_stack_if_false(it->get_type() == FileSystemObject::Type::Directory);
 
-    print_stack_if_false(it->is_creation_time_valid());
-    test_date_time(it->get_creation_time(), 23h, 20min, 51s, 12d, std::chrono::April, 1985y);
+    std::optional<std::chrono::sys_seconds> time = it->get_creation_time();
+    print_stack_if_false(time.has_value());
+    test_date_time(time, 23h, 20min, 51s, 12d, std::chrono::April, 1985y);
 
-    print_stack_if_false(it->is_modification_time_valid());
-    test_date_time(it->get_modification_time(), 8h, 49min, 37s, 6d, std::chrono::November, 1999y);
+    time = it->get_modification_time();
+    print_stack_if_false(time.has_value());
+    test_date_time(time, 8h, 49min, 37s, 6d, std::chrono::November, 1999y);
 
-    print_stack_if_false(!it->is_size_valid());
+    print_stack_if_false(!it->get_size());
 }
 
 void ParserTest::check_dir2(Parser::Objects::const_iterator it) {
@@ -207,26 +212,30 @@ void ParserTest::check_dir2(Parser::Objects::const_iterator it) {
     print_stack_if_false(it->get_name() == "Диск 2");
     print_stack_if_false(it->get_type() == FileSystemObject::Type::Directory);
 
-    print_stack_if_false(it->is_creation_time_valid());
-    test_date_time(it->get_creation_time(), 17h, 56min, 57s, 18d, std::chrono::December, 1996y);
+    std::optional<std::chrono::sys_seconds> time = it->get_creation_time();
+    print_stack_if_false(time.has_value());
+    test_date_time(time, 17h, 56min, 57s, 18d, std::chrono::December, 1996y);
 
-    print_stack_if_false(it->is_modification_time_valid());
-    test_date_time(it->get_modification_time(), 9h, 50min, 38s, 7d, std::chrono::October, 2025y);
+    time = it->get_modification_time();
+    print_stack_if_false(time.has_value());
+    test_date_time(time, 9h, 50min, 38s, 7d, std::chrono::October, 2025y);
 
-    print_stack_if_false(!it->is_size_valid());
+    print_stack_if_false(!it->get_size());
 }
 
 void ParserTest::check_file1(Parser::Objects::const_iterator it) {
     std::print("Testing file 1…\n");
     print_stack_if_false(it->get_name() == "Тестовый файл.txt");
     print_stack_if_false(it->get_type() == FileSystemObject::Type::File);
-    print_stack_if_false(it->is_creation_time_valid() == false);
+    print_stack_if_false(!it->get_creation_time());
 
-    print_stack_if_false(it->is_modification_time_valid());
-    test_date_time(it->get_modification_time(), 6h, 51min, 39s, 8d, std::chrono::January, 2000y);
+    std::optional<std::chrono::sys_seconds> time = it->get_modification_time();
+    print_stack_if_false(time.has_value());
+    test_date_time(time, 6h, 51min, 39s, 8d, std::chrono::January, 2000y);
 
-    print_stack_if_false(it->is_size_valid());
-    print_stack_if_false(it->get_size() == 1743607603214301);
+    std::optional<uint64_t> size = it->get_size();
+    print_stack_if_false(size.has_value());
+    print_stack_if_false(*size == 1743607603214301);
 }
 
 void ParserTest::check_file2(Parser::Objects::const_iterator it) {
@@ -234,13 +243,15 @@ void ParserTest::check_file2(Parser::Objects::const_iterator it) {
     print_stack_if_false(it->get_name() == "Тестовый файл 2.txt");
     print_stack_if_false(it->get_type() == FileSystemObject::Type::File);
 
-    print_stack_if_false(it->is_creation_time_valid());
-    test_date_time(it->get_creation_time(), 3h, 17min, 55s, 15d, std::chrono::July, 1997y);
+    std::optional<std::chrono::sys_seconds> time = it->get_creation_time();
+    print_stack_if_false(time.has_value());
+    test_date_time(time, 3h, 17min, 55s, 15d, std::chrono::July, 1997y);
 
-    print_stack_if_false(it->is_modification_time_valid());
-    test_date_time(it->get_modification_time(), 19h, 56min, 7s, 8d, std::chrono::January, 2069y);
+    time = it->get_modification_time();
+    print_stack_if_false(time.has_value());
+    test_date_time(time, 19h, 56min, 7s, 8d, std::chrono::January, 2069y);
 
-    print_stack_if_false(!it->is_size_valid());
+    print_stack_if_false(!it->get_size());
 }
 
 void ParserTest::check_file3(Parser::Objects::const_iterator it) {
@@ -248,11 +259,13 @@ void ParserTest::check_file3(Parser::Objects::const_iterator it) {
     print_stack_if_false(it->get_name() == "Тестовый файл 3.txt");
     print_stack_if_false(it->get_type() == FileSystemObject::Type::File);
 
-    print_stack_if_false(it->is_creation_time_valid());
-    test_date_time(it->get_creation_time(), 11h, 15min, 43s, 18d, std::chrono::March, 2025y);
+    std::optional<std::chrono::sys_seconds> time = it->get_creation_time();
+    print_stack_if_false(time.has_value());
+    test_date_time(time, 11h, 15min, 43s, 18d, std::chrono::March, 2025y);
 
-    print_stack_if_false(it->is_modification_time_valid());
-    test_date_time(it->get_modification_time(), 19h, 56min, 7s, 8d, std::chrono::January, 1970y);
+    time = it->get_modification_time();
+    print_stack_if_false(time.has_value());
+    test_date_time(time, 19h, 56min, 7s, 8d, std::chrono::January, 1970y);
 
-    print_stack_if_false(!it->is_size_valid());
+    print_stack_if_false(!it->get_size());
 }

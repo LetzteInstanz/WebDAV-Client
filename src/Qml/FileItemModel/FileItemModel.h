@@ -21,12 +21,12 @@ namespace Qml {
     private:
         std::size_t get_shift() const noexcept;
         FileSystemObject get_object(int row) const;
-        QString get_icon_name(const FileSystemObject& obj, int row) const;
+        std::string get_icon_name(const FileSystemObject& obj, int row) const;
         void update();
 
     private:
-        static const std::unordered_map<QString, QString> _icon_name_by_extension_map;
-        static const std::unordered_set<QString> _special_icon_name_set;
+        static const std::unordered_map<std::string, std::string> _icon_name_by_extension_map;
+        static const std::unordered_set<std::string> _special_icon_name_set;
 
         std::shared_ptr<::FileSystemModel> _fs_model;
         bool _root;

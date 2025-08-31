@@ -12,17 +12,17 @@ Qml::FileSystemModel::~FileSystemModel() {
     _fs_model->set_error_func(nullptr);
 }
 
-void Qml::FileSystemModel::requestFileList(const QString& relative_path) {
+void Qml::FileSystemModel::requestFileList(const QString& path) {
     maxProgressEnabled(false);
     progressTextChanged(tr("Getting the list of files…"));
-    _fs_model->request_file_list(relative_path);
+    _fs_model->request_file_list(path.toStdString());
 }
 
 void Qml::FileSystemModel::abortRequest() { _fs_model->abort_request(); }
 
 void Qml::FileSystemModel::disconnect() { _fs_model->disconnect(); }
 
-QString Qml::FileSystemModel::getCurrentPath() const { return _fs_model->get_current_path(); }
+QString Qml::FileSystemModel::getCurrentPath() const { return QString::fromStdString(_fs_model->get_current_path().generic_string()); }
 
 void Qml::FileSystemModel::handle_error(::FileSystemModel::Error custom_error, QNetworkReply::NetworkError qt_error) {
     if (custom_error == ::FileSystemModel::Error::ReplyParseError) {

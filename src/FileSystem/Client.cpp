@@ -3,9 +3,9 @@
 Client::Client(QStringView addr, std::uint16_t port, ReplyHandler&& reply_handler, ErrorHandler&& error_handler)
     : _addr(addr.toString()), _port(port), _reply_handler(std::move(reply_handler)), _error_handler(std::move(error_handler)) {}
 
-void Client::request_file_list(QStringView path) {
+void Client::request_file_list(const std::filesystem::path& path) {
     QNetworkRequest req;
-    const QString url = "http://" + _addr + ':' + QString::number(_port) + path.toString();
+    const QString url = "http://" + _addr + ':' + QString::number(_port) + QString::fromStdString(path.generic_string());
     req.setUrl(QUrl(url)); // todo: set username and password
     qInfo(qUtf8Printable(QObject::tr("The request is occurring: %s")), qUtf8Printable(url));
     req.setRawHeader("Depth", "1");

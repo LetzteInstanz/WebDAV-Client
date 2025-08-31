@@ -342,8 +342,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # todo: enable for Clang, when it will
         src/Tests/Tests.h
         src/Tests/Util.cpp
         src/Tests/Util.h
-        src/Tests/UtilTest.cpp
-        src/Tests/UtilTest.h
         src/Tests/main.cpp
         src/Tests/pch.h
         src/Util.cpp

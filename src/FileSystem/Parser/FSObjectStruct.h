@@ -3,23 +3,22 @@
 #include "../FileSystemObject.h"
 
 struct FSObjectStruct {
-    using Status = FileSystemObject::Status;
+    enum class Status {Unknown, Ok, Unauthorized, Forbidden, NotFound};
     using Type = FileSystemObject::Type;
 
-    static QString extract_name(QStringView abs_path);
-    static Status to_status(QStringView str);
+    static std::optional<Status> to_status(QStringView str);
 
-    void replace_unknown_status(Status s);
+    void replace_unknown_status(const std::optional<Status>& s);
 
     bool is_curr_dir_obj = false;
-    QString name;
-    std::pair<Status, Type> type = {Status::None, Type::File};
-    std::pair<Status, std::chrono::sys_seconds> creation_date = {Status::None, {}};
-    std::pair<Status, std::chrono::sys_seconds> last_modified = {Status::None, {}};
-    std::pair<Status, std::uint64_t> content_length = {Status::None, 0};
+    std::filesystem::path path;
+    std::pair<std::optional<Status>, Type> type = {{}, Type::File};
+    std::pair<std::optional<Status>, std::optional<std::chrono::sys_seconds>> creation_date;
+    std::pair<std::optional<Status>, std::optional<std::chrono::sys_seconds>> last_modified;
+    std::pair<std::optional<Status>, std::optional<std::uint64_t>> content_length;
 
 private:
-    constexpr static Status ret_second_if_first_is_unknown(Status first, Status second);
+    constexpr static std::optional<Status> ret_second_if_first_is_unknown(const std::optional<Status>& first, const std::optional<Status>& second);
 
 private:
     static const std::vector<std::pair<QString, Status>> _str_code_pairs;

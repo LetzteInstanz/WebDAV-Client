@@ -1,28 +1,25 @@
 #include "FileSystemModel.h"
 
-#include "../Util.h"
 #include "Client.h"
-#ifndef ANDROID
-#include "FileSystemObject.h"
-#endif
 #include "Parser/Parser.h"
 
-FileSystemModel::FileSystemModel(QStringView addr, std::uint16_t port, QStringView root_path)
+FileSystemModel::FileSystemModel(QStringView addr, std::uint16_t port, const std::filesystem::path& root_path)
     : _client(std::make_unique<Client>(addr, port, std::bind(&FileSystemModel::handle_reply, this, std::placeholders::_1), std::bind(&FileSystemModel::handle_error, this, std::placeholders::_1))),
-      _root_path(add_slash_to_end(add_slash_to_start(root_path.toString()))), _current_path(_root_path)
+      _root_path((std::filesystem::path("/") / root_path / std::filesystem::path()).lexically_normal()), _current_path(_root_path)
 {
     qDebug().noquote() << QObject::tr("The file system model is being created");
 }
 
 FileSystemModel::~FileSystemModel() { qDebug().noquote() << QObject::tr("The file system model is being destroyed"); }
 
-bool FileSystemModel::is_cur_dir_root_path() const noexcept { return _root_path == get_current_path(); }
+bool FileSystemModel::is_cur_dir_root_path() const { return _root_path == get_current_path(); }
 
-QString FileSystemModel::get_current_path() const noexcept { return _current_path; }
+std::filesystem::path FileSystemModel::get_current_path() const { return _current_path; }
 
-void FileSystemModel::request_file_list(QStringView relative_path) {
+void FileSystemModel::request_file_list(const std::filesystem::path& path) {
     _prev_path = _current_path;
-    _current_path = process_two_dots_in_path(_current_path + add_slash_to_end(relative_path.toString()));
+    _current_path /= path / std::filesystem::path();
+    _current_path = _current_path.lexically_normal();
     _client->request_file_list(_current_path);
 }
 
@@ -37,7 +34,7 @@ void FileSystemModel::disconnect() {
     _current_path.clear();
 }
 
-void FileSystemModel::add_notification_func(const void* obj, NotifyAboutUpdateFunc&& func) noexcept { _notify_func_by_obj_map.emplace(obj, std::move(func)); }
+void FileSystemModel::add_notification_func(const void* obj, NotifyAboutUpdateFunc&& func) { _notify_func_by_obj_map.emplace(obj, std::move(func)); }
 
 void FileSystemModel::remove_notification_func(const void* obj) {
     const auto it = _notify_func_by_obj_map.find(obj);
@@ -47,28 +44,14 @@ void FileSystemModel::remove_notification_func(const void* obj) {
 
 void FileSystemModel::set_error_func(NotifyAboutErrorFunc&& func) noexcept { _error_func = std::move(func); }
 
-FileSystemObject FileSystemModel::get_curr_dir_object() const noexcept {
+FileSystemObject FileSystemModel::get_curr_dir_object() const {
     assert(_curr_dir_obj);
     return *_curr_dir_obj;
 }
 
-FileSystemObject FileSystemModel::get_object(std::size_t index) const noexcept { return _objects[index]; }
+FileSystemObject FileSystemModel::get_object(std::size_t index) const { return _objects[index]; }
 
-std::size_t FileSystemModel::size() const noexcept { return _objects.size(); }
-
-QString&& FileSystemModel::add_slash_to_start(QString&& path) {
-    if (path.isEmpty() || path.front() != '/')
-        path = '/' + path;
-
-    return std::move(path);
-}
-
-QString&& FileSystemModel::add_slash_to_end(QString&& path) {
-    if (!path.isEmpty() && path.back() != '/')
-        path += '/';
-
-    return std::move(path);
-}
+std::size_t FileSystemModel::get_size() const noexcept { return _objects.size(); }
 
 void FileSystemModel::handle_reply(QByteArray&& data) {
     try {

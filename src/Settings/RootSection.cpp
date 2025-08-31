@@ -99,7 +99,7 @@ Settings::RootSection::RootSection(std::function<nlohmann::json ()>&& get_root_o
 
 Settings::RootSection::~RootSection() = default;
 
-QtMsgType Settings::RootSection::get_log_level() { return _log_level; }
+QtMsgType Settings::RootSection::get_log_level() const noexcept { return _log_level; }
 
 void Settings::RootSection::set_log_level(QtMsgType level) {
     if (_log_level == level)

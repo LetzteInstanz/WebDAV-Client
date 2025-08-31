@@ -12,7 +12,7 @@ ServerInfoManager::ServerInfoManager(std::shared_ptr<JsonFile> file) : _file(std
 
 ServerInfoManager::~ServerInfoManager() = default;
 
-ServerInfo ServerInfoManager::get(std::size_t row) const noexcept { return _root_section->get_server(row); }
+ServerInfo ServerInfoManager::get(std::size_t row) const { return _root_section->get_server(row); }
 
 std::size_t ServerInfoManager::amount() const noexcept { return _root_section->server_count(); }
 

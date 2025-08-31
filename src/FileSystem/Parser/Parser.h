@@ -6,11 +6,11 @@ class FileSystemObject;
 
 class Parser {
 public:
-    using CurrDirObj = std::unique_ptr<FileSystemObject>;
+    using CurrDirObj = std::optional<FileSystemObject>;
     using Objects = std::deque<FileSystemObject>;
     using Result = std::pair<CurrDirObj, Objects>;
 
-    static Result parse_propfind_reply(QStringView current_path, const QByteArray& data);
+    static Result parse_propfind_reply(const std::filesystem::path& current_path, const QByteArray& data);
 
 private:
     enum class Tag {None, Multistatus, Response, PropStat, Prop, Href, ResourceType, CreationDate, GetLastModified, Collection, GetContentLength, Status};

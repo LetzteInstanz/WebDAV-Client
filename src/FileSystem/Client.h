@@ -7,18 +7,18 @@ public:
 
     Client(QStringView addr, std::uint16_t port, ReplyHandler&& reply_handler, ErrorHandler&& error_handler);
 
-    void request_file_list(QStringView path);
+    void request_file_list(const std::filesystem::path& path);
     void abort();
 
 private:
-    constexpr static char _file_list_request[] = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                                                 "<D:propfind xmlns:D=\"DAV:\">\n"
-                                                     "<D:prop>\n"
-                                                         "<D:creationdate/>\n"
-                                                         "<D:getlastmodified/>\n"
-                                                         "<D:resourcetype/>\n"
-                                                         "<D:getcontentlength/>\n"
-                                                     "</D:prop>\n"
+    constexpr static char _file_list_request[] = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                                                 "<D:propfind xmlns:D=\"DAV:\">"
+                                                     "<D:prop>"
+                                                         "<D:creationdate/>"
+                                                         "<D:getlastmodified/>"
+                                                         "<D:resourcetype/>"
+                                                         "<D:getcontentlength/>"
+                                                     "</D:prop>"
                                                  "</D:propfind>";
 
     QString _addr;
