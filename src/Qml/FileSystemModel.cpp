@@ -20,8 +20,6 @@ void Qml::FileSystemModel::requestFileList(const QString& path) {
 
 void Qml::FileSystemModel::abortRequest() { _fs_model->abort_request(); }
 
-void Qml::FileSystemModel::disconnect() { _fs_model->disconnect(); }
-
 QString Qml::FileSystemModel::getCurrentPath() const { return QString::fromStdString(_fs_model->get_current_path().generic_string()); }
 
 void Qml::FileSystemModel::handle_error(::FileSystemModel::Error custom_error, QNetworkReply::NetworkError qt_error) {

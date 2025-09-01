@@ -12,7 +12,6 @@ namespace Qml {
 
         Q_INVOKABLE void requestFileList(const QString& path);
         Q_INVOKABLE void abortRequest();
-        Q_INVOKABLE void disconnect();
         Q_INVOKABLE QString getCurrentPath() const;
 
     signals:

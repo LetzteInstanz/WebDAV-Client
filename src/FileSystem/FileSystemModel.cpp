@@ -25,15 +25,6 @@ void FileSystemModel::request_file_list(const std::filesystem::path& path) {
 
 void FileSystemModel::abort_request() { _client->abort(); }
 
-void FileSystemModel::disconnect() {
-    abort_request();
-    qDebug().noquote() << QObject::tr("The file system model is being reset");
-    _objects.clear();
-    _curr_dir_obj.reset();
-    _prev_path.clear();
-    _current_path.clear();
-}
-
 void FileSystemModel::add_notification_func(const void* obj, NotifyAboutUpdateFunc&& func) { _notify_func_by_obj_map.emplace(obj, std::move(func)); }
 
 void FileSystemModel::remove_notification_func(const void* obj) {

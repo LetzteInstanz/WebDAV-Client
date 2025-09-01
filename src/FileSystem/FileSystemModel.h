@@ -19,7 +19,6 @@ public:
     std::filesystem::path get_current_path() const;
     void request_file_list(const std::filesystem::path& path);
     void abort_request();
-    void disconnect();
     void add_notification_func(const void* obj, NotifyAboutUpdateFunc&& func);
     void remove_notification_func(const void* obj);
     void set_error_func(NotifyAboutErrorFunc&& func) noexcept;
