@@ -3,7 +3,7 @@
 Client::Client(QStringView addr, std::uint16_t port, ReplyHandler&& reply_handler, ErrorHandler&& error_handler)
     : _addr(addr.toString()), _port(port), _reply_handler(std::move(reply_handler)), _error_handler(std::move(error_handler)) {}
 
-void Client::request_file_list(const std::filesystem::path& path) {
+void Client::request_file_list(std::filesystem::path&& path) {
     QNetworkRequest req;
     const QString url = "http://" + _addr + ':' + QString::number(_port) + QString::fromStdString(path.generic_string());
     req.setUrl(QUrl(url)); // todo: set username and password
@@ -13,11 +13,11 @@ void Client::request_file_list(const std::filesystem::path& path) {
     req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
     req.setHeader(QNetworkRequest::ContentTypeHeader, "text/xml");
     _reply.reset(_network_access_mgr.sendCustomRequest(req, "PROPFIND", data));
-    const auto read = [this]() {
+    const auto read = [this, path = std::move(path)]() mutable {
         const QNetworkReply::NetworkError error = _reply->error();
         switch (error) {
             case QNetworkReply::NoError:
-                _reply_handler(_reply->readAll());
+                _reply_handler(std::move(path), _reply->readAll());
                 break;
 
             case QNetworkReply::OperationCanceledError:

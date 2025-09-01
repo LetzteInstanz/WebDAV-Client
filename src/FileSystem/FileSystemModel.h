@@ -27,15 +27,14 @@ public:
     std::size_t get_size() const noexcept;
 
 private:
-    void handle_reply(QByteArray&& data);
+    void handle_reply(std::filesystem::path&& current_path, QByteArray&& data);
     void handle_error(QNetworkReply::NetworkError error);
 
 private:
     std::unique_ptr<Client> _client;
-    std::filesystem::path _root_path;
     std::unordered_map<const void*, const NotifyAboutUpdateFunc> _notify_func_by_obj_map;
     NotifyAboutErrorFunc _error_func;
-    std::filesystem::path _prev_path;
+    std::filesystem::path _root_path;
     std::filesystem::path _current_path;
     std::optional<FileSystemObject> _curr_dir_obj;
     std::deque<FileSystemObject> _objects;

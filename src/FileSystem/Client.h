@@ -2,12 +2,12 @@
 
 class Client {
 public:
-    using ReplyHandler = std::function<void (QByteArray&&)>;
+    using ReplyHandler = std::function<void (std::filesystem::path&&, QByteArray&&)>;
     using ErrorHandler = std::function<void (QNetworkReply::NetworkError)>;
 
     Client(QStringView addr, std::uint16_t port, ReplyHandler&& reply_handler, ErrorHandler&& error_handler);
 
-    void request_file_list(const std::filesystem::path& path);
+    void request_file_list(std::filesystem::path&& path);
     void abort();
 
 private:
