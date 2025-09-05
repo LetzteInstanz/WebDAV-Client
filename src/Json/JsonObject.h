@@ -13,7 +13,7 @@ protected:
     nlohmann::json get_json_object() const;
     void set_json_object(nlohmann::json&& object);
 
-    template <typename ReturnType>
+    template<typename ReturnType>
     static std::optional<ReturnType> get_value(nlohmann::json& object, const std::function<ReturnType ()>& get_default_value_func, const char* key, bool& value_changed);
 
     template<typename Type>
@@ -24,7 +24,7 @@ private:
     const std::optional<std::string> _key;
 };
 
-template <typename ReturnType>
+template<typename ReturnType>
 std::optional<ReturnType> JsonObject::get_value(nlohmann::json& object, const std::function<ReturnType ()>& get_default_value_func, const char* key, bool& value_changed) {
     value_changed = false;
     try {

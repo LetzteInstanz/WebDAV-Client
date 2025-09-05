@@ -15,6 +15,7 @@
 #include <functional>
 #include <iomanip>
 #include <iterator>
+#include <limits>
 #include <locale>
 #include <map>
 #include <memory>

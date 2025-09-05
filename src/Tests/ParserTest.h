@@ -5,13 +5,20 @@
 class ParserTest
 {
 public:
-    static void run();
+    void run();
 
 private:
-    static void check_current_dir(const Parser::CurrDirObj& current_dir);
-    static void check_dir1(Parser::Objects::const_iterator it);
-    static void check_dir2(Parser::Objects::const_iterator it);
-    static void check_file1(Parser::Objects::const_iterator it);
-    static void check_file2(Parser::Objects::const_iterator it);
-    static void check_file3(Parser::Objects::const_iterator it);
+    void test_correct_response();
+    void test_resourcetype_has_non_ok_status();
+    void test_resourcetype_is_absent();
+    void test_current_dir_without_collection();
+    void test_empty_href();
+    void test_href_is_absent();
+    void test_status_is_absent();
+    void test_empty_status();
+    void test_unknown_tag();
+    void test_incorrect_tag_order();
+
+private:
+    Parser _parser;
 };

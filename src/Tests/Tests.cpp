@@ -1,6 +1,5 @@
 #include "Tests.h"
 
-#include "ParserTest.h"
 #include "SizeDisplayerTest.h"
 
 namespace {
@@ -9,7 +8,7 @@ namespace {
 
 Tests::Tests() { qInstallMessageHandler(&message_handler); }
 
-void Tests::run() const {
-    ParserTest::run();
+void Tests::run() {
+    _parser_test.run();
     SizeDisplayerTest::run();
 }

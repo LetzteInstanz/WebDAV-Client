@@ -1,11 +1,23 @@
 #include "FSObjectStruct.h"
 
+#include "../../Util.h"
+
 std::optional<FSObjectStruct::Status> FSObjectStruct::to_status(QStringView str) {
-    for (const std::pair<QString, Status>& pair : _str_code_pairs) {
-        if (str.indexOf(pair.first) != -1)
-            return pair.second;
-    }
-    return {};
+    auto from = str.indexOf(' ');
+    if (from < 0)
+        return {};
+
+    const auto to = str.indexOf(' ', ++from);
+    if (to <= 0)
+        return {};
+
+    str = QStringView(std::begin(str) + from, std::begin(str) + to);
+    bool ok;
+    const auto code = to_type<Status>(str.toUShort(&ok));
+    if (!ok)
+        return {};
+
+    return code;
 }
 
 void FSObjectStruct::replace_unknown_status(const std::optional<Status>& s) {
@@ -16,10 +28,5 @@ void FSObjectStruct::replace_unknown_status(const std::optional<Status>& s) {
 }
 
 constexpr std::optional<FSObjectStruct::Status> FSObjectStruct::ret_second_if_first_is_unknown(const std::optional<Status>& first, const std::optional<Status>& second) {
-    return first == FSObjectStruct::Status::Unknown ? second : first;
+    return first == Status::Unknown ? second : first;
 }
-
-const std::vector<std::pair<QString, FSObjectStruct::Status>> FSObjectStruct::_str_code_pairs{{"200", Status::Ok},
-                                                                                              {"401", Status::Unauthorized},
-                                                                                              {"403", Status::Forbidden},
-                                                                                              {"404", Status::NotFound}};

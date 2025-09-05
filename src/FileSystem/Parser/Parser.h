@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Util.h"
+#include "FSObjectStruct.h"
 
 class FileSystemObject;
 
@@ -10,7 +11,22 @@ public:
     using Objects = std::deque<FileSystemObject>;
     using Result = std::pair<CurrDirObj, Objects>;
 
-    static Result parse_propfind_reply(const std::filesystem::path& current_path, const QByteArray& data);
+    class Exception : public std::runtime_error {
+    public:
+        using std::runtime_error::runtime_error;
+        ~Exception() override;
+    };
+
+    Parser();
+
+    std::filesystem::path get_current_path() const;
+    void set_current_path(std::filesystem::path&& path);
+    Result get_result() const;
+    void parse_response_portion(const ReadBuffer& data);
+    void reset();
+
+private:
+    void handle_token(QXmlStreamReader::TokenType token);
 
 private:
     enum class Tag {None, Multistatus, Response, PropStat, Prop, Href, ResourceType, CreationDate, GetLastModified, Collection, GetContentLength, Status};
@@ -20,8 +36,37 @@ private:
     };
     using TagSet = std::unordered_set<Tag, TagHasher>;
     using TagOrderMap = std::unordered_map<Tag, TagSet, TagHasher>;
-    struct CurrentState;
+
+    struct CurrentState {
+        CurrentState(Result& result);
+
+        void process_start_of_tag(Tag t);
+        void process_data(Tag t, QStringView data);
+        void process_end_of_tag(Tag t);
+        void reset();
+
+        bool has_error = false;
+        std::filesystem::path current_path;
+        std::stack<TagOrderMap::const_iterator, std::vector<TagOrderMap::const_iterator>> stack;
+        QStringView not_dav_namespace;
+
+    private:
+        void set_error(QString&& msg);
+
+    private:
+        class TimeParser;
+
+        Result& _result;
+        FSObjectStruct _obj;
+        std::optional<FSObjectStruct::Status> _status;
+    };
 
     static const std::unordered_map<QString, Tag> _propfind_tag_by_str_map;
     static const TagOrderMap _propfind_tag_order;
+
+    Result _result;
+    CurrentState _state;
+    QXmlStreamReader _reader;
+    std::string _critical_error_text;
+    std::stringstream _response_text_stream;
 };

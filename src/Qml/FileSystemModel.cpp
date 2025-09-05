@@ -23,8 +23,8 @@ void Qml::FileSystemModel::abortRequest() { _fs_model->abort_request(); }
 QString Qml::FileSystemModel::getCurrentPath() const { return QString::fromStdString(_fs_model->get_current_path().generic_string()); }
 
 void Qml::FileSystemModel::handle_error(::FileSystemModel::Error custom_error, QNetworkReply::NetworkError qt_error) {
-    if (custom_error == ::FileSystemModel::Error::ReplyParseError) {
-        errorOccurred(QObject::tr("Reply parse error"));
+    if (custom_error == ::FileSystemModel::Error::ResponseParseError) {
+        errorOccurred(QObject::tr("HTTP response parse error"));
         return;
     }
     assert(qt_error != QNetworkReply::NoError);

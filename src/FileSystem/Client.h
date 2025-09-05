@@ -1,13 +1,15 @@
 #pragma once
 
+#include "../Util.h"
+
 class Client {
 public:
-    using ReplyHandler = std::function<void (std::filesystem::path&&, QByteArray&&)>;
-    using ErrorHandler = std::function<void (QNetworkReply::NetworkError)>;
+    using DataHandler = std::function<void (const ReadBuffer&)>;
+    using FinishHandler = std::function<void (QNetworkReply::NetworkError)>;
 
-    Client(QStringView addr, std::uint16_t port, ReplyHandler&& reply_handler, ErrorHandler&& error_handler);
+    Client(QStringView addr, std::uint16_t port, DataHandler&& data_handler, FinishHandler&& finish_handler);
 
-    void request_file_list(std::filesystem::path&& path);
+    void request_file_list(const std::filesystem::path& path);
     void abort();
 
 private:
@@ -23,8 +25,9 @@ private:
 
     QString _addr;
     std::uint16_t _port;
-    const ReplyHandler _reply_handler;
-    const ErrorHandler _error_handler;
+    const DataHandler _data_handler;
+    const FinishHandler _finish_handler;
     QNetworkAccessManager _network_access_mgr;
     std::unique_ptr<QNetworkReply, QScopedPointerDeleteLater> _reply;
+    ReadBuffer _buffer;
 };

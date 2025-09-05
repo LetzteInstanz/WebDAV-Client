@@ -2,7 +2,7 @@
 
 int main()
 {
-    const Tests tests;
+    Tests tests;
     tests.run();
     return 0;
 }

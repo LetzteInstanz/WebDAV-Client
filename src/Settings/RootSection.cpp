@@ -3,7 +3,6 @@
 #include "../Logger.h"
 #include "../Qml/Sort/SortParam.h"
 #include "../Qml/FileItemModel/Role.h"
-#include "../Util.h"
 
 namespace JsonKeys {
     const constexpr char* log_level = "log_level";

@@ -26,7 +26,7 @@ std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(QStrin
             const QStringView lexem(from, it - from);
             parse(time, lexem, ok, token);
             if (!ok)
-                throw std::runtime_error("timestamp parse error");
+                throw Exception("timestamp parse error");
 
             ++token_it;
         }
@@ -37,7 +37,7 @@ std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(QStrin
         prev_is_delimiter = is_delimiter;
     }
     if (token_it != token_end)
-        throw std::runtime_error("timestamp parse error");
+        throw Exception("timestamp parse error");
 
     const std::chrono::sys_days days = std::chrono::year_month_day(time.year, time.month, time.day);
     auto seconds = std::chrono::time_point_cast<std::chrono::seconds>(days);
@@ -78,7 +78,7 @@ void Parser::CurrentState::TimeParser::parse(CustomTime& time, QStringView lexem
         case Token::MonthName: {
             const auto it = _month_map.find(lexem.toString());
             if (it == std::end(_month_map))
-                throw std::runtime_error("month parse error");
+                throw Exception("month parse error");
 
             time.month = it->second;
             break;

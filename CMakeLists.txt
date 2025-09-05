@@ -36,8 +36,6 @@ qt_add_executable(wdc
     src/FileSystem/FileSystemModel.h
     src/FileSystem/FileSystemObject.cpp
     src/FileSystem/FileSystemObject.h
-    src/FileSystem/Parser/CurrentState.cpp
-    src/FileSystem/Parser/CurrentState.h
     src/FileSystem/Parser/FSObjectStruct.cpp
     src/FileSystem/Parser/FSObjectStruct.h
     src/FileSystem/Parser/Parser.cpp
@@ -324,8 +322,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # todo: enable for Clang, when it will
     qt_add_executable(tests
         src/FileSystem/FileSystemObject.cpp
         src/FileSystem/FileSystemObject.h
-        src/FileSystem/Parser/CurrentState.cpp
-        src/FileSystem/Parser/CurrentState.h
         src/FileSystem/Parser/FSObjectStruct.cpp
         src/FileSystem/Parser/FSObjectStruct.h
         src/FileSystem/Parser/Parser.cpp
@@ -350,6 +346,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # todo: enable for Clang, when it will
     target_precompile_headers(tests PRIVATE src/Tests/pch.h)
     set_property(TARGET tests PROPERTY CXX_STANDARD 23)
     target_link_libraries(tests PRIVATE stdc++exp)
+    target_compile_definitions(tests PRIVATE TESTS)
     install(TARGETS tests
         BUNDLE DESTINATION .
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

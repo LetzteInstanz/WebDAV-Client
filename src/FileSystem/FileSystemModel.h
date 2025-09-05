@@ -7,7 +7,7 @@ class Parser;
 
 class FileSystemModel {
 public:
-    enum class Error {ReplyParseError, NetworkError, UncorrectPath};
+    enum class Error {ResponseParseError, NetworkError};
 
     using NotifyAboutUpdateFunc = std::function<void ()>;
     using NotifyAboutErrorFunc = std::function<void (Error, QNetworkReply::NetworkError)>;
@@ -27,10 +27,10 @@ public:
     std::size_t get_size() const noexcept;
 
 private:
-    void handle_reply(std::filesystem::path&& current_path, QByteArray&& data);
-    void handle_error(QNetworkReply::NetworkError error);
+    void finish(QNetworkReply::NetworkError error);
 
 private:
+    std::unique_ptr<Parser> _parser;
     std::unique_ptr<Client> _client;
     std::unordered_map<const void*, const NotifyAboutUpdateFunc> _notify_func_by_obj_map;
     NotifyAboutErrorFunc _error_func;
