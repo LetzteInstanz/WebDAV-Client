@@ -7,7 +7,7 @@ void Client::request_file_list(const std::filesystem::path& path) {
     QNetworkRequest req;
     const QString url = "http://" + _addr + ':' + QString::number(_port) + QString::fromStdString(path.generic_string());
     req.setUrl(QUrl(url)); // todo: set username and password
-    qInfo(qUtf8Printable(QObject::tr("The request is occurring: %s")), url.data());
+    qInfo(qUtf8Printable(QObject::tr("The request is occurring: %s")), qUtf8Printable(url));
     req.setRawHeader("Depth", "1");
     const QByteArray data = _file_list_request;
     req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());

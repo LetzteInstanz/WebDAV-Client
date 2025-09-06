@@ -44,7 +44,7 @@ namespace Qml {
         const std::string id = get_value_from_json<std::string>(json, title, JsonKeys::Sorting::id);
         const auto param_it = supported_sort_params.find(id);
         if (param_it == std::end(supported_sort_params)) {
-            qWarning(qUtf8Printable(QObject::tr("%s: the sort parameter isn't supported: \"%s\"")), title, qUtf8Printable(id.c_str()));
+            qWarning(qUtf8Printable(QObject::tr("%s: the sort parameter isn't supported: \"%s\"")), title, id.c_str());
             throw std::runtime_error("Unsupported sort parameter");
         }
         param = param_it->second;

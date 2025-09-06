@@ -155,7 +155,7 @@ void Parser::CurrentState::reset() {
 
 void Parser::CurrentState::set_error(QString&& msg) {
     has_error = true;
-    qWarning(qUtf8Printable(QObject::tr("HTTP response parse error: %s.")), msg.data());
+    qWarning(qUtf8Printable(QObject::tr("HTTP response parse error: %s.")), qUtf8Printable(msg));
 }
 
 const std::unordered_map<QString, Parser::Tag> Parser::_propfind_tag_by_str_map{{"multistatus", Tag::Multistatus},
