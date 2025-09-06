@@ -3,7 +3,7 @@
 Qml::FileSystemModel::FileSystemModel(std::shared_ptr<::FileSystemModel> model) : _fs_model(std::move(model)) {
     qDebug().noquote() << QObject::tr("The QML file system model is being created");
     _fs_model->set_error_func(std::bind(&FileSystemModel::handle_error, this, std::placeholders::_1, std::placeholders::_2));
-    _fs_model->add_notification_func(this, std::bind(&FileSystemModel::replyGot, this));
+    _fs_model->add_notification_func(this, std::bind(&FileSystemModel::ready, this));
 }
 
 Qml::FileSystemModel::~FileSystemModel() {

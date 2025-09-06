@@ -48,7 +48,7 @@ Dialog {
                 const comp = Qt.createComponent("Core/MessageBox.qml", Component.Asynchronous)
                 Util.createObjAsync(comp, createDlg)
             }
-            function onReplyGot() { console.debug(qsTr("QML: A reply was received")); accept() }
+            function onReady() { console.debug(qsTr("QML: HTTP response was received")); accept() }
         }
     }
 }

@@ -25,12 +25,12 @@ ColumnLayout {
             }
             progressDlg.rejected.connect(cancel)
             function setModel() {
-                privateObj.fileSystemModel.replyGot.disconnect(setModel)
+                privateObj.fileSystemModel.ready.disconnect(setModel)
                 listView.model = FileItemModelFactory.createModel()
                 listView.currentIndex = -1
             }
-            privateObj.fileSystemModel.replyGot.connect(setModel)
-            privateObj.fileSystemModel.replyGot.connect(() => { currPathLabel.text = privateObj.fileSystemModel.getCurrentPath() })
+            privateObj.fileSystemModel.ready.connect(setModel)
+            privateObj.fileSystemModel.ready.connect(() => { currPathLabel.text = privateObj.fileSystemModel.getCurrentPath() })
             privateObj.fileSystemModel.requestFileList("")
             progressDlg.open()
         }

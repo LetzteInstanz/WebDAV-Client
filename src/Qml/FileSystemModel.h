@@ -20,7 +20,7 @@ namespace Qml {
         void maxProgressChanged(float max);
         void progressTextChanged(const QString& text);
         void errorOccurred(const QString& text);
-        void replyGot();
+        void ready();
 
     private:
         void handle_error(::FileSystemModel::Error custom_error, QNetworkReply::NetworkError qt_error);
