@@ -5,7 +5,7 @@
 
 FileSystemModel::FileSystemModel(QStringView addr, std::uint16_t port, const std::filesystem::path& root_path)
     : _parser(std::make_unique<Parser>()),
-      _client(std::make_unique<Client>(addr, port, std::bind(&Parser::parse_response_portion, _parser.get(), std::placeholders::_1), std::bind(&FileSystemModel::finish, this, std::placeholders::_1))),
+      _client(std::make_unique<Client>(addr, port)),
       _root_path((std::filesystem::path("/") / root_path / std::filesystem::path()).lexically_normal()), _current_path(_root_path)
 {
     qDebug().noquote() << QObject::tr("The file system model is being created");
@@ -19,12 +19,13 @@ std::filesystem::path FileSystemModel::get_current_path() const { return _curren
 
 void FileSystemModel::request_file_list(const std::filesystem::path& path) {
     auto new_path = (_current_path / path / std::filesystem::path()).lexically_normal();
-    _client->request_file_list(new_path);
+    auto handlers = std::make_pair(std::bind(&Parser::parse_response_portion, _parser.get(), std::placeholders::_1), std::bind(&FileSystemModel::finish, this, std::placeholders::_1));
+    _request_id = _client->request_file_list(std::move(handlers), new_path, false);
     _parser->set_current_path(std::move(new_path));
 }
 
 void FileSystemModel::abort_request() {
-    _client->abort();
+    _client->abort(_request_id);
     _parser->reset();
 }
 

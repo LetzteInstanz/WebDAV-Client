@@ -36,6 +36,7 @@ private:
     NotifyAboutErrorFunc _error_func;
     std::filesystem::path _root_path;
     std::filesystem::path _current_path;
+    std::uint32_t _request_id = 0;
     std::optional<FileSystemObject> _curr_dir_obj;
     std::deque<FileSystemObject> _objects;
 };

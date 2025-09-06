@@ -6,11 +6,12 @@ class Client {
 public:
     using DataHandler = std::function<void (const ReadBuffer&)>;
     using FinishHandler = std::function<void (QNetworkReply::NetworkError)>;
+    using Handlers = std::pair<DataHandler, FinishHandler>;
 
-    Client(QStringView addr, std::uint16_t port, DataHandler&& data_handler, FinishHandler&& finish_handler);
+    Client(QStringView addr, std::uint16_t port);
 
-    void request_file_list(const std::filesystem::path& path);
-    void abort();
+    std::uint32_t request_file_list(Handlers&& handlers, const std::filesystem::path& path, bool recursive);
+    void abort(std::uint32_t id);
 
 private:
     constexpr static char _file_list_request[] = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
@@ -25,9 +26,8 @@ private:
 
     QString _addr;
     std::uint16_t _port;
-    const DataHandler _data_handler;
-    const FinishHandler _finish_handler;
     QNetworkAccessManager _network_access_mgr;
-    std::unique_ptr<QNetworkReply, QScopedPointerDeleteLater> _reply;
+    std::uint32_t _next_id = 0;
+    std::unordered_map<std::uint32_t, std::unique_ptr<QNetworkReply, QScopedPointerDeleteLater>> _replies;
     ReadBuffer _buffer;
 };
