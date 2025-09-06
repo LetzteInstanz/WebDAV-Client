@@ -439,11 +439,11 @@ namespace {
     }
 }
 
-FileItemModel::FileItemModel(std::shared_ptr<::FileSystemModel> model, QObject* parent) : QAbstractListModel(parent), _fs_model(std::move(model)) {
+FileItemModel::FileItemModel(const std::filesystem::path& root_path, std::shared_ptr<::FileSystemModel> model, QObject* parent)
+    : QAbstractListModel(parent), _root_path(std::filesystem::path("/") / root_path), _fs_model(std::move(model)), _root(true), _ready_to_download_flags(_fs_model->get_size())
+{
     qDebug().noquote() << QObject::tr("The source file item model is being created");
     _fs_model->add_notification_func(this, std::bind(&FileItemModel::update, this));
-    _root = _fs_model->is_cur_dir_root_path();
-    _ready_to_download_flags = std::vector<bool>(_fs_model->get_size());
 #ifndef NDEBUG
     std::for_each(std::begin(_icon_name_by_extension_map), std::end(_icon_name_by_extension_map), [](const auto& pair) { const QPixmap pixmap(":/res/icons/" + QString::fromStdString(pair.second)); assert(!pixmap.isNull()); });
 #endif
@@ -587,7 +587,7 @@ std::string FileItemModel::get_icon_name(const FileSystemObject& obj, int row) c
 
 void FileItemModel::update() {
     beginResetModel();
-    _root = _fs_model->is_cur_dir_root_path();
+    _root = _root_path == _fs_model->get_current_path();
     _ready_to_download_flags = std::vector<bool>(_fs_model->get_size());
     endResetModel();
 }

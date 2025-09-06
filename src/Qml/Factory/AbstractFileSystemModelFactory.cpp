@@ -6,8 +6,8 @@ std::weak_ptr<::FileSystemModel> Qml::AbstractFileSystemModelFactory::_fs_model;
 
 Qml::AbstractFileSystemModelFactory::~AbstractFileSystemModelFactory() = default;
 
-std::shared_ptr<::FileSystemModel> Qml::AbstractFileSystemModelFactory::create_fs_model(QStringView addr, std::uint16_t port, QStringView root_path) {
-    auto fs_model = std::make_shared<::FileSystemModel>(addr, port, root_path.toString().toStdString());
+std::shared_ptr<::FileSystemModel> Qml::AbstractFileSystemModelFactory::create_fs_model(QStringView addr, std::uint16_t port) {
+    auto fs_model = std::make_shared<::FileSystemModel>(addr, port);
     _fs_model = fs_model;
     return fs_model;
 }

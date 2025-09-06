@@ -3,17 +3,11 @@
 #include "Client.h"
 #include "Parser/Parser.h"
 
-FileSystemModel::FileSystemModel(QStringView addr, std::uint16_t port, const std::filesystem::path& root_path)
-    : _parser(std::make_unique<Parser>()),
-      _client(std::make_unique<Client>(addr, port)),
-      _root_path((std::filesystem::path("/") / root_path / std::filesystem::path()).lexically_normal()), _current_path(_root_path)
-{
+FileSystemModel::FileSystemModel(QStringView addr, std::uint16_t port) : _parser(std::make_unique<Parser>()), _client(std::make_unique<Client>(addr, port)), _current_path("/") {
     qDebug().noquote() << QObject::tr("The file system model is being created");
 }
 
 FileSystemModel::~FileSystemModel() { qDebug().noquote() << QObject::tr("The file system model is being destroyed"); }
-
-bool FileSystemModel::is_cur_dir_root_path() const { return _root_path == get_current_path(); }
 
 std::filesystem::path FileSystemModel::get_current_path() const { return _current_path; }
 

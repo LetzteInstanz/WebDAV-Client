@@ -12,10 +12,9 @@ public:
     using NotifyAboutUpdateFunc = std::function<void ()>;
     using NotifyAboutErrorFunc = std::function<void (Error, QNetworkReply::NetworkError)>;
 
-    FileSystemModel(QStringView addr, std::uint16_t port, const std::filesystem::path& root_path);
+    FileSystemModel(QStringView addr, std::uint16_t port);
     ~FileSystemModel();
 
-    bool is_cur_dir_root_path() const;
     std::filesystem::path get_current_path() const;
     void request_file_list(const std::filesystem::path& path);
     void abort_request();
@@ -34,7 +33,6 @@ private:
     std::unique_ptr<Client> _client;
     std::unordered_map<const void*, const NotifyAboutUpdateFunc> _notify_func_by_obj_map;
     NotifyAboutErrorFunc _error_func;
-    std::filesystem::path _root_path;
     std::filesystem::path _current_path;
     std::uint32_t _request_id = 0;
     std::optional<FileSystemObject> _curr_dir_obj;

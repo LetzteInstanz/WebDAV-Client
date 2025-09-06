@@ -10,6 +10,6 @@ namespace Qml {
         using AbstractFileSystemModelFactory::AbstractFileSystemModelFactory;
         ~FileSystemModelFactory() override;
 
-        Q_INVOKABLE QObject* createModel(const QString& addr, std::uint16_t port, const QString& root_path);
+        Q_INVOKABLE QObject* createModel(const QString& addr, std::uint16_t port);
     };
 }

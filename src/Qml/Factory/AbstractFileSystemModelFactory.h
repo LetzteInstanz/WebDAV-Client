@@ -11,7 +11,7 @@ namespace Qml {
         ~AbstractFileSystemModelFactory() override;
 
     protected:
-        std::shared_ptr<::FileSystemModel> create_fs_model(QStringView addr, std::uint16_t port, QStringView root_path);
+        std::shared_ptr<::FileSystemModel> create_fs_model(QStringView addr, std::uint16_t port);
         std::shared_ptr<::FileSystemModel> get_fs_model();
 
     private:

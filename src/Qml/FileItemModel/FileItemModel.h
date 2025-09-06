@@ -8,7 +8,7 @@ namespace Qml {
         Q_OBJECT
 
     public:
-        explicit FileItemModel(std::shared_ptr<::FileSystemModel> model, QObject* parent = nullptr);
+        explicit FileItemModel(const std::filesystem::path& root_path, std::shared_ptr<::FileSystemModel> model, QObject* parent = nullptr);
         ~FileItemModel() override;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -28,6 +28,7 @@ namespace Qml {
         static const std::unordered_map<std::string, std::string> _icon_name_by_extension_map;
         static const std::unordered_set<std::string> _special_icon_name_set;
 
+        const std::filesystem::path _root_path;
         std::shared_ptr<::FileSystemModel> _fs_model;
         bool _root;
         std::vector<bool> _ready_to_download_flags;

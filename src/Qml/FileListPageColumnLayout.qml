@@ -26,7 +26,7 @@ ColumnLayout {
             progressDlg.rejected.connect(cancel)
             function setModel() {
                 privateObj.fileSystemModel.ready.disconnect(setModel)
-                listView.model = FileItemModelFactory.createModel()
+                listView.model = FileItemModelFactory.createModel(path)
                 listView.currentIndex = -1
             }
             privateObj.fileSystemModel.ready.connect(setModel)
@@ -47,7 +47,7 @@ ColumnLayout {
 
     QtObject {
         id: privateObj
-        property var fileSystemModel: FileSystemModelFactory.createModel(addr, port, path)
+        property var fileSystemModel: FileSystemModelFactory.createModel(addr, port)
     }
     Core.SelectionSequentialAnimation {
         id: animation
