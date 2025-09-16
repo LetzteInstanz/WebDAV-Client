@@ -14,7 +14,7 @@ std::filesystem::path FileSystemModel::get_current_path() const { return _curren
 void FileSystemModel::request_file_list(const std::filesystem::path& path) {
     auto new_path = (_current_path / path / std::filesystem::path()).lexically_normal();
     auto handlers = std::make_pair(std::bind(&Parser::parse_response_portion, _parser.get(), std::placeholders::_1), std::bind(&FileSystemModel::finish, this, std::placeholders::_1));
-    _request_id = _client->request_file_list(std::move(handlers), new_path, false);
+    _request_id = _client->request(new_path, Client::PropfindProperty::All, false, std::move(handlers));
     _parser->set_current_path(std::move(new_path));
 }
 

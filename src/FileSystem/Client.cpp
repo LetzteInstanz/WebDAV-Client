@@ -2,14 +2,14 @@
 
 Client::Client(QStringView addr, std::uint16_t port) : _addr(addr.toString()), _port(port) {}
 
-std::uint32_t Client::request_file_list(Handlers&& handlers, const std::filesystem::path& path, bool recursive) {
+std::uint32_t Client::request(const std::filesystem::path& path, PropfindProperty properties, bool recursive, Handlers&& handlers) {
     assert(handlers.first);
     assert(handlers.second);
     const QString url = "http://" + _addr + ':' + QString::number(_port) + QString::fromStdString(path.generic_string()); // todo: set username and password
     QNetworkRequest req(url);
     qInfo(qUtf8Printable(QObject::tr("The request is occurring: %s")), qUtf8Printable(url));
     req.setRawHeader("Depth", recursive ? "infinity" : "1");
-    const QByteArray data = _file_list_request;
+    const QByteArray data = create_request(properties);
     req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
     req.setHeader(QNetworkRequest::ContentTypeHeader, "text/xml");
     auto reply = std::unique_ptr<QNetworkReply, QScopedPointerDeleteLater>(_network_access_mgr.sendCustomRequest(req, "PROPFIND", data));
@@ -45,3 +45,25 @@ void Client::abort(std::uint32_t id) {
     reply->abort();
     _replies.erase(reply_it);
 }
+
+QByteArray Client::create_request(PropfindProperty properties) {
+    QByteArray request("<?xml version=\"1.0\" encoding=\"utf-8\"?><D:propfind xmlns:D=\"DAV:\"><D:prop>");
+    if (to_bool(properties & PropfindProperty::ResourceType))
+        request.append("<D:resourcetype/>");
+
+    if (to_bool(properties & PropfindProperty::CreationDate))
+        request.append("<D:creationdate/>");
+
+    if (to_bool(properties & PropfindProperty::GetLastModified))
+        request.append("<D:getlastmodified/>");
+
+    if (to_bool(properties & PropfindProperty::GetContentLength))
+        request.append("<D:getcontentlength/>");
+
+    request.append("</D:prop></D:propfind>");
+    return request;
+}
+
+constexpr Client::PropfindProperty operator|(Client::PropfindProperty lhs, Client::PropfindProperty rhs) { return to_type<Client::PropfindProperty>(to_uint(lhs) | to_uint(rhs)); }
+
+constexpr Client::PropfindProperty operator&(Client::PropfindProperty lhs, Client::PropfindProperty rhs) { return to_type<Client::PropfindProperty>(to_uint(lhs) & to_uint(rhs)); }

@@ -7,23 +7,17 @@ public:
     using DataHandler = std::function<void (const ReadBuffer&)>;
     using FinishHandler = std::function<void (QNetworkReply::NetworkError)>;
     using Handlers = std::pair<DataHandler, FinishHandler>;
+    enum class PropfindProperty { ResourceType = 1, CreationDate = 1 << 1, GetLastModified = 1 << 2, GetContentLength = 1 << 3, All = ResourceType | CreationDate | GetLastModified | GetContentLength };
 
     Client(QStringView addr, std::uint16_t port);
 
-    std::uint32_t request_file_list(Handlers&& handlers, const std::filesystem::path& path, bool recursive);
+    std::uint32_t request(const std::filesystem::path& path, PropfindProperty properties, bool recursive, Handlers&& handlers);
     void abort(std::uint32_t id);
 
 private:
-    constexpr static char _file_list_request[] = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-                                                 "<D:propfind xmlns:D=\"DAV:\">"
-                                                     "<D:prop>"
-                                                         "<D:creationdate/>"
-                                                         "<D:getlastmodified/>"
-                                                         "<D:resourcetype/>"
-                                                         "<D:getcontentlength/>"
-                                                     "</D:prop>"
-                                                 "</D:propfind>";
+    static QByteArray create_request(PropfindProperty properties);
 
+private:
     QString _addr;
     std::uint16_t _port;
     QNetworkAccessManager _network_access_mgr;
@@ -31,3 +25,6 @@ private:
     std::unordered_map<std::uint32_t, std::unique_ptr<QNetworkReply, QScopedPointerDeleteLater>> _replies;
     ReadBuffer _buffer;
 };
+
+constexpr Client::PropfindProperty operator|(Client::PropfindProperty lhs, Client::PropfindProperty rhs);
+constexpr Client::PropfindProperty operator&(Client::PropfindProperty lhs, Client::PropfindProperty rhs);
