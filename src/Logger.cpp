@@ -26,8 +26,12 @@ void Logger::message_handler(QtMsgType type, const QMessageLogContext& context, 
     _default_handler(type, context, msg);
 #endif
     static auto logger = Logger::get_instance();
-    if (type >= logger->get_max_level())
-        logger->append_message(std::make_pair(type, msg));
+    if (type < logger->get_max_level())
+        return;
+
+    const auto nanosec = std::chrono::system_clock::now();
+    auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(nanosec.time_since_epoch());
+    logger->append_message(std::make_tuple(type, TimePoint(std::move(millisec)), msg));
 }
 
 std::shared_ptr<Logger> Logger::get_instance() {
@@ -62,7 +66,7 @@ void Logger::set_max_level(QtMsgType level) {
     {
         const std::lock_guard<std::mutex> locker(_mutex);
         const auto end = std::end(_log);
-        const auto it = std::remove_if(std::begin(_log), end, [level](const std::pair<QtMsgType, QString>& pair) { return pair.first < level; });
+        const auto it = std::remove_if(std::begin(_log), end, [level](const Message& tuple) { return std::get<QtMsgType>(tuple) < level; });
         _log.erase(it, end);
     }
     _filtered = true;
@@ -76,7 +80,7 @@ Logger::Log Logger::get_log() {
 
 void Logger::append_message(Message&& msg) {
     const std::lock_guard<std::mutex> locker(_mutex);
-    if (msg.first < get_max_level()) // note: The value of _max_level may change in the main thread between calls get_max_level() and append_msg() in message_handler() in another thread
+    if (std::get<QtMsgType>(msg) < get_max_level()) // note: The value of _max_level may change in the main thread between calls get_max_level() and append_msg() in message_handler() in another thread
         return;
 
     _log.emplace_back(msg);

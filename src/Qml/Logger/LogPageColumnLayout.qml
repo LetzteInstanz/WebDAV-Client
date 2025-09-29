@@ -33,38 +33,43 @@ ColumnLayout {
         Layout.fillWidth: true
         id: listView
         model: LogItemModelFactory.createModel()
-        ScrollBar.vertical: ScrollBar {
-            policy: ScrollBar.AlwaysOn
-        }
-        delegate: Item {
-            id: delegateItem
-            width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
-            height: messageText.contentHeight + contentItem.anchors.topMargin + contentItem.anchors.bottomMargin
-
+        ScrollBar.vertical: ScrollBar { policy: ScrollBar.AlwaysOn }
+        delegate: Component {
             Core.ContentItem {
-                id: contentItem
-                anchors.fill: parent
+                width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
+                height: messageText.contentHeight + anchors.topMargin + anchors.bottomMargin
 
-                Text {
-                    id: messageText
+                RowLayout {
                     anchors.fill: parent
-                    wrapMode: Text.Wrap
-                    color: model.colour
-                    text: model.text
-                }
-            }
-            MouseArea {
-                anchors.fill: parent
-                onClicked: delegateItem.ListView.view.currentIndex = index
-                onPressAndHold: (event) => {
-                    delegateItem.ListView.view.currentIndex = index
-                    function createMenu(comp) {
-                        const item = delegateItem.ListView.view.itemAtIndex(index)
-                        const menu = Util.createPopup(comp, item, {"view": listView})
-                        menu.popup(item, event.x, event.y)
+
+                    Text {
+                        id: timeText
+                        Layout.fillHeight: true
+                        color: model.colour
+                        text: model.time
                     }
-                    const comp = Qt.createComponent("LogItemMenu.qml", Component.Asynchronous, listView)
-                    Util.createObjAsync(comp, createMenu)
+                    Text {
+                        id: messageText
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        wrapMode: Text.Wrap
+                        color: model.colour
+                        text: model.text
+                    }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: parent.ListView.view.currentIndex = index
+                    onPressAndHold: (event) => {
+                        parent.ListView.view.currentIndex = index
+                        function createMenu(comp) {
+                            const item = parent.ListView.view.itemAtIndex(index)
+                            const menu = Util.createPopup(comp, item, {"view": listView})
+                            menu.popup(item, event.x, event.y)
+                        }
+                        const comp = Qt.createComponent("LogItemMenu.qml", Component.Asynchronous, listView)
+                        Util.createObjAsync(comp, createMenu)
+                    }
                 }
             }
         }

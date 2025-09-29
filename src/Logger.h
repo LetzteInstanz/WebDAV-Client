@@ -2,7 +2,8 @@
 
 class Logger {
 public:
-    using Message = std::pair<QtMsgType, QString>;
+    using TimePoint = std::chrono::sys_time<std::chrono::milliseconds>;
+    using Message = std::tuple<QtMsgType, TimePoint, QString>;
     using Log = std::deque<Message>;
     using NotificationFunc = std::function<void (Message&&)>;
 

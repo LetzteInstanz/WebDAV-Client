@@ -22,12 +22,14 @@
 #include <mutex>
 #include <optional>
 #include <ostream>
+#include <ranges>
 #include <sstream>
 #include <stack>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <tuple>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
@@ -36,11 +38,13 @@
 
 #include <QAbstractItemModel>
 #include <QAbstractListModel>
+#include <QAbstractTableModel>
 #include <QByteArray>
 #include <QChar>
 #include <QClipboard>
 #include <QColor>
 #include <QCoreApplication>
+#include <QDateTime>
 #include <QGuiApplication>
 #include <QHash>
 #include <QIODevice>
@@ -77,6 +81,7 @@
 #include <QFuture>
 #include <QJniEnvironment>
 #include <QJniObject>
+#include <QTimeZone>
 #include <QtCore/private/qandroidextras_p.h>
 #endif
 

@@ -43,7 +43,7 @@ std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(QStrin
     auto seconds = std::chrono::time_point_cast<std::chrono::seconds>(days);
     seconds += time.hours;
     seconds += time.minutes;
-    seconds += time.seconds; // todo: use std::chrono::utc_clock type and std::chrono::std::chrono::clock_cast(), when GCC will support this
+    seconds += time.seconds;
     return seconds;
 }
 
