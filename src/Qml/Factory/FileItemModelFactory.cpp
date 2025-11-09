@@ -10,6 +10,6 @@ Qml::FileItemModelFactory::FileItemModelFactory(std::shared_ptr<::Settings> sett
 Qml::FileItemModelFactory::~FileItemModelFactory() = default;
 
 QObject* Qml::FileItemModelFactory::createModel(const QString& root_path) {
-    std::unique_ptr<FileItemModel, QScopedPointerDeleteLater> source(new FileItemModel(root_path.toStdString(), get_fs_model()));
+    std::unique_ptr<FileItemModel, QScopedPointerDeleteLater> source(new FileItemModel(root_path.toStdString(), get_main_fs_model()));
     return new FileSortFilterItemModel(_settings, std::move(source));
 }

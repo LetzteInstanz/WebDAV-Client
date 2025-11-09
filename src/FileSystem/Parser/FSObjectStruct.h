@@ -7,7 +7,6 @@ struct FSObjectStruct {
     using Type = FileSystemObject::Type;
 
     static std::optional<Status> to_status(QStringView str);
-
     void replace_unknown_status(const std::optional<Status>& s);
 
     std::optional<std::filesystem::path> path;

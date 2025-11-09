@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../FileSystem/Parser/Parser.h"
-
 class ParserTest
 {
 public:
@@ -18,7 +16,4 @@ private:
     void test_empty_status();
     void test_unknown_tag();
     void test_incorrect_tag_order();
-
-private:
-    Parser _parser;
 };

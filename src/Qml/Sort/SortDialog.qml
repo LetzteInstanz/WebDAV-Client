@@ -34,7 +34,7 @@ Dialog {
                 ScrollBar.vertical: ScrollBar {
                     policy: ScrollBar.AlwaysOn
                 }
-                delegate: Item {
+                delegate: Item { // todo: replace with Component
                     id: delegateItem
                     width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
                     height: Math.max(paramNameText.contentHeight, descendingCheckBox.height) + contentItem.anchors.topMargin + contentItem.anchors.bottomMargin

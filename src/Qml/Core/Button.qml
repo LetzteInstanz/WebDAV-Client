@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls as QtControls
 
-QtControls.Button {
+QtControls.Button { // todo: add timer and disabling/enabling after click
     id: button
     background: BorderRectangle {}
     contentItem: Text {

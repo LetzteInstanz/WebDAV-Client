@@ -11,6 +11,8 @@
 #include "Qml/Factory/LogItemModelFactory.h"
 #include "Qml/Factory/ServerItemModelFactory.h"
 #include "Qml/Factory/SortParamItemModelFactory.h"
+#include "Qml/FileSystemModel.h"
+#include "Qml/FileItemModel/Role.h"
 #include "Qml/IconProvider.h"
 #include "Qml/Settings.h"
 
@@ -46,10 +48,12 @@ App::~App() = default;
 void App::initialize_engine(QQmlApplicationEngine& engine) {
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, this, []() { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
     engine.addImageProvider("icons", new Qml::IconProvider());
+    qmlRegisterUncreatableMetaObject(Qml::staticMetaObject, "WebDavClient", 1, 0, "Qml", "Qml is a namespace");
     qmlRegisterSingletonInstance("WebDavClient", 1, 0, "LogItemModelFactory", _log_item_model_factory.get());
     qmlRegisterSingletonInstance("WebDavClient", 1, 0, "Settings", _qml_settings.get());
     qmlRegisterSingletonInstance("WebDavClient", 1, 0, "FileItemModelFactory", _file_item_model_factory.get());
     qmlRegisterSingletonInstance("WebDavClient", 1, 0, "SortParamItemModelFactory", _sort_param_item_model_factory.get());
     qmlRegisterSingletonInstance("WebDavClient", 1, 0, "ServerItemModelFactory", _server_item_model_factory.get());
     qmlRegisterSingletonInstance("WebDavClient", 1, 0, "FileSystemModelFactory", _file_system_model_factory.get());
+    qmlRegisterType<Qml::FileSystemInfo>("WebDavClient", 1, 0, "FileSystemInfo");
 }

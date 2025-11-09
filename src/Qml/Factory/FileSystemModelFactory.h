@@ -11,5 +11,6 @@ namespace Qml {
         ~FileSystemModelFactory() override;
 
         Q_INVOKABLE QObject* createModel(const QString& addr, std::uint16_t port);
+        Q_INVOKABLE QObject* createModel();
     };
 }

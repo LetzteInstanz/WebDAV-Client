@@ -1,6 +1,7 @@
 #include "ParserTest.h"
 
 #include "../FileSystem/FileSystemObject.h"
+#include "../FileSystem/Parser/Parser.h"
 #include "../Util.h"
 #include "Util.h"
 
@@ -34,7 +35,7 @@ namespace {
         print_stack_if_false(hh_mm_ss.seconds() == s);
     }
 
-    void check_current_dir(const Parser::CurrDirObj& current_dir) {
+    void test_current_dir(const Parser::CurrDirObj& current_dir) {
         std::print("Testing current directory…\n");
         print_stack_if_false(current_dir.has_value());
         print_stack_if_false(current_dir->get_name() == "dav");
@@ -44,7 +45,7 @@ namespace {
         print_stack_if_false(!current_dir->get_size());
     }
 
-    void check_dir1(Parser::Objects::const_iterator it) {
+    void test_dir_1(Parser::Objects::const_iterator it) {
         std::print("Testing directory 1…\n");
         print_stack_if_false(it->get_name() == "Диск 1");
         print_stack_if_false(it->get_type() == FileSystemObject::Type::Directory);
@@ -60,7 +61,7 @@ namespace {
         print_stack_if_false(!it->get_size());
     }
 
-    void check_dir2(Parser::Objects::const_iterator it) {
+    void test_dir_2(Parser::Objects::const_iterator it) {
         std::print("Testing directory 2…\n");
         print_stack_if_false(it->get_name() == "Диск 2");
         print_stack_if_false(it->get_type() == FileSystemObject::Type::Directory);
@@ -76,7 +77,7 @@ namespace {
         print_stack_if_false(!it->get_size());
     }
 
-    void check_file1(Parser::Objects::const_iterator it) {
+    void test_file_1(Parser::Objects::const_iterator it) {
         std::print("Testing file 1…\n");
         print_stack_if_false(it->get_name() == "Тестовый файл.txt");
         print_stack_if_false(it->get_type() == FileSystemObject::Type::File);
@@ -91,7 +92,7 @@ namespace {
         print_stack_if_false(*size == 1743607603214301);
     }
 
-    void check_file2(Parser::Objects::const_iterator it) {
+    void test_file_2(Parser::Objects::const_iterator it) {
         std::print("Testing file 2…\n");
         print_stack_if_false(it->get_name() == "Тестовый файл 2.txt");
         print_stack_if_false(it->get_type() == FileSystemObject::Type::File);
@@ -107,7 +108,7 @@ namespace {
         print_stack_if_false(!it->get_size());
     }
 
-    void check_file3(Parser::Objects::const_iterator it) {
+    void test_file_3(Parser::Objects::const_iterator it) {
         std::print("Testing file 3…\n");
         print_stack_if_false(it->get_name() == "Тестовый файл 3.txt");
         print_stack_if_false(it->get_type() == FileSystemObject::Type::File);
@@ -246,24 +247,23 @@ void ParserTest::test_correct_response() {
         "<D:href>/dav/%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9%20%D1%84%D0%B0%D0%B9%D0%BB%203.txt</D:href>\n"
     "</D:response>\n"
 "</D:multistatus>";
-    _parser.set_current_path(std::filesystem::path("/dav/"));
-    pass_response(_parser, response);
+    auto parser = std::make_unique<Parser>("/dav/");
+    pass_response(*parser, response);
     try {
-        const Parser::Result result = _parser.get_result();
+        const Parser::Result result = parser->get_result();
         print_stack_if_false(result.second.size() == 5);
-        check_current_dir(result.first);
+        test_current_dir(result.first);
         auto it = std::begin(result.second);
-        check_dir1(it);
+        test_dir_1(it);
         ++it;
-        check_dir2(it);
+        test_dir_2(it);
         ++it;
-        check_file1(it);
+        test_file_1(it);
         ++it;
-        check_file2(it);
+        test_file_2(it);
         ++it;
-        check_file3(it);
+        test_file_3(it);
     } catch (const Parser::Exception&) { print_stack_if_false(false); }
-    _parser.reset();
 }
 
 void ParserTest::test_resourcetype_has_non_ok_status() {
@@ -290,10 +290,9 @@ void ParserTest::test_resourcetype_has_non_ok_status() {
         "</D:propstat>\n"
     "</D:response>\n"
 "</D:multistatus>";
-    _parser.set_current_path(std::filesystem::path("/current_dir/"));
-    pass_response(_parser, response);
-    print_stack_if_no_exception<Parser::Exception>([this]() { _parser.get_result(); });
-    _parser.reset();
+    auto parser = std::make_unique<Parser>("/current_dir/");
+    pass_response(*parser, response);
+    print_stack_if_false(parser->has_error());
 }
 
 void ParserTest::test_resourcetype_is_absent() {
@@ -310,10 +309,9 @@ void ParserTest::test_resourcetype_is_absent() {
         "</D:propstat>\n"
     "</D:response>\n"
 "</D:multistatus>";
-    _parser.set_current_path(std::filesystem::path("/current_dir/"));
-    pass_response(_parser, response);
-    print_stack_if_no_exception<Parser::Exception>([this]() { _parser.get_result(); });
-    _parser.reset();
+    auto parser = std::make_unique<Parser>("/current_dir/");
+    pass_response(*parser, response);
+    print_stack_if_false(parser->has_error());
 }
 
 void ParserTest::test_current_dir_without_collection() {
@@ -330,10 +328,9 @@ void ParserTest::test_current_dir_without_collection() {
         "</D:propstat>\n"
     "</D:response>\n"
 "</D:multistatus>";
-    _parser.set_current_path(std::filesystem::path("/current_dir/"));
-    pass_response(_parser, response);
-    print_stack_if_no_exception<Parser::Exception>([this]() { _parser.get_result(); });
-    _parser.reset();
+    auto parser = std::make_unique<Parser>("/current_dir/");
+    pass_response(*parser, response);
+    print_stack_if_false(parser->has_error());
 }
 
 void ParserTest::test_empty_href() {
@@ -350,10 +347,9 @@ void ParserTest::test_empty_href() {
         "</D:propstat>\n"
     "</D:response>\n"
 "</D:multistatus>";
-    _parser.set_current_path(std::filesystem::path("/current_dir/"));
-    pass_response(_parser, response);
-    print_stack_if_no_exception<Parser::Exception>([this]() { _parser.get_result(); });
-    _parser.reset();
+    auto parser = std::make_unique<Parser>("/current_dir/");
+    pass_response(*parser, response);
+    print_stack_if_false(parser->has_error());
 }
 
 void ParserTest::test_href_is_absent() {
@@ -369,10 +365,9 @@ void ParserTest::test_href_is_absent() {
         "</D:propstat>\n"
     "</D:response>\n"
 "</D:multistatus>";
-    _parser.set_current_path(std::filesystem::path("/current_dir/"));
-    pass_response(_parser, response);
-    print_stack_if_no_exception<Parser::Exception>([this]() { _parser.get_result(); });
-    _parser.reset();
+    auto parser = std::make_unique<Parser>("/current_dir/");
+    pass_response(*parser, response);
+    print_stack_if_false(parser->has_error());
 }
 
 void ParserTest::test_status_is_absent() {
@@ -388,10 +383,9 @@ void ParserTest::test_status_is_absent() {
         "</D:propstat>\n"
     "</D:response>\n"
 "</D:multistatus>";
-    _parser.set_current_path(std::filesystem::path("/current_dir/"));
-    pass_response(_parser, response);
-    print_stack_if_no_exception<Parser::Exception>([this]() { _parser.get_result(); });
-    _parser.reset();
+    auto parser = std::make_unique<Parser>("/current_dir/");
+    pass_response(*parser, response);
+    print_stack_if_false(parser->has_error());
 }
 
 void ParserTest::test_empty_status() {
@@ -408,10 +402,9 @@ void ParserTest::test_empty_status() {
         "</D:propstat>\n"
     "</D:response>\n"
 "</D:multistatus>";
-    _parser.set_current_path(std::filesystem::path("/current_dir/"));
-    pass_response(_parser, response);
-    print_stack_if_no_exception<Parser::Exception>([this]() { _parser.get_result(); });
-    _parser.reset();
+    auto parser = std::make_unique<Parser>("/current_dir/");
+    pass_response(*parser, response);
+    print_stack_if_false(parser->has_error());
 }
 
 void ParserTest::test_unknown_tag() {
@@ -420,10 +413,9 @@ void ParserTest::test_unknown_tag() {
 "<D:multistatus xmlns:D=\"DAV:\">\n"
     "<D:kek />\n" // note: unknown XML element
 "</D:multistatus>";
-    _parser.set_current_path(std::filesystem::path("/current_dir/"));
-    pass_response(_parser, response);
-    print_stack_if_no_exception<Parser::Exception>([this]() { _parser.get_result(); });
-    _parser.reset();
+    auto parser = std::make_unique<Parser>("/current_dir/");
+    pass_response(*parser, response);
+    print_stack_if_false(parser->has_error());
 }
 
 void ParserTest::test_incorrect_tag_order() {
@@ -432,8 +424,7 @@ void ParserTest::test_incorrect_tag_order() {
 "<D:response xmlns:D=\"DAV:\">\n" // note: response XML element must be inside multistatus element
     "<D:multistatus/>\n"
 "</D:response>\n";
-    _parser.set_current_path(std::filesystem::path("/current_dir/"));
-    pass_response(_parser, response);
-    print_stack_if_no_exception<Parser::Exception>([this]() { _parser.get_result(); });
-    _parser.reset();
+    auto parser = std::make_unique<Parser>("/current_dir/");
+    pass_response(*parser, response);
+    print_stack_if_false(parser->has_error());
 }

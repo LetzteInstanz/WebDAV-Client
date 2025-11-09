@@ -15,14 +15,15 @@ ColumnLayout {
         id: delayTimer
         property Item item
         onTriggered: {
-            const comp = Qt.createComponent("FileListPageColumnLayout.qml", Component.Asynchronous)
+            console.assert(!listView.enabled)
             function createPage(comp) {
                 const page = Util.createObj(comp, stackLayout, {"backFunc": () => { stackLayout.currentIndex = 0 }, "addr": item.addr, "port": item.port, "path": item.path})
-                if (page === null)
-                    return
-
-                stackLayout.currentIndex = 1
+                listView.enabled = true
+                if (page !== null)
+                    stackLayout.currentIndex = 1
             }
+
+            const comp = Qt.createComponent("FileListPageColumnLayout.qml", Component.Asynchronous)
             Util.createObjAsync(comp, createPage)
         }
     }
@@ -49,10 +50,8 @@ ColumnLayout {
             onClicked: {
                 function createPage(comp) {
                     const page = Util.createObj(comp, stackLayout, {"backFunc": () => { stackLayout.currentIndex = 0 }})
-                    if (page === null)
-                        return
-
-                    stackLayout.currentIndex = 1
+                    if (page !== null)
+                        stackLayout.currentIndex = 1
                 }
                 const comp = Qt.createComponent("SettingsPageColumnLayout.qml", Component.Asynchronous)
                 Util.createObjAsync(comp, createPage)
@@ -63,10 +62,8 @@ ColumnLayout {
             onClicked: {
                 function createPage(comp) {
                     const page = Util.createObj(comp, stackLayout, {"backFunc": () => { stackLayout.currentIndex = 0 }})
-                    if (page === null)
-                        return
-
-                    stackLayout.currentIndex = 1
+                    if (page !== null)
+                        stackLayout.currentIndex = 1
                 }
                 const comp = Qt.createComponent("Logger/LogPageColumnLayout.qml", Component.Asynchronous)
                 Util.createObjAsync(comp, createPage)
@@ -80,7 +77,7 @@ ColumnLayout {
         model: ServerItemModelFactory.createModel()
         currentIndex: -1
         Component.onDestruction: model.destroy()
-        delegate: Item {
+        delegate: Item { // todo: replace with Component
             id: delegateItem
             width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
             height: descText.contentHeight + paramText.contentHeight + contentItem.anchors.topMargin + contentItem.anchors.bottomMargin
@@ -122,6 +119,7 @@ ColumnLayout {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
+                    listView.enabled = false
                     const view = delegateItem.ListView.view
                     view.currentIndex = -1
                     const item = view.itemAtIndex(index)

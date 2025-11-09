@@ -8,9 +8,7 @@
 
 using namespace Qml;
 
-namespace Qml {
-    using Role = FileItemModelRole;
-}
+namespace Qml { using Role = FileItemModelRole; }
 
 const std::unordered_map<std::string, std::string> FileItemModel::_icon_name_by_extension_map{
     {"apk", "application-apk.png"},
@@ -435,14 +433,19 @@ namespace {
         std::ostringstream stream;
         stream.imbue(std::locale()); // todo: take into account the translation setting, when it will be introduced
         stream << std::put_time(&tm, "%c");
-        return QString::fromStdString(stream.rdbuf()->str());
+        stream << '\0';
+#ifdef ANDROID
+    return QString::fromStdString(stream.str());
+#else
+    return QString::fromStdString(stream.view().data());
+#endif
     }
 }
 
 FileItemModel::FileItemModel(const std::filesystem::path& root_path, std::shared_ptr<::FileSystemModel> model, QObject* parent)
-    : QAbstractListModel(parent), _root_path(std::filesystem::path("/") / root_path), _fs_model(std::move(model)), _root(true), _ready_to_download_flags(_fs_model->get_size())
+    : QAbstractListModel(parent), _root_path(std::filesystem::path("/") / root_path), _fs_model(std::move(model)), _root(true)
 {
-    qDebug().noquote() << QObject::tr("The source file item model is being created");
+    qDebug().noquote().nospace() << QObject::tr("The source file item model is being created");
     _fs_model->add_notification_func(this, std::bind(&FileItemModel::update, this));
 #ifndef NDEBUG
     std::for_each(std::begin(_icon_name_by_extension_map), std::end(_icon_name_by_extension_map), [](const auto& pair) { const QPixmap pixmap(":/res/icons/" + QString::fromStdString(pair.second)); assert(!pixmap.isNull()); });
@@ -450,11 +453,11 @@ FileItemModel::FileItemModel(const std::filesystem::path& root_path, std::shared
 }
 
 FileItemModel::~FileItemModel() {
-    qDebug().noquote() << QObject::tr("The source file item model is being destroyed");
+    qDebug().noquote().nospace() << QObject::tr("The source file item model is being destroyed");
     _fs_model->remove_notification_func(this);
 }
 
-int FileItemModel::rowCount(const QModelIndex& parent) const { return parent.isValid() ? 0 : _fs_model->get_size() + get_shift(); }
+int FileItemModel::rowCount(const QModelIndex& parent) const { return parent.isValid() ? 0 : _fs_model->get_count(0) + get_shift(); }
 
 QVariant FileItemModel::data(const QModelIndex& index, int role) const {
     if (role < to_int(Role::Name) || role >= to_int(Role::EnumSize))
@@ -524,8 +527,12 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
         }
 
         case Role::IsReadyToDownload: {
-            assert(_root && index.row() >= 0 || !_root && index.row() > 0);
-            return to_type<bool>(_ready_to_download_flags[row - get_shift()]);
+            const auto it = _ready_to_download_indexes.find(row);
+            return it != std::ranges::end(_ready_to_download_indexes);
+        }
+
+        case Role::Path: {
+            return QString::fromStdString(obj.get_path().generic_string());
         }
 
         default:
@@ -538,14 +545,18 @@ bool FileItemModel::setData(const QModelIndex& index, const QVariant& value, int
     if (role != to_int(Role::IsReadyToDownload))
         return false;
 
-    assert(_root && index.row() >= 0 || !_root && index.row() > 0);
     assert(value.canConvert<bool>());
-    const auto it = std::begin(_ready_to_download_flags) + index.row() - get_shift();
+    const auto it = _ready_to_download_indexes.find(index.row());
+    const auto exists = it != std::ranges::cend(_ready_to_download_indexes);
     const auto new_value = value.toBool();
-    if (*it == new_value)
+    if (!new_value && !exists || new_value && exists)
         return false;
 
-    *it = new_value;
+    if (exists)
+        _ready_to_download_indexes.erase(it);
+    else
+        _ready_to_download_indexes.emplace(index.row());
+
     dataChanged(index, index, {role});
     return true;
 }
@@ -562,14 +573,22 @@ QHash<int, QByteArray> FileItemModel::roleNames() const {
     names.emplace(to_int(Role::IsExit), "isExit");
     names.emplace(to_int(Role::SizeStr), "size");
     names.emplace(to_int(Role::IsReadyToDownload), "isReadyToDownload");
+    names.emplace(to_int(Role::Path), "path");
     return names;
 }
 
-int FileItemModel::getCheckedToDownloadItemCount() const { return std::ranges::count(std::begin(_ready_to_download_flags), std::end(_ready_to_download_flags), true); }
+int FileItemModel::getCheckedToDownloadItemCount() const { return _ready_to_download_indexes.size(); }
+
+QVariantList FileItemModel::getCheckedToDownloadIndexes() const {
+    QVariantList indexes;
+    indexes.reserve(_ready_to_download_indexes.size());
+    std::ranges::transform(_ready_to_download_indexes, std::inserter(indexes, std::ranges::begin(indexes)), [](int i) { return i; });
+    return indexes;
+}
 
 std::size_t FileItemModel::get_shift() const noexcept { return _root ? 0 : 1; }
 
-FileSystemObject FileItemModel::get_object(int row) const { return row == 0 && _root || row > 0 ? _fs_model->get_object(row - get_shift()) : _fs_model->get_curr_dir_object(); }
+FileSystemObject FileItemModel::get_object(int row) const { return row == 0 && _root || row > 0 ? _fs_model->get_object(0, row - get_shift()) : _fs_model->get_curr_dir_object(0); }
 
 std::string FileItemModel::get_icon_name(const FileSystemObject& obj, int row) const {
     if (obj.get_type() == FileSystemObject::Type::Directory || !_root && row == 0)
@@ -580,14 +599,14 @@ std::string FileItemModel::get_icon_name(const FileSystemObject& obj, int row) c
         return "unknown.png";
 
     const std::locale locale;
-    std::ranges::transform(std::begin(extension), std::end(extension), std::begin(extension), [&locale](char ch) { return std::tolower(ch, locale); });
+    std::ranges::transform(extension, std::begin(extension), [&locale](char ch) { return std::tolower(ch, locale); });
     const auto icon_name_it = _icon_name_by_extension_map.find(extension);
     return icon_name_it == std::end(_icon_name_by_extension_map) ? "unknown.png" : icon_name_it->second;
 }
 
 void FileItemModel::update() {
     beginResetModel();
-    _root = _root_path == _fs_model->get_current_path();
-    _ready_to_download_flags = std::vector<bool>(_fs_model->get_size());
+    _root = _root_path == _fs_model->get_curr_dir_object(0).get_path();
+    _ready_to_download_indexes.clear();
     endResetModel();
 }

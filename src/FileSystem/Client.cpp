@@ -1,13 +1,18 @@
 #include "Client.h"
 
-Client::Client(QStringView addr, std::uint16_t port) : _addr(addr.toString()), _port(port) {}
+const std::unordered_map<char, std::string> Client::_reserved_chars{{'!', "%21"}, {'#', "%23"}, {'$', "%24"}, {'&', "%26"}, {'\'', "%27"}, {'(', "%28"}, {')', "%29"}, {'*', "%2a"}, {'+', "%2b"}, {',', "%2c"}, {':', "%3a"}, {';', "%3b"}, {'=', "%3d"}, {'?', "%3f"}, {'@', "%40"}, {'[', "%5b"}, {']', "%5d"}};
 
-std::uint32_t Client::request(const std::filesystem::path& path, PropfindProperty properties, bool recursive, Handlers&& handlers) {
+Client::Client(QStringView addr, std::uint16_t port) : _addr(addr.toString()), _port(port) {
+    qInfo(qUtf8Printable(QObject::tr("Connecting to %s:%d…")), qUtf8Printable(_addr), _port);
+}
+
+void Client::request(RequestId&& id, const std::filesystem::path& path, RequestOptions properties, bool recursive, Handlers&& handlers, bool replace) {
     assert(handlers.first);
     assert(handlers.second);
-    const QString url = "http://" + _addr + ':' + QString::number(_port) + QString::fromStdString(path.generic_string()); // todo: set username and password
+    const std::string encoded_path = percent_encode(path);
+    qDebug(qUtf8Printable(QObject::tr("Client: encoded path: %s")), encoded_path.c_str());
+    const QString url = "http://" + _addr + ':' + QString::number(_port) + QString::fromStdString(encoded_path); // todo: set username and password
     QNetworkRequest req(url);
-    qInfo(qUtf8Printable(QObject::tr("The request is occurring: %s")), qUtf8Printable(url));
     req.setRawHeader("Depth", recursive ? "infinity" : "1");
     const QByteArray data = create_request(properties);
     req.setHeader(QNetworkRequest::ContentLengthHeader, data.size());
@@ -21,49 +26,52 @@ std::uint32_t Client::request(const std::filesystem::path& path, PropfindPropert
         }
     };
     QObject::connect(reply.get(), &QIODevice::readyRead, std::move(read));
-    _next_id++;
-    auto finish = [this, id = _next_id, reply = reply.get(), finish_handler = std::move(handlers.second)]() {
+    auto finish = [this, id, reply = reply.get(), finish_handler = std::move(handlers.second)]() {
         assert(reply->bytesAvailable() == 0);
-        finish_handler(reply->error());
-        _replies.erase(_replies.find(id));
+        finish_handler(id.second, reply->error());
+        const auto it = std::ranges::find(_replies.find(id), std::ranges::end(_replies), reply, [](const auto& pair){ return pair.second.get(); });
+        _replies.erase(it);
     };
     QObject::connect(reply.get(), &QNetworkReply::finished, std::move(finish));
-    _replies.emplace(_next_id, std::move(reply));
-    return _next_id;
+    if (replace)
+        _replies.erase(id);
+
+    _replies.emplace(std::move(id), std::move(reply));
 }
 
-void Client::abort(std::uint32_t id) {
-    const auto reply_it = _replies.find(id);
-    if (reply_it == std::cend(_replies))
-        return;
-
-    std::unique_ptr<QNetworkReply, QScopedPointerDeleteLater>& reply = reply_it->second;
-    if (reply->isFinished())
-        return;
-
-    qDebug().noquote() << QObject::tr("The request is being aborted");
-    reply->abort();
-    _replies.erase(reply_it);
+void Client::abort(const RequestId& id) {
+    if (_replies.erase(id) > 0)
+        qDebug(qUtf8Printable(QObject::tr("The request with ID %d is aborted")), id.second);
 }
 
-QByteArray Client::create_request(PropfindProperty properties) {
+std::string Client::percent_encode(const std::filesystem::path& path) {
+    const std::string original = path.generic_string();
+    std::ostringstream stream;
+    const auto end = std::ranges::end(_reserved_chars);
+    for (const char ch : original) {
+        const auto it = _reserved_chars.find(ch);
+        if (it == end)
+            stream << ch;
+        else
+            stream << it->second;
+    }
+    return stream.str();
+}
+
+QByteArray Client::create_request(RequestOptions properties) {
     QByteArray request("<?xml version=\"1.0\" encoding=\"utf-8\"?><D:propfind xmlns:D=\"DAV:\"><D:prop>");
-    if (to_bool(properties & PropfindProperty::ResourceType))
+    if (to_bool(properties & RequestOptions::ResourceType))
         request.append("<D:resourcetype/>");
 
-    if (to_bool(properties & PropfindProperty::CreationDate))
+    if (to_bool(properties & RequestOptions::CreationDate))
         request.append("<D:creationdate/>");
 
-    if (to_bool(properties & PropfindProperty::GetLastModified))
+    if (to_bool(properties & RequestOptions::GetLastModified))
         request.append("<D:getlastmodified/>");
 
-    if (to_bool(properties & PropfindProperty::GetContentLength))
+    if (to_bool(properties & RequestOptions::GetContentLength))
         request.append("<D:getcontentlength/>");
 
     request.append("</D:prop></D:propfind>");
     return request;
 }
-
-constexpr Client::PropfindProperty operator|(Client::PropfindProperty lhs, Client::PropfindProperty rhs) { return to_type<Client::PropfindProperty>(to_uint(lhs) | to_uint(rhs)); }
-
-constexpr Client::PropfindProperty operator&(Client::PropfindProperty lhs, Client::PropfindProperty rhs) { return to_type<Client::PropfindProperty>(to_uint(lhs) & to_uint(rhs)); }

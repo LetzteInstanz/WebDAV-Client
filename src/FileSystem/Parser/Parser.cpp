@@ -5,7 +5,11 @@
 
 Parser::Exception::~Exception() = default;
 
-Parser::CurrentState::CurrentState(Result& result) : _result(result) { stack.push(_propfind_tag_order.find(Tag::None)); }
+Parser::CurrentState::CurrentState(const std::filesystem::path& current_path, Result& result) : current_path(current_path), _result(result) {
+    assert(!current_path.empty());
+    assert(!current_path.has_filename());
+    stack.push(_propfind_tag_order.find(Tag::None));
+}
 
 void Parser::CurrentState::process_start_of_tag(Tag t) {
     switch (t) {
@@ -141,18 +145,6 @@ void Parser::CurrentState::process_end_of_tag(Tag t) {
     }
 }
 
-void Parser::CurrentState::reset() {
-    has_error = false;
-    current_path.clear();
-    stack = {};
-    stack.push(_propfind_tag_order.find(Tag::None));
-    not_dav_namespace = QStringView();
-    _result.first.reset();
-    _result.second.clear();
-    _obj = {};
-    _status.reset();
-}
-
 void Parser::CurrentState::set_error(QString&& msg) {
     has_error = true;
     qWarning(qUtf8Printable(QObject::tr("HTTP response parse error: %s.")), qUtf8Printable(msg));
@@ -183,32 +175,36 @@ const Parser::TagOrderMap Parser::_propfind_tag_order{{Tag::None,             {T
                                                       {Tag::GetContentLength, {}},
                                                       {Tag::Status,           {}}};
 
-Parser::Parser() : _state(_result), _response_text_stream(std::ios_base::out) {
+Parser::Parser(const std::filesystem::path& current_path) : _state(current_path, _result) {
     assert(_propfind_tag_order.find(Tag::None) != std::cend(_propfind_tag_order));
     assert(_propfind_tag_by_str_map.size() + 1 == _propfind_tag_order.size());
 }
 
 std::filesystem::path Parser::get_current_path() const { return _state.current_path; }
 
-void Parser::set_current_path(std::filesystem::path&& path) {
-    assert(!path.empty());
-    assert(!path.has_filename());
-    _state.current_path = std::move(path);
-}
-
-Parser::Result Parser::get_result() const {
+bool Parser::has_error() const {
+    _response_text_stream << '\0';
+#ifdef ANDROID
+    const std::string response_text_view = _response_text_stream.str();
+#else
+    const std::string_view response_text_view = _response_text_stream.view();
+#endif
     if (_reader.hasError() || !_critical_error_text.empty()) {
         const std::string text = _reader.hasError() ? "invalid XML format" : _critical_error_text;
-        qCritical(qUtf8Printable(QObject::tr("HTTP response parse error: %s. Response text: \n%s")), qUtf8Printable(QString::fromStdString(text)), _response_text_stream.str().c_str());
-        throw Exception(text);
+        qCritical(qUtf8Printable(QObject::tr("Response parse error: %s, path: %s. Response text:\n%s")), qUtf8Printable(QString::fromStdString(text)), qUtf8Printable(QString::fromStdString(_state.current_path.generic_string())), response_text_view.data());
+        _response_text_stream.str(std::string());
+        return true;
     }
     if (_state.has_error)
-        qWarning(qUtf8Printable(QObject::tr("HTTP response text: \n%s")), _response_text_stream.str().c_str());
+        qWarning(qUtf8Printable(QObject::tr("Response text (path: %s):\n%s")), qUtf8Printable(QString::fromStdString(_state.current_path.generic_string())), response_text_view.data());
     else
-        qDebug(qUtf8Printable(QObject::tr("HTTP response text: \n%s")), _response_text_stream.str().c_str());
+        qDebug(qUtf8Printable(QObject::tr("Response text (path: %s):\n%s")), qUtf8Printable(QString::fromStdString(_state.current_path.generic_string())), response_text_view.data());
 
-    return _result;
+    _response_text_stream.str(std::string());
+    return false;
 }
+
+Parser::Result&& Parser::get_result() { return std::move(_result); }
 
 void Parser::parse_response_portion(const ReadBuffer& data) {
     _response_text_stream << data.data();
@@ -279,11 +275,4 @@ void Parser::handle_token(QXmlStreamReader::TokenType token) {
         default:
             break;
     }
-}
-
-void Parser::reset() {
-    _state.reset();
-    _reader.clear();
-    _critical_error_text.clear();
-    _response_text_stream.str(std::string());
 }

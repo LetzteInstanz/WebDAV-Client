@@ -15,7 +15,7 @@ namespace Qml {
 FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<::Settings> settings, std::unique_ptr<FileItemModel, QScopedPointerDeleteLater>&& source, QObject* parent)
     : QSortFilterProxyModel(parent), _settings(std::move(settings)), _source(std::move(source))
 {
-    qDebug().noquote() << QObject::tr("The file sort filter item model is being created");
+    qDebug().noquote().nospace() << QObject::tr("The file sort filter item model is being created");
     _settings->set_sort_param_changed_notif_func([this]() { update(); });
     _params = _settings->get_sort_params();
     setSourceModel(_source.get());
@@ -29,7 +29,7 @@ FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<::Settings> set
 }
 
 FileSortFilterItemModel::~FileSortFilterItemModel() {
-    qDebug().noquote() << QObject::tr("The file sort filter item model is being destroyed");
+    qDebug().noquote().nospace() << QObject::tr("The file sort filter item model is being destroyed");
     setSourceModel(nullptr);
     _settings->set_sort_param_changed_notif_func(nullptr);
 }

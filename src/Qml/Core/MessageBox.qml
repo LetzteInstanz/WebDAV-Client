@@ -13,5 +13,6 @@ Dialog {
         id: txtLabel
         horizontalAlignment: Text.AlignHCenter
         text: dlg.text
+        wrapMode: Text.Wrap
     }
 }

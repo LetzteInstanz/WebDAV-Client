@@ -4,6 +4,8 @@ FileSystemObject::FileSystemObject(std::filesystem::path&& path, std::optional<s
     : _path(std::move(path)), _creation_time(std::move(creation_time)), _modification_time(std::move(modification_time)), _size(std::move(size))
 {}
 
+std::filesystem::path FileSystemObject::get_path() const { return _path; }
+
 std::string FileSystemObject::get_name() const {
     const auto final_path = _path.has_filename() ? _path : _path.parent_path();
     return final_path.filename().generic_string();

@@ -26,7 +26,7 @@ void Logger::message_handler(QtMsgType type, const QMessageLogContext& context, 
     _default_handler(type, context, msg);
 #endif
     static auto logger = Logger::get_instance();
-    if (type < logger->get_max_level())
+    if (type < logger->get_max_level()) // note: this doesn't work correctly with Qt6 and QtInfoMsg, since QtInfoMsg doesn't follow a mathematical pattern; it will be fixed in Qt7
         return;
 
     const auto nanosec = std::chrono::system_clock::now();

@@ -4,9 +4,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(CMakePrintHelpers)
 include(GNUInstallDirs)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Quick)
+find_package(Qt6 6.8 REQUIRED COMPONENTS Quick)
 if (NOT Qt6_FOUND)
-    message(SEND_ERROR "Failed to find Quick in Qt6")
+    message(SEND_ERROR "Failed to find Quick component in Qt6")
     return()
 endif()
 
@@ -23,8 +23,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
-qt_standard_project_setup(REQUIRES 6.5)
-
+qt_standard_project_setup(REQUIRES 6.8)
 qt_add_executable(wdc
     android/src/org/qtproject/webdavclient/NotificationClient.java
     android/src/org/qtproject/webdavclient/MyBroadcastReceiver.java
@@ -83,6 +82,8 @@ qt_add_executable(wdc
     src/Qml/Sort/SortParam.h
     src/Qml/Sort/SortParamItemModel.cpp
     src/Qml/Sort/SortParamItemModel.h
+    src/QtUtil.cpp
+    src/QtUtil.h
     src/ServerInfo.cpp
     src/ServerInfo.h
     src/ServerInfoManager/RootSection.cpp
@@ -120,6 +121,7 @@ qt_add_qml_module(wdc
     URI WebDavClient
     VERSION 1.0
     QML_FILES
+        src/Qml/ConfirmationDialog.qml
         src/Qml/Core/BorderRectangle.qml
         src/Qml/Core/Button.qml
         src/Qml/Core/ContentItem.qml
@@ -312,6 +314,7 @@ target_link_libraries(wdc
         Qt6::Quick
         nlohmann_json::nlohmann_json
 )
+
 install(TARGETS wdc
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -347,6 +350,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # todo: enable for Clang, when it will
     set_property(TARGET tests PROPERTY CXX_STANDARD 23)
     target_link_libraries(tests PRIVATE stdc++exp)
     target_compile_definitions(tests PRIVATE TESTS)
+    target_compile_options(tests PRIVATE -fno-inline)
     install(TARGETS tests
         BUNDLE DESTINATION .
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

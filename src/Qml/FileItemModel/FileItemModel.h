@@ -17,6 +17,7 @@ namespace Qml {
         QHash<int, QByteArray> roleNames() const override;
 
         Q_INVOKABLE int getCheckedToDownloadItemCount() const;
+        Q_INVOKABLE QVariantList getCheckedToDownloadIndexes() const;
 
     private:
         std::size_t get_shift() const noexcept;
@@ -31,6 +32,6 @@ namespace Qml {
         const std::filesystem::path _root_path;
         std::shared_ptr<::FileSystemModel> _fs_model;
         bool _root;
-        std::vector<bool> _ready_to_download_flags;
+        std::unordered_set<int> _ready_to_download_indexes;
     };
 }

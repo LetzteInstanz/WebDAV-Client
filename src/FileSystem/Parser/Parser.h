@@ -17,13 +17,12 @@ public:
         ~Exception() override;
     };
 
-    Parser();
+    Parser(const std::filesystem::path& current_path);
 
     std::filesystem::path get_current_path() const;
-    void set_current_path(std::filesystem::path&& path);
-    Result get_result() const;
+    bool has_error() const;
+    Result&& get_result();
     void parse_response_portion(const ReadBuffer& data);
-    void reset();
 
 private:
     void handle_token(QXmlStreamReader::TokenType token);
@@ -31,22 +30,21 @@ private:
 private:
     enum class Tag {None, Multistatus, Response, PropStat, Prop, Href, ResourceType, CreationDate, GetLastModified, Collection, GetContentLength, Status};
 
-    struct TagHasher {
+    struct TagHash {
         std::size_t operator()(Tag t) const noexcept { return to_type<std::size_t>(t); }
     };
-    using TagSet = std::unordered_set<Tag, TagHasher>;
-    using TagOrderMap = std::unordered_map<Tag, TagSet, TagHasher>;
+    using TagSet = std::unordered_set<Tag, TagHash>;
+    using TagOrderMap = std::unordered_map<Tag, TagSet, TagHash>;
 
     struct CurrentState {
-        CurrentState(Result& result);
+        CurrentState(const std::filesystem::path& current_path, Result& result);
 
         void process_start_of_tag(Tag t);
         void process_data(Tag t, QStringView data);
         void process_end_of_tag(Tag t);
-        void reset();
 
         bool has_error = false;
-        std::filesystem::path current_path;
+        const std::filesystem::path current_path;
         std::stack<TagOrderMap::const_iterator, std::vector<TagOrderMap::const_iterator>> stack;
         QStringView not_dav_namespace;
 
@@ -68,5 +66,5 @@ private:
     CurrentState _state;
     QXmlStreamReader _reader;
     std::string _critical_error_text;
-    std::stringstream _response_text_stream;
+    mutable std::ostringstream _response_text_stream;
 };

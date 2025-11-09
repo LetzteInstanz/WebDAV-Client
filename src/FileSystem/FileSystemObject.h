@@ -6,6 +6,7 @@ public:
 
     FileSystemObject(std::filesystem::path&& path, std::optional<std::chrono::sys_seconds>&& creation_time, std::optional<std::chrono::sys_seconds>&& modification_time, std::optional<std::uint64_t>&& size) noexcept;
 
+    std::filesystem::path get_path() const; // todo: replace with references
     std::string get_name() const;
     std::string get_extension() const;
     Type get_type() const noexcept(noexcept(_path.has_filename()));
