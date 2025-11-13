@@ -4,9 +4,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(CMakePrintHelpers)
 include(GNUInstallDirs)
 
-find_package(Qt6 6.8 REQUIRED COMPONENTS Quick)
+find_package(Qt6 6.8 REQUIRED COMPONENTS Core Gui Network Qml Quick)
 if (NOT Qt6_FOUND)
-    message(SEND_ERROR "Failed to find Quick component in Qt6")
+    message(SEND_ERROR "Failed to find Qt6 components")
     return()
 endif()
 
@@ -25,8 +25,6 @@ FetchContent_MakeAvailable(nlohmann_json)
 
 qt_standard_project_setup(REQUIRES 6.8)
 qt_add_executable(wdc
-    android/src/org/qtproject/webdavclient/NotificationClient.java
-    android/src/org/qtproject/webdavclient/MyBroadcastReceiver.java
     src/App.cpp
     src/App.h
     src/FileSystem/Client.cpp
@@ -103,8 +101,16 @@ qt_add_executable(wdc
 )
 
 if (ANDROID)
+    find_package(Qt6 6.8 REQUIRED COMPONENTS CorePrivate)
+    if (NOT Qt6_FOUND)
+        message(SEND_ERROR "Failed to find CorePrivate component in Qt6 package")
+        return()
+    endif()
+    target_link_libraries(wdc PRIVATE Qt6::CorePrivate)
     target_sources(wdc
         PRIVATE
+            android/src/org/qtproject/webdavclient/NotificationClient.java
+            android/src/org/qtproject/webdavclient/MyBroadcastReceiver.java
             src/NotificationClient.cpp
             src/NotificationClient.h
     )
@@ -293,6 +299,7 @@ qt_add_resources(wdc "images"
         res/icons/unknown.png
         res/icons/video-x-generic.png
 )
+target_link_libraries(wdc PRIVATE Qt6::Core Qt6::Gui Qt6::Network Qt6::Qml Qt6::Quick nlohmann_json::nlohmann_json)
 target_include_directories(wdc PRIVATE src/Qml) # note: https://doc.qt.io/qt-6/qtqml-cppintegration-definetypes.html: All headers that declare QML types need to be accessible without any prefix from the project's include path.
 target_precompile_headers(wdc PRIVATE src/pch.h)
 set_property(TARGET wdc APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android)
@@ -309,11 +316,6 @@ set_target_properties(wdc
         MACOSX_BUNDLE TRUE
         WIN32_EXECUTABLE TRUE
 )
-target_link_libraries(wdc
-    PRIVATE
-        Qt6::Quick
-        nlohmann_json::nlohmann_json
-)
 
 install(TARGETS wdc
     BUNDLE DESTINATION .
@@ -322,7 +324,7 @@ install(TARGETS wdc
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # todo: enable for Clang, when it will begin to support the stacktrace library
-    qt_add_executable(tests
+    add_executable(tests
         src/FileSystem/FileSystemObject.cpp
         src/FileSystem/FileSystemObject.h
         src/FileSystem/Parser/FSObjectStruct.cpp
@@ -348,7 +350,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") # todo: enable for Clang, when it will
     )
     target_precompile_headers(tests PRIVATE src/Tests/pch.h)
     set_property(TARGET tests PROPERTY CXX_STANDARD 23)
-    target_link_libraries(tests PRIVATE stdc++exp)
+    target_link_libraries(tests PRIVATE Qt6::Core stdc++exp)
     target_compile_definitions(tests PRIVATE TESTS)
     target_compile_options(tests PRIVATE -fno-inline)
     install(TARGETS tests
