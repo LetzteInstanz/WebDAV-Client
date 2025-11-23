@@ -9,39 +9,39 @@ Qml::FileSystemInfo::~FileSystemInfo() {
 
 QString Qml::FileSystemInfo::getSizeStr() const { return SizeDisplayer::to_string(size); }
 
-Qml::FileSystemModel::FileSystemModel(std::shared_ptr<::FileSystemModel> model) : _fs_model(std::move(model)) {
-    qDebug().noquote().nospace() << QObject::tr("Qml::FileSystemModel: created");
-    _fs_model->set_error_func(std::bind(&FileSystemModel::handle_error, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-    _fs_model->add_notification_func(this, std::bind(&FileSystemModel::ready, this, std::placeholders::_1));
+Qml::MainFileSystemModel::MainFileSystemModel(std::shared_ptr<::FileSystemModel> model) : _fs_model(std::move(model)) {
+    qDebug().noquote().nospace() << QObject::tr("Qml::MainFileSystemModel: created");
+    _fs_model->set_error_func(std::bind(&MainFileSystemModel::handle_error, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    _fs_model->add_notification_func(this, std::bind(&MainFileSystemModel::ready, this, std::placeholders::_1));
 }
 
-Qml::FileSystemModel::~FileSystemModel() {
-    qDebug().noquote().nospace() << QObject::tr("Qml::FileSystemModel: destroyed");
+Qml::MainFileSystemModel::~MainFileSystemModel() {
+    qDebug().noquote().nospace() << QObject::tr("Qml::MainFileSystemModel: destroyed");
     _fs_model->remove_notification_func(this);
     _fs_model->set_error_func(nullptr);
 }
 
-std::uint32_t Qml::FileSystemModel::requestFullData(const QString& path, bool recursive) {
+std::uint32_t Qml::MainFileSystemModel::requestFullData(const QString& path, bool recursive) {
     progressTextChanged(tr("Getting the list of resources…"));
     qInfo(qUtf8Printable(QObject::tr("The resource %s is requested")), path.isEmpty() ? "/" : qUtf8Printable(path));
     return _fs_model->request_data(path.toStdString(), ::FileSystemModel::DataSet::Full, recursive);
 }
 
-std::uint32_t Qml::FileSystemModel::requestBasicData(const QString& path, bool recursive) {
+std::uint32_t Qml::MainFileSystemModel::requestBasicData(const QString& path, bool recursive) {
     progressTextChanged(tr("Getting the list of resources…"));
-    qDebug(qUtf8Printable(QObject::tr("Qml::FileSystemModel: the resource %s is requested")), path.isEmpty() ? "/" : qUtf8Printable(path));
+    qDebug(qUtf8Printable(QObject::tr("Qml::MainFileSystemModel: the resource %s is requested")), path.isEmpty() ? "/" : qUtf8Printable(path));
     return _fs_model->request_data(path.toStdString(), ::FileSystemModel::DataSet::Basic, recursive);
 }
 
-void Qml::FileSystemModel::remove(std::uint32_t file_system_id) { _fs_model->remove(file_system_id); }
+void Qml::MainFileSystemModel::remove(std::uint32_t file_system_id) { _fs_model->remove(file_system_id); }
 
-void Qml::FileSystemModel::abortRequest(std::uint32_t file_system_id) { _fs_model->abort_request(file_system_id); }
+void Qml::MainFileSystemModel::abortRequest(std::uint32_t file_system_id) { _fs_model->abort_request(file_system_id); }
 
-void Qml::FileSystemModel::abortAllRequests() { _fs_model->abort_all_requests(); }
+void Qml::MainFileSystemModel::abortAllRequests() { _fs_model->abort_all_requests(); }
 
-QString Qml::FileSystemModel::getCurrentPath(std::uint32_t file_system_id) const { return QString::fromStdString(_fs_model->get_curr_dir_object(file_system_id).get_path().generic_string()); }
+QString Qml::MainFileSystemModel::getCurrentPath(std::uint32_t file_system_id) const { return QString::fromStdString(_fs_model->get_curr_dir_object(file_system_id).get_path().generic_string()); }
 
-void Qml::FileSystemModel::count(std::uint32_t file_system_id, FileSystemInfo* source) const {
+void Qml::MainFileSystemModel::count(std::uint32_t file_system_id, FileSystemInfo* source) const {
     assert(source);
     const std::size_t count = _fs_model->get_count(file_system_id);
     for (std::size_t i = 0; i < count; ++i) {
@@ -62,7 +62,7 @@ void Qml::FileSystemModel::count(std::uint32_t file_system_id, FileSystemInfo* s
     }
 }
 
-void Qml::FileSystemModel::handle_error(std::uint32_t file_system_id, ::FileSystemModel::Error custom_error, QNetworkReply::NetworkError qt_error, bool is_critical) {
+void Qml::MainFileSystemModel::handle_error(std::uint32_t file_system_id, ::FileSystemModel::Error custom_error, QNetworkReply::NetworkError qt_error, bool is_critical) {
     if (custom_error == ::FileSystemModel::Error::ResponseParseError) {
         errorOccurred(file_system_id, QObject::tr("HTTP response parse error"), is_critical);
         return;

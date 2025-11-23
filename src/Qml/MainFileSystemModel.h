@@ -24,12 +24,12 @@ namespace Qml {
         Q_INVOKABLE QString getSizeStr() const;
     };
 
-    class FileSystemModel : public QObject {
+    class MainFileSystemModel : public QObject {
         Q_OBJECT
 
     public:
-        explicit FileSystemModel(std::shared_ptr<::FileSystemModel> model);
-        ~FileSystemModel() override;
+        explicit MainFileSystemModel(std::shared_ptr<::FileSystemModel> model);
+        ~MainFileSystemModel() override;
 
         Q_INVOKABLE std::uint32_t requestFullData(const QString& path, bool recursive);
         Q_INVOKABLE std::uint32_t requestBasicData(const QString& path, bool recursive);
