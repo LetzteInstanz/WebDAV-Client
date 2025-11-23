@@ -64,8 +64,8 @@ qt_add_executable(wdc
     src/Qml/FileItemModel/Role.h
     src/Qml/FileItemModel/SizeDisplayer.cpp
     src/Qml/FileItemModel/SizeDisplayer.h
-    src/Qml/FileSystemModel.cpp
-    src/Qml/FileSystemModel.h
+    src/Qml/MainFileSystemModel.cpp
+    src/Qml/MainFileSystemModel.h
     src/Qml/IconProvider.cpp
     src/Qml/IconProvider.h
     src/Qml/Logger/LogItemModel.cpp

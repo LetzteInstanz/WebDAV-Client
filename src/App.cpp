@@ -11,7 +11,7 @@
 #include "Qml/Factory/LogItemModelFactory.h"
 #include "Qml/Factory/ServerItemModelFactory.h"
 #include "Qml/Factory/SortParamItemModelFactory.h"
-#include "Qml/FileSystemModel.h"
+#include "Qml/MainFileSystemModel.h"
 #include "Qml/FileItemModel/Role.h"
 #include "Qml/IconProvider.h"
 #include "Qml/Settings.h"

@@ -1,4 +1,4 @@
-#include "FileSystemModel.h"
+#include "MainFileSystemModel.h"
 
 #include "../QtUtil.h"
 #include "FileItemModel/SizeDisplayer.h"

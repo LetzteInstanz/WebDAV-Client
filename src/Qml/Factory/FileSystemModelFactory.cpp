@@ -1,6 +1,6 @@
 #include "FileSystemModelFactory.h"
 
-#include "FileSystemModel.h"
+#include "MainFileSystemModel.h"
 
 Qml::FileSystemModelFactory::~FileSystemModelFactory() = default;
 
