@@ -11,8 +11,10 @@
 #include <ctime>
 #include <deque>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <functional>
+#include <future>
 #include <iomanip>
 #include <iterator>
 #include <limits>
@@ -50,6 +52,7 @@
 #include <QIODevice>
 #include <QLocale>
 #include <QMessageLogContext>
+#include <QMetaObject>
 #include <QModelIndex>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>

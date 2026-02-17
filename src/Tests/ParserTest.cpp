@@ -87,7 +87,7 @@ namespace {
         print_stack_if_false(time.has_value());
         test_date_time(time, 6h, 51min, 39s, 8d, std::chrono::January, 2000y);
 
-        std::optional<uint64_t> size = it->get_size();
+        const std::optional<uint64_t>& size = it->get_size();
         print_stack_if_false(size.has_value());
         print_stack_if_false(*size == 1743607603214301);
     }

@@ -184,11 +184,7 @@ std::filesystem::path Parser::get_current_path() const { return _state.current_p
 
 bool Parser::has_error() const {
     _response_text_stream << '\0';
-#ifdef ANDROID
-    const std::string response_text_view = _response_text_stream.str();
-#else
     const std::string_view response_text_view = _response_text_stream.view();
-#endif
     if (_reader.hasError() || !_critical_error_text.empty()) {
         const std::string text = _reader.hasError() ? "invalid XML format" : _critical_error_text;
         qCritical(qUtf8Printable(QObject::tr("Response parse error: %s, path: %s. Response text:\n%s")), qUtf8Printable(QString::fromStdString(text)), qUtf8Printable(QString::fromStdString(_state.current_path.generic_string())), response_text_view.data());

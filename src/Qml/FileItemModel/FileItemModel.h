@@ -4,11 +4,13 @@ class FileSystemModel;
 class FileSystemObject;
 
 namespace Qml {
+    class MainFileSystemModel;
+
     class FileItemModel : public QAbstractListModel {
         Q_OBJECT
 
     public:
-        explicit FileItemModel(const std::filesystem::path& root_path, std::shared_ptr<::FileSystemModel> model, QObject* parent = nullptr);
+        explicit FileItemModel(std::filesystem::path&& root_path, MainFileSystemModel& model, QObject* parent = nullptr);
         ~FileItemModel() override;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -21,7 +23,8 @@ namespace Qml {
 
     private:
         std::size_t get_shift() const noexcept;
-        FileSystemObject get_object(int row) const;
+        bool is_up_dir_row(int row) const noexcept;
+        const FileSystemObject& get_object(int row) const;
         std::string get_icon_name(const FileSystemObject& obj, int row) const;
         void update();
 
@@ -30,7 +33,7 @@ namespace Qml {
         static const std::unordered_set<std::string> _special_icon_name_set;
 
         const std::filesystem::path _root_path;
-        std::shared_ptr<::FileSystemModel> _fs_model;
+        MainFileSystemModel& _fs_model;
         bool _root;
         std::unordered_set<int> _ready_to_download_indexes;
     };

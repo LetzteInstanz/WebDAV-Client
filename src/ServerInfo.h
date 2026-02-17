@@ -22,5 +22,5 @@ private:
     std::string _description;
     std::string _addr;
     std::uint16_t _port;
-    std::string _path;
+    std::string _path; // todo: replace with std::filesystem::path
 };

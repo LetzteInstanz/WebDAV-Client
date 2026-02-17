@@ -28,10 +28,13 @@ Dialog {
     function port() { return portSpinBox.value }
     function path() {
         var path = pathTxtField.text
-        if (path.startsWith("/"))
-            path = path.substring(1)
+        if (!path.startsWith("/"))
+            path = "/" + path
 
-        return path.endsWith("/") ? path.substring(0, path.length - 1) : path
+        if (!path.endsWith("/"))
+            path += "/";
+
+        return path;
     }
     function setData(desc, addr, port, path) {
         curData._desc = desc; curData._addr = addr; curData._port = port; curData._path = path
@@ -115,7 +118,7 @@ Dialog {
             }
             TextField {
                 id: pathTxtField
-                placeholderText: qsTr("directory 1/directory 2/…")
+                placeholderText: qsTr("/directory/subdirectory/…")
                 Layout.fillWidth: true
                 onTextEdited: curData.enableOkButton()
             }

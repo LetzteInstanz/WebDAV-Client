@@ -18,25 +18,27 @@ ColumnLayout {
     Component.onCompleted: {
         function createProgressDlg(comp) {
             const progressDlg = Util.createPopup(comp, ApplicationWindow.window, {"fileSystemModel": privateObj.fileSystemModel})
-            function cancel() {
+            function backToMainPage() {
                 backFunc()
                 mainColumnLayout.destroy()
             }
             if (progressDlg === null) {
-                cancel()
+                backToMainPage()
                 return
             }
-            progressDlg.rejected.connect(cancel)
-            function setModel(fileSystemId) {
-                console.assert(fileSystemId === 0, "File system ID must be 0")
+            progressDlg.rejected.connect(() => { privateObj.fileSystemModel.abortRequests(); backToMainPage() })
+            function setModel() {
                 privateObj.fileSystemModel.ready.disconnect(setModel)
-                listView.model = FileItemModelFactory.createModel(path)
+                listView.model = FileSystemModelFactory.createItemModel(path)
                 listView.currentIndex = -1
             }
             privateObj.fileSystemModel.ready.connect(setModel)
-            privateObj.fileSystemModel.ready.connect(() => { currPathLabel.text = privateObj.fileSystemModel.getCurrentPath(0) })
-            const fileSystemId = privateObj.fileSystemModel.requestFullData("", false)
-            console.assert(fileSystemId === 0, "File system ID must be 0")
+            const updateView = () => {
+                currPathLabel.text = privateObj.fileSystemModel.getCurrentPath()
+                clearSearchFieldButton.click()
+            }
+            privateObj.fileSystemModel.ready.connect(updateView)
+            privateObj.fileSystemModel.requestData(path, false)
             progressDlg.open()
         }
 
@@ -101,7 +103,14 @@ ColumnLayout {
                     progressDlg.accepted.connect(showConfirmDlg)
                     progressDlg.open()
                     var isErrorCritical = false
-                    fsModel.errorOccurred.connect((fileSystemId, text, isCritical) => { fsModel.abortAllRequests(); isErrorCritical = true })
+                    const errorHandler = (fileSystemId, text, isСritical) => {
+                        if (!isСritical)
+                            return
+
+                        fsModel.abortRequests()
+                        isErrorCritical = true
+                    }
+                    fsModel.errorOccurred.connect(errorHandler)
                     var areOnlyFilesChecked = true
                     for (var i = 0; i < indexes.length; ++i) {
                         if (isErrorCritical)
@@ -126,7 +135,7 @@ ColumnLayout {
                         const path = itemModel.data(modelIndex, Qml.FileItemModelRole.Path)
                         console.assert(typeof path === "string")
                         ++info.directoryCount
-                        fsModel.requestBasicData(path, true)
+                        fsModel.requestData(path, true)
                     }
                     if (areOnlyFilesChecked)
                         progressDlg.accept()
@@ -168,13 +177,9 @@ ColumnLayout {
                         listView.enabled = true
                         return
                     }
-                    function request() {
-                        const fileSystemId = privateObj.fileSystemModel.requestFullData(model.name, false)
-                        console.assert(fileSystemId === 0, "File system ID must be 0")
-                    }
-                    progressDlg.onOpened.connect(request)
+                    progressDlg.onOpened.connect(() => { privateObj.fileSystemModel.requestData(model.path, false) })
                     progressDlg.closed.connect(() => { listView.enabled = true })
-                    progressDlg.rejected.connect(() => { privateObj.fileSystemModel.abortRequest(0) })
+                    progressDlg.rejected.connect(() => { privateObj.fileSystemModel.abortRequests() })
                     progressDlg.open()
                 }
 
@@ -193,6 +198,7 @@ ColumnLayout {
             onTextEdited: listView.model.searchWithTimer(text)
 
             Core.Button {
+                id: clearSearchFieldButton
                 anchors.right: parent.right
                 height: parent.height
                 width: height
@@ -238,7 +244,7 @@ ColumnLayout {
                 anchors.bottomMargin: index === listView.count - 1 ? 2 : 1
                 color: "transparent"
                 Component.onCompleted: {
-                    if (!model.isExit)
+                    if (!model.IsUpDirRow)
                         Util.createObjAsync(downloadComp, (comp) => { comp.createObject(contentRectangle, {}) })
                 }
 

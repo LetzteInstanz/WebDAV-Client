@@ -1,16 +1,25 @@
 #pragma once
 
-#include "AbstractFileSystemModelFactory.h"
+class FileSystemModel;
+class Settings;
 
 namespace Qml {
-    class FileSystemModelFactory : public AbstractFileSystemModelFactory {
+    class MainFileSystemModel;
+
+    class FileSystemModelFactory final : public QObject {
         Q_OBJECT
 
     public:
-        using AbstractFileSystemModelFactory::AbstractFileSystemModelFactory;
-        ~FileSystemModelFactory() override;
+        FileSystemModelFactory(std::shared_ptr<::Settings> settings);
+        ~FileSystemModelFactory();
 
         Q_INVOKABLE QObject* createModel(const QString& addr, std::uint16_t port);
         Q_INVOKABLE QObject* createModel();
+        Q_INVOKABLE QObject* createItemModel(const QString& root_path);
+
+    private:
+        std::shared_ptr<::Settings> _settings;
+        std::weak_ptr<FileSystemModel> _fs_model;
+        MainFileSystemModel* _main_fs_model = nullptr;
     };
 }

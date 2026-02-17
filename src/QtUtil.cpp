@@ -9,7 +9,7 @@ QString to_qstring(QNetworkReply::NetworkError error) {
             break;
 
         case QNetworkReply::RemoteHostClosedError:
-            display_str = QObject::tr("Connection closed");
+            display_str = QObject::tr("Connection closed by the server");
             break;
 
         case QNetworkReply::HostNotFoundError:

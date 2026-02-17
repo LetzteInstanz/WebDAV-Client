@@ -4,7 +4,7 @@ FileSystemObject::FileSystemObject(std::filesystem::path&& path, std::optional<s
     : _path(std::move(path)), _creation_time(std::move(creation_time)), _modification_time(std::move(modification_time)), _size(std::move(size))
 {}
 
-std::filesystem::path FileSystemObject::get_path() const { return _path; }
+const std::filesystem::path& FileSystemObject::get_path() const { return _path; }
 
 std::string FileSystemObject::get_name() const {
     const auto final_path = _path.has_filename() ? _path : _path.parent_path();
@@ -18,8 +18,8 @@ std::string FileSystemObject::get_extension() const {
 
 FileSystemObject::Type FileSystemObject::get_type() const noexcept(noexcept(_path.has_filename())) { return _path.has_filename() ? Type::File : Type::Directory; }
 
-std::optional<std::chrono::sys_seconds> FileSystemObject::get_creation_time() const noexcept { return _creation_time; }
+const std::optional<std::chrono::sys_seconds>& FileSystemObject::get_creation_time() const noexcept { return _creation_time; }
 
-std::optional<std::chrono::sys_seconds> FileSystemObject::get_modification_time() const noexcept { return _modification_time; }
+const std::optional<std::chrono::sys_seconds>& FileSystemObject::get_modification_time() const noexcept { return _modification_time; }
 
-std::optional<uint64_t> FileSystemObject::get_size() const noexcept { return _size; }
+const std::optional<uint64_t>& FileSystemObject::get_size() const noexcept { return _size; }

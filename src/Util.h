@@ -17,3 +17,5 @@ constexpr int to_bool(T value) noexcept { return static_cast<bool>(value); }
 
 template<typename T2, typename T1>
 constexpr T2 to_type(T1&& value) noexcept { return static_cast<T2>(value); }
+
+void log_duration(const QString& prefix, const std::chrono::steady_clock::time_point& start, const std::chrono::steady_clock::time_point& end);

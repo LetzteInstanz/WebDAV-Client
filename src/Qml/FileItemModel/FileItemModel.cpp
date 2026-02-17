@@ -1,9 +1,9 @@
 #include "FileItemModel.h"
 
 #include "../../Util.h"
-#include "../FileSystem/FileSystemModel.h"
 #include "../FileSystem/FileSystemObject.h"
 #include "FileItemModel/Role.h"
+#include "MainFileSystemModel.h"
 #include "SizeDisplayer.h"
 
 using namespace Qml;
@@ -442,11 +442,12 @@ namespace {
     }
 }
 
-FileItemModel::FileItemModel(const std::filesystem::path& root_path, std::shared_ptr<::FileSystemModel> model, QObject* parent)
-    : QAbstractListModel(parent), _root_path(std::filesystem::path("/") / root_path), _fs_model(std::move(model)), _root(true)
+FileItemModel::FileItemModel(std::filesystem::path&& root_path, MainFileSystemModel& model, QObject* parent)
+    : QAbstractListModel(parent), _root_path(std::move(root_path)), _fs_model(model), _root(true)
 {
+    assert(_root_path.root_path() == "/" && _root_path.root_directory() == "/");
     qDebug().noquote().nospace() << QObject::tr("The source file item model is being created");
-    _fs_model->add_notification_func(this, std::bind(&FileItemModel::update, this));
+    connect(&_fs_model, &MainFileSystemModel::ready, this, &FileItemModel::update);
 #ifndef NDEBUG
     std::for_each(std::begin(_icon_name_by_extension_map), std::end(_icon_name_by_extension_map), [](const auto& pair) { const QPixmap pixmap(":/res/icons/" + QString::fromStdString(pair.second)); assert(!pixmap.isNull()); });
 #endif
@@ -454,23 +455,22 @@ FileItemModel::FileItemModel(const std::filesystem::path& root_path, std::shared
 
 FileItemModel::~FileItemModel() {
     qDebug().noquote().nospace() << QObject::tr("The source file item model is being destroyed");
-    _fs_model->remove_notification_func(this);
 }
 
-int FileItemModel::rowCount(const QModelIndex& parent) const { return parent.isValid() ? 0 : _fs_model->get_count(0) + get_shift(); }
+int FileItemModel::rowCount(const QModelIndex& parent) const { return parent.isValid() ? 0 : _fs_model.get_count() + get_shift(); }
 
 QVariant FileItemModel::data(const QModelIndex& index, int role) const {
     if (role < to_int(Role::Name) || role >= to_int(Role::EnumSize))
         return QVariant();
 
     const int row = index.row();
-    if (role == to_int(Role::IsExit))
-        return !_root && row == 0;
+    if (role == to_int(Role::IsUpDirRow))
+        return is_up_dir_row(row);
 
-    const FileSystemObject obj = get_object(row);
+    const FileSystemObject& obj = get_object(row);
     switch (to_type<Role>(role)) {
         case Role::Name: {
-            return !_root && row == 0 ? ".." : QString::fromStdString(obj.get_name());
+            return is_up_dir_row(row) ? ".." : QString::fromStdString(obj.get_name());
         }
 
         case Role::Extension: {
@@ -493,22 +493,22 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
         }
 
         case Role::CreationTime: {
-            const std::optional<std::chrono::sys_seconds> time = obj.get_creation_time();
+            const std::optional<std::chrono::sys_seconds>& time = obj.get_creation_time();
             return time ? QVariant::fromValue(*time) : QVariant();
         }
 
         case Role::CreationTimeStr: {
-            const std::optional<std::chrono::sys_seconds> time = obj.get_creation_time();
+            const std::optional<std::chrono::sys_seconds>& time = obj.get_creation_time();
             return time ? to_string(*time) : QObject::tr("unknown");
         }
 
         case Role::ModTime: {
-            const std::optional<std::chrono::sys_seconds> time = obj.get_modification_time();
+            const std::optional<std::chrono::sys_seconds>& time = obj.get_modification_time();
             return time ? QVariant::fromValue(*time) : QVariant();
         }
 
         case Role::ModTimeStr: {
-            const std::optional<std::chrono::sys_seconds> time = obj.get_modification_time();
+            const std::optional<std::chrono::sys_seconds>& time = obj.get_modification_time();
             return time ? to_string(*time) : QObject::tr("unknown");
         }
 
@@ -517,12 +517,12 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
         }
 
         case Role::Size: {
-            std::optional<std::uint64_t> size = obj.get_size();
+            const std::optional<std::uint64_t>& size = obj.get_size();
             return size ? QVariant::fromValue(*size) : QVariant();
         }
 
         case Role::SizeStr: {
-            std::optional<std::uint64_t> size = obj.get_size();
+            const std::optional<std::uint64_t>& size = obj.get_size();
             return size ? SizeDisplayer::to_string(*size) : QString();
         }
 
@@ -532,7 +532,8 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const {
         }
 
         case Role::Path: {
-            return QString::fromStdString(obj.get_path().generic_string());
+            const auto path = is_up_dir_row(row) ? (obj.get_path() / "..").lexically_normal() : obj.get_path();
+            return QString::fromStdString(path.generic_string());
         }
 
         default:
@@ -570,7 +571,7 @@ QHash<int, QByteArray> FileItemModel::roleNames() const {
     names.emplace(to_int(Role::CreationTimeStr), "creationTime");
     names.emplace(to_int(Role::ModTimeStr), "modificationTime");
     names.emplace(to_int(Role::FileFlag), "isFile");
-    names.emplace(to_int(Role::IsExit), "isExit");
+    names.emplace(to_int(Role::IsUpDirRow), "IsUpDirRow");
     names.emplace(to_int(Role::SizeStr), "size");
     names.emplace(to_int(Role::IsReadyToDownload), "isReadyToDownload");
     names.emplace(to_int(Role::Path), "path");
@@ -582,16 +583,18 @@ int FileItemModel::getCheckedToDownloadItemCount() const { return _ready_to_down
 QVariantList FileItemModel::getCheckedToDownloadIndexes() const {
     QVariantList indexes;
     indexes.reserve(_ready_to_download_indexes.size());
-    std::ranges::transform(_ready_to_download_indexes, std::inserter(indexes, std::ranges::begin(indexes)), [](int i) { return i; });
+    std::ranges::copy(_ready_to_download_indexes, std::back_inserter(indexes));
     return indexes;
 }
 
 std::size_t FileItemModel::get_shift() const noexcept { return _root ? 0 : 1; }
 
-FileSystemObject FileItemModel::get_object(int row) const { return row == 0 && _root || row > 0 ? _fs_model->get_object(0, row - get_shift()) : _fs_model->get_curr_dir_object(0); }
+bool FileItemModel::is_up_dir_row(int row) const noexcept { return row == 0 && !_root; }
+
+const FileSystemObject& FileItemModel::get_object(int row) const { return is_up_dir_row(row) ? _fs_model.get_curr_dir_object() : _fs_model.get_object(row - get_shift()); }
 
 std::string FileItemModel::get_icon_name(const FileSystemObject& obj, int row) const {
-    if (obj.get_type() == FileSystemObject::Type::Directory || !_root && row == 0)
+    if (obj.get_type() == FileSystemObject::Type::Directory || is_up_dir_row(row))
         return "folder.png";
 
     std::string extension = obj.get_extension();
@@ -599,14 +602,16 @@ std::string FileItemModel::get_icon_name(const FileSystemObject& obj, int row) c
         return "unknown.png";
 
     const std::locale locale;
-    std::ranges::transform(extension, std::begin(extension), [&locale](char ch) { return std::tolower(ch, locale); });
+    std::ranges::transform(extension, std::ranges::begin(extension), [&locale](char ch) { return std::tolower(ch, locale); });
     const auto icon_name_it = _icon_name_by_extension_map.find(extension);
     return icon_name_it == std::end(_icon_name_by_extension_map) ? "unknown.png" : icon_name_it->second;
 }
 
 void FileItemModel::update() {
+    const auto start = std::chrono::steady_clock::now();
     beginResetModel();
-    _root = _root_path == _fs_model->get_curr_dir_object(0).get_path();
+    _root = _root_path == _fs_model.get_curr_dir_object().get_path();
     _ready_to_download_indexes.clear();
     endResetModel();
+    log_duration(QObject::tr("FileItemModel: updating: "), start, std::chrono::steady_clock::now());
 }

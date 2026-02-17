@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.28.3)
 project("WebDAV Client" VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-include(CMakePrintHelpers)
 include(GNUInstallDirs)
 
 find_package(Qt6 6.8 REQUIRED COMPONENTS Core Gui Network Qml Quick)
@@ -39,6 +38,8 @@ qt_add_executable(wdc
     src/FileSystem/Parser/Parser.h
     src/FileSystem/Parser/TimeParser.cpp
     src/FileSystem/Parser/TimeParser.h
+    src/FileSystem/ThreadData.cpp
+    src/FileSystem/ThreadData.h
     src/Json/JsonFile.cpp
     src/Json/JsonFile.h
     src/Json/JsonObject.cpp
@@ -47,10 +48,8 @@ qt_add_executable(wdc
     src/Json/RootObject.h
     src/Logger.cpp
     src/Logger.h
-    src/Qml/Factory/AbstractFileSystemModelFactory.cpp
-    src/Qml/Factory/AbstractFileSystemModelFactory.h
-    src/Qml/Factory/FileItemModelFactory.cpp
-    src/Qml/Factory/FileItemModelFactory.h
+    src/Qml/AbstractFileSystemModel.cpp
+    src/Qml/AbstractFileSystemModel.h
     src/Qml/Factory/FileSystemModelFactory.cpp
     src/Qml/Factory/FileSystemModelFactory.h
     src/Qml/Factory/LogItemModelFactory.cpp
@@ -64,6 +63,8 @@ qt_add_executable(wdc
     src/Qml/FileItemModel/Role.h
     src/Qml/FileItemModel/SizeDisplayer.cpp
     src/Qml/FileItemModel/SizeDisplayer.h
+    src/Qml/DownloadFileSystemModel.cpp
+    src/Qml/DownloadFileSystemModel.h
     src/Qml/MainFileSystemModel.cpp
     src/Qml/MainFileSystemModel.h
     src/Qml/IconProvider.cpp

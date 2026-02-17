@@ -112,7 +112,7 @@ ColumnLayout {
                         maximumLineCount: 1
                         wrapMode: Text.WrapAnywhere
                         elide: Text.ElideRight
-                        text: "http://" + addr + ":" + port + "/" + path
+                        text: "http://" + addr + ":" + port + path
                     }
                 }
             }

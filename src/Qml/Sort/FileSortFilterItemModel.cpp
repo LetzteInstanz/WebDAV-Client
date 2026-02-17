@@ -22,8 +22,9 @@ FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<::Settings> set
     sort(0);
     _timer.setSingleShot(true);
     const auto search = [this]() {
+        beginFilterChange();
         _case_sensitive = _settings->get_search_cs_flag();
-        invalidateRowsFilter();
+        endFilterChange(QSortFilterProxyModel::Direction::Rows);
     };
     connect(&_timer, &QTimer::timeout, this, search);
 }
@@ -56,22 +57,28 @@ void FileSortFilterItemModel::repeatSearch(int msec) {
 }
 
 bool FileSortFilterItemModel::areAllItemsCheckedToDownload() const {
+    const auto start = std::chrono::steady_clock::now();
     const auto sz = rowCount();
-    for (auto i = sz > 0 && index(0, 0).data(to_int(Role::IsExit)).toBool() ? 1 : 0; i < sz; ++i) {
+    for (auto i = sz > 0 && index(0, 0).data(to_int(Role::IsUpDirRow)).toBool() ? 1 : 0; i < sz; ++i) {
         const QModelIndex index = this->index(i, 0);
         const QVariant data = index.data(to_int(Role::IsReadyToDownload));
-        if (!data.toBool())
+        if (!data.toBool()) {
+            log_duration(QObject::tr("areAllItemsCheckedToDownload: duration: "), start, std::chrono::steady_clock::now());
             return false;
+        }
     }
+    log_duration(QObject::tr("areAllItemsCheckedToDownload: duration: "), start, std::chrono::steady_clock::now());
     return true;
 }
 
 void FileSortFilterItemModel::checkAllToDownloadItems(bool check) {
+    const auto start = std::chrono::steady_clock::now();
     const auto sz = rowCount();
-    for (auto i = sz > 0 && index(0, 0).data(to_int(Role::IsExit)).toBool() ? 1 : 0; i < sz; ++i) {
+    for (auto i = sz > 0 && index(0, 0).data(to_int(Role::IsUpDirRow)).toBool() ? 1 : 0; i < sz; ++i) {
         const QModelIndex index = this->index(i, 0);
         setData(index, check, to_int(Role::IsReadyToDownload));
     }
+    log_duration(QObject::tr("checkAllToDownloadItems: duration: "), start, std::chrono::steady_clock::now());
 }
 
 bool FileSortFilterItemModel::filterAcceptsRow(int source_row, const QModelIndex& source_parent) const {
@@ -79,20 +86,18 @@ bool FileSortFilterItemModel::filterAcceptsRow(int source_row, const QModelIndex
         return true;
 
     const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
-    auto role = to_int(Role::IsExit);
-    assert(index.data(role).canConvert<bool>());
-    if (index.data(role).toBool())
+    assert(index.data(to_int(Role::IsUpDirRow)).canConvert<bool>());
+    if (index.data(to_int(Role::IsUpDirRow)).toBool())
         return false;
 
-    role = to_int(Role::Name);
-    assert(index.data(role).canConvert<QString>());
+    assert(index.data(to_int(Role::Name)).canConvert<QString>());
     const auto name = index.data(to_int(Role::Name)).toString();
     return name.indexOf(_text, 0, _case_sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive) != -1;
 }
 
 bool FileSortFilterItemModel::lessThan(const QModelIndex& source_left, const QModelIndex& source_right) const {
-    const QVariant left_data = source_left.data(to_int(Role::IsExit));
-    const QVariant right_data = source_right.data(to_int(Role::IsExit));
+    const QVariant left_data = source_left.data(to_int(Role::IsUpDirRow));
+    const QVariant right_data = source_right.data(to_int(Role::IsUpDirRow));
     assert(left_data.canConvert<bool>());
     assert(right_data.canConvert<bool>());
     const auto left_is_exit = left_data.toBool();

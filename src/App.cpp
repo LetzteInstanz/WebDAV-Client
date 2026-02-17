@@ -6,12 +6,10 @@
 #ifdef ANDROID
 #include "NotificationClient.h"
 #endif
-#include "Qml/Factory/FileItemModelFactory.h"
 #include "Qml/Factory/FileSystemModelFactory.h"
 #include "Qml/Factory/LogItemModelFactory.h"
 #include "Qml/Factory/ServerItemModelFactory.h"
 #include "Qml/Factory/SortParamItemModelFactory.h"
-#include "Qml/MainFileSystemModel.h"
 #include "Qml/FileItemModel/Role.h"
 #include "Qml/IconProvider.h"
 #include "Qml/Settings.h"
@@ -23,10 +21,9 @@ App::App(int& argc, char** argv) : QGuiApplication(argc, argv) {
     auto settings = std::make_shared<Settings>(logger, config_file);
     _log_item_model_factory = std::make_unique<Qml::LogItemModelFactory>(std::move(logger));
     _qml_settings = std::make_unique<Qml::Settings>(settings);
-    _file_item_model_factory = std::make_unique<Qml::FileItemModelFactory>(settings);
-    _sort_param_item_model_factory = std::make_unique<Qml::SortParamItemModelFactory>(std::move(settings));
+    _sort_param_item_model_factory = std::make_unique<Qml::SortParamItemModelFactory>(settings);
     _server_item_model_factory = std::make_unique<Qml::ServerItemModelFactory>(std::move(config_file));
-    _file_system_model_factory = std::make_unique<Qml::FileSystemModelFactory>();
+    _file_system_model_factory = std::make_unique<Qml::FileSystemModelFactory>(std::move(settings));
 #ifdef ANDROID
     try {
         _notification_client = std::make_unique<NotificationClient>(QObject::tr("Downloading"));
@@ -51,7 +48,6 @@ void App::initialize_engine(QQmlApplicationEngine& engine) {
     qmlRegisterUncreatableMetaObject(Qml::staticMetaObject, "WebDavClient", 1, 0, "Qml", "Qml is a namespace");
     qmlRegisterSingletonInstance("WebDavClient", 1, 0, "LogItemModelFactory", _log_item_model_factory.get());
     qmlRegisterSingletonInstance("WebDavClient", 1, 0, "Settings", _qml_settings.get());
-    qmlRegisterSingletonInstance("WebDavClient", 1, 0, "FileItemModelFactory", _file_item_model_factory.get());
     qmlRegisterSingletonInstance("WebDavClient", 1, 0, "SortParamItemModelFactory", _sort_param_item_model_factory.get());
     qmlRegisterSingletonInstance("WebDavClient", 1, 0, "ServerItemModelFactory", _server_item_model_factory.get());
     qmlRegisterSingletonInstance("WebDavClient", 1, 0, "FileSystemModelFactory", _file_system_model_factory.get());
