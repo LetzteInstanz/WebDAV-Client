@@ -1,9 +1,9 @@
 #include "FileSystemModelFactory.h"
 
 #include "../Settings/Settings.h"
-#include "DownloadFileSystemModel.h"
+#include "FileSystem/DownloadFileSystemModel.h"
 #include "FileItemModel/FileItemModel.h"
-#include "MainFileSystemModel.h"
+#include "FileSystem/MainFileSystemModel.h"
 #include "Sort/FileSortFilterItemModel.h"
 
 Qml::FileSystemModelFactory::FileSystemModelFactory(std::shared_ptr<::Settings> settings) : _settings(std::move(settings)) {}

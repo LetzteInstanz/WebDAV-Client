@@ -1,5 +1,18 @@
 #pragma once
 
+#include <cstdint>
+#include <deque>
+#include <filesystem>
+#include <functional>
+#include <future>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include <QNetworkReply>
+#include <QStringView>
+
 #include "FileSystemObject.h"
 
 class FileSystemModel final {

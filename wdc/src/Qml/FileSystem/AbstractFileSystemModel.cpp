@@ -1,6 +1,6 @@
 #include "AbstractFileSystemModel.h"
 
-#include "../QtUtil.h"
+#include <Common/QtUtil.h>
 
 Qml::AbstractFileSystemModel::AbstractFileSystemModel(std::shared_ptr<FileSystemModel> model, QString&& log_prefix, FileSystemModel::DataSet data_set, bool overwrite_result)
     : _fs_model(std::move(model)), _log_prefix(std::move(log_prefix)), _data_set(data_set), _overwrite_result(overwrite_result) {}

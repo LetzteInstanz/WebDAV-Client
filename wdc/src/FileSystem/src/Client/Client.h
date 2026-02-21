@@ -1,7 +1,9 @@
 #pragma once
 
-#include "FileSystemModel.h"
-#include "../Util.h"
+#include <Common/Util.h>
+
+#include "../../include/FileSystem/FileSystemModel.h"
+#include "../ReadBuffer.h"
 
 class Client final {
 public:

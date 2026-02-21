@@ -1,9 +1,11 @@
 #include "FileItemModel.h"
 
-#include "../../Util.h"
-#include "../FileSystem/FileSystemObject.h"
+#include <Common/QtUtil.h>
+#include <Common/Util.h>
+#include <FileSystem/FileSystemObject.h>
+
 #include "FileItemModel/Role.h"
-#include "MainFileSystemModel.h"
+#include "FileSystem/MainFileSystemModel.h"
 #include "SizeDisplayer.h"
 
 using namespace Qml;

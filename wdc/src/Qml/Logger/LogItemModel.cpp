@@ -1,6 +1,6 @@
 #include "LogItemModel.h"
 
-#include "../../Util.h"
+#include <Common/Util.h>
 
 using namespace Qml;
 

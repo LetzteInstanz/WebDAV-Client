@@ -1,4 +1,4 @@
-#include "FileSystemObject.h"
+#include "../include/FileSystem/FileSystemObject.h"
 
 FileSystemObject::FileSystemObject(std::filesystem::path&& path, std::optional<std::chrono::sys_seconds>&& creation_time, std::optional<std::chrono::sys_seconds>&& modification_time, std::optional<std::uint64_t>&& size) noexcept
     : _path(std::move(path)), _creation_time(std::move(creation_time)), _modification_time(std::move(modification_time)), _size(std::move(size))
@@ -22,4 +22,4 @@ const std::optional<std::chrono::sys_seconds>& FileSystemObject::get_creation_ti
 
 const std::optional<std::chrono::sys_seconds>& FileSystemObject::get_modification_time() const noexcept { return _modification_time; }
 
-const std::optional<uint64_t>& FileSystemObject::get_size() const noexcept { return _size; }
+const std::optional<std::uint64_t>& FileSystemObject::get_size() const noexcept { return _size; }

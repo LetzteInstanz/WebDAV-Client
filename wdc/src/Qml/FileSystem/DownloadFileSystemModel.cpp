@@ -1,12 +1,5 @@
 #include "DownloadFileSystemModel.h"
 
-#include "../FileSystem/FileSystemModel.h"
-#include "FileItemModel/SizeDisplayer.h"
-
-Qml::FileSystemInfo::~FileSystemInfo() { qDebug().noquote().nospace() << QObject::tr("Qml::FileSystemInfo: destroyed"); }
-
-QString Qml::FileSystemInfo::getSizeStr() const { return SizeDisplayer::to_string(size); }
-
 Qml::DownloadFileSystemModel::DownloadFileSystemModel(std::shared_ptr<FileSystemModel> model) : AbstractFileSystemModel(std::move(model), "Qml::DownloadFileSystemModel", FileSystemModel::DataSet::Basic, false) {
     qDebug().noquote().nospace() << QObject::tr("Qml::DownloadFileSystemModel: created");
 }
@@ -23,7 +16,7 @@ void Qml::DownloadFileSystemModel::count(FileSystemModel::Id id, FileSystemInfo*
         const auto is_dir = object.get_type() == FileSystemObject::Type::Directory;
         std::size_t& counter = is_dir ? source->directoryCount : source->fileCount;
         ++counter;
-        const std::optional<uint64_t>& size = object.get_size();
+        const std::optional<std::uint64_t>& size = object.get_size();
         if (size) {
             source->areInvalidAllSizes = false;
             source->size += *size;

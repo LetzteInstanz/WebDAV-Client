@@ -1,7 +1,8 @@
 #include "ThreadData.h"
 
-#include "../QtUtil.h"
-#include "Client.h"
+#include <Common/QtUtil.h>
+
+#include "Client/Client.h"
 #include "Parser/Parser.h"
 
 namespace {

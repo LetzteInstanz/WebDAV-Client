@@ -1,6 +1,6 @@
 #include "FSObjectStruct.h"
 
-#include "../../Util.h"
+#include <Common/Util.h>
 
 std::optional<FSObjectStruct::Status> FSObjectStruct::to_status(QStringView str) {
     auto from = str.indexOf(' ');

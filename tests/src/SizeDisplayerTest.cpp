@@ -1,6 +1,6 @@
 #include "SizeDisplayerTest.h"
 
-#include "../Qml/FileItemModel/SizeDisplayer.h"
+#include "Qml/FileItemModel/SizeDisplayer.h"
 #include "Util.h"
 
 void SizeDisplayerTest::run() {

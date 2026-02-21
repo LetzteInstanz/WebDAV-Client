@@ -1,8 +1,9 @@
 #include "ServerItemModel.h"
 
+#include <Common/Util.h>
+
 #include "../ServerInfo.h"
 #include "../ServerInfoManager/ServerInfoManager.h"
-#include "../Util.h"
 
 using namespace Qml;
 

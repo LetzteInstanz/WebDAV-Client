@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../FileSystem/FileSystemModel.h"
+#include <FileSystem/FileSystemModel.h>
+
 #include "AbstractFileSystemModel.h"
 
 namespace Qml {

@@ -1,6 +1,6 @@
 #include "Logger.h"
 
-#include "Util.h"
+#include <Common/Util.h>
 
 namespace {
     bool operator>(QtMsgType lhs, QtMsgType rhs) {

@@ -1,16 +1,16 @@
 #include "FileSortFilterItemModel.h"
 
+#include <Common/QtUtil.h>
+#include <Common/Util.h>
+
 #include "../../Settings/Settings.h"
-#include "../../Util.h"
 #include "../FileItemModel/FileItemModel.h"
 #include "../FileItemModel/Role.h"
 #include "SortParam.h"
 
 using namespace Qml;
 
-namespace Qml {
-    using Role = FileItemModelRole;
-}
+namespace Qml { using Role = FileItemModelRole; }
 
 FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<::Settings> settings, std::unique_ptr<FileItemModel, QScopedPointerDeleteLater>&& source, QObject* parent)
     : QSortFilterProxyModel(parent), _settings(std::move(settings)), _source(std::move(source))

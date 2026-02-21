@@ -1,6 +1,6 @@
 #include "Parser.h"
 
-#include "../FileSystemObject.h"
+#include "../../include/FileSystem/FileSystemObject.h"
 #include "TimeParser.h"
 
 Parser::Exception::~Exception() = default;

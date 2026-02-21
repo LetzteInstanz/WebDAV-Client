@@ -1,6 +1,6 @@
 #include "TimeParser.h"
 
-#include "../../Util.h"
+#include <Common/Util.h>
 
 std::chrono::sys_seconds Parser::CurrentState::TimeParser::to_sys_seconds(QStringView str, Format f) {
     CustomTime time;

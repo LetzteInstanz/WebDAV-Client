@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FileSystemModel.h"
+#include "../include/FileSystem/FileSystemModel.h"
 
 class Client;
 class Parser;

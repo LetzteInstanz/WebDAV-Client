@@ -1,6 +1,8 @@
 #pragma once
 
-#include "../../Util.h"
+#include <Common/Util.h>
+
+#include "../ReadBuffer.h"
 #include "FSObjectStruct.h"
 
 class FileSystemObject;

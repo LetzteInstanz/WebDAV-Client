@@ -1,4 +1,4 @@
-#include "FileSystemModel.h"
+#include "../include/FileSystem/FileSystemModel.h"
 
 #include "ThreadData.h"
 

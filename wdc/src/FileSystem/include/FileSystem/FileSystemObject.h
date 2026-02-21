@@ -1,5 +1,11 @@
 #pragma once
 
+#include <chrono>
+#include <cstdint>
+#include <filesystem>
+#include <optional>
+#include <string>
+
 class FileSystemObject {
 public:
     enum class Type {Directory, File};

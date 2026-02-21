@@ -1,7 +1,5 @@
 #include "MainFileSystemModel.h"
 
-#include "../FileSystem/FileSystemModel.h"
-
 Qml::MainFileSystemModel::MainFileSystemModel(std::shared_ptr<FileSystemModel> model, std::function<void ()>&& on_destroy_func)
     : AbstractFileSystemModel(std::move(model), "Qml::MainFileSystemModel", FileSystemModel::DataSet::Full, true), _on_destroy_func(std::move(on_destroy_func))
 {

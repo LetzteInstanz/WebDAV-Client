@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../FileSystemObject.h"
+#include "../../include/FileSystem/FileSystemObject.h"
 
 struct FSObjectStruct {
     enum class Status : std::uint16_t {Ok = 200, Unknown = std::numeric_limits<std::uint16_t>::max()}; // note: may contain any HTTP status code

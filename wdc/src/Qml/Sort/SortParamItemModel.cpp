@@ -1,6 +1,7 @@
 #include "SortParamItemModel.h"
 
-#include "../../Util.h"
+#include <Common/Util.h>
+
 #include "../Settings/Settings.h"
 #include "SortParam.h"
 
