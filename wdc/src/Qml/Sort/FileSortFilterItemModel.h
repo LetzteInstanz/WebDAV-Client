@@ -13,9 +13,8 @@ namespace Qml {
         FileSortFilterItemModel(std::shared_ptr<::Settings> settings, std::unique_ptr<FileItemModel, QScopedPointerDeleteLater>&& source, QObject* parent = nullptr);
         ~FileSortFilterItemModel() override;
 
-        Q_INVOKABLE void search(const QString& text);
-        Q_INVOKABLE void searchWithTimer(const QString& text);
-        Q_INVOKABLE void repeatSearch(int msec);
+        Q_INVOKABLE void filter(const QString& text);
+        Q_INVOKABLE void filterWithTimer(const QString& text);
         Q_INVOKABLE bool areAllItemsCheckedToDownload() const;
         Q_INVOKABLE void checkAllToDownloadItems(bool check);
 
@@ -24,7 +23,8 @@ namespace Qml {
         bool lessThan(const QModelIndex& source_left, const QModelIndex& source_right) const override;
 
     private:
-        void update();
+        void update_sequence();
+        void apply_case_sensitivity();
 
     private:
         std::shared_ptr<::Settings> _settings;

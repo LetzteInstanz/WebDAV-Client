@@ -51,9 +51,9 @@ void Qml::Settings::setCurrentLogLevel(int index) {
     _settings->set_max_log_level(pair.second);
 }
 
-bool Qml::Settings::getSearchCSFlag() const noexcept { return _settings->get_search_cs_flag(); }
+bool Qml::Settings::getFilterCSFlag() const noexcept { return _settings->get_filter_cs_flag(); }
 
-void Qml::Settings::setSearchCSFlag(bool caseSensitive) { _settings->set_search_cs_flag(caseSensitive); }
+void Qml::Settings::setFilterCSFlag(bool caseSensitive) { _settings->set_filter_cs_flag(caseSensitive); }
 
 QStringList Qml::Settings::getLevelDescList() const {
     QStringList dataList;

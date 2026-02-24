@@ -18,8 +18,8 @@ namespace Qml {
         Q_INVOKABLE void setDownloadPath(const QString& path);
         Q_INVOKABLE int getCurrentLogLevel() const;
         Q_INVOKABLE void setCurrentLogLevel(int index);
-        Q_INVOKABLE bool getSearchCSFlag() const noexcept;
-        Q_INVOKABLE void setSearchCSFlag(bool caseSensitive);
+        Q_INVOKABLE bool getFilterCSFlag() const noexcept;
+        Q_INVOKABLE void setFilterCSFlag(bool caseSensitive);
         Q_INVOKABLE QStringList getLevelDescList() const;
 
     private:

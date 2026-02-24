@@ -14,9 +14,4 @@ nlohmann::json RootObject::get_json_object(std::string_view key) const {
     return it == std::end(root) ? nlohmann::json::object() : *it;
 }
 
-void RootObject::set_json_object(std::string_view key, nlohmann::json&& object) {
-    nlohmann::json root = _get_root_object();
-    assert(root.find(key) == std::cend(root) || *root.find(key) != object);
-    root[key] = std::move(object);
-    _set_root_object(std::move(root));
-}
+void RootObject::set_json_object(std::string_view key, nlohmann::json&& object) { set_json_object<nlohmann::json>(key, std::move(object)); }

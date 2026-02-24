@@ -12,7 +12,7 @@ nlohmann::json JsonObject::get_json_object(std::string_view key) const {
     return it == std::end(json_object) ? nlohmann::json::object() : *it;
 }
 
-void JsonObject::set_json_object(std::string_view key, nlohmann::json&& object) { set_value(key, std::move(object)); }
+void JsonObject::set_json_object(std::string_view key, nlohmann::json&& object) { set_changed_value(key, std::move(object)); }
 
 nlohmann::json JsonObject::get_json_object() const {
     assert(_parent);

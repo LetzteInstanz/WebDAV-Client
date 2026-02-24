@@ -21,6 +21,17 @@ public:
     void set_json_object(std::string_view key, nlohmann::json&& object) override;
 
 protected:
+    template <typename T>
+    void set_json_object(std::string_view key, T&& value);
+
+protected:
     const std::function<nlohmann::json ()> _get_root_object;
     const std::function<void (nlohmann::json&&)> _set_root_object;
 };
+
+template <typename T>
+void RootObject::set_json_object(std::string_view key, T&& value) {
+    nlohmann::json root = _get_root_object();
+    root[key] = std::forward<T>(value);
+    _set_root_object(std::move(root));
+}

@@ -17,7 +17,10 @@ protected:
     static std::optional<ReturnType> get_value(nlohmann::json& object, const std::function<ReturnType ()>& get_default_value_func, const char* key, bool& value_changed);
 
     template<typename Type>
-    void set_value(std::string_view key, Type&& value);
+    void set_changed_value(std::string_view key, Type&& value);
+
+    template<typename Type>
+    bool set_value(std::string_view key, Type&& field, Type&& value);
 
 private:
     JsonObject* const _parent;
@@ -43,10 +46,19 @@ std::optional<ReturnType> JsonObject::get_value(nlohmann::json& object, const st
 }
 
 template<typename Type>
-void JsonObject::set_value(std::string_view key, Type&& value) {
+void JsonObject::set_changed_value(std::string_view key, Type&& value) {
     assert(_parent);
     nlohmann::json json_object = get_json_object();
-    assert(json_object.find(key) == std::cend(json_object) || *json_object.find(key) != value);
     json_object[key] = std::forward<Type>(value);
     set_json_object(std::move(json_object));
+}
+
+template<typename Type>
+bool JsonObject::set_value(std::string_view key, Type&& field, Type&& value) {
+    if (field == value)
+        return false;
+
+    field = std::forward<Type>(value);
+    set_changed_value(key, value);
+    return true;
 }

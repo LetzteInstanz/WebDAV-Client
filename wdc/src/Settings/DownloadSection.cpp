@@ -36,20 +36,8 @@ Settings::DownloadSection::DownloadSection(JsonObject& parent) : JsonObject(&par
 
 bool Settings::DownloadSection::get_ask_path_flag() const noexcept { return _ask_path; }
 
-void Settings::DownloadSection::set_ask_path_flag(bool ask) {
-    if (_ask_path == ask)
-        return;
-
-    _ask_path = ask;
-    set_value(JsonKeys::ask_path, std::remove_reference_t<bool>(_ask_path));
-}
+bool Settings::DownloadSection::set_ask_path_flag(bool ask) { return set_value(JsonKeys::ask_path, _ask_path, ask); }
 
 std::filesystem::path Settings::DownloadSection::get_download_path() const { return _download_path; }
 
-void Settings::DownloadSection::set_download_path(std::filesystem::path&& path) {
-    if (_download_path == path)
-        return;
-
-    _download_path = path;
-    set_value(JsonKeys::path, _download_path.native());
-}
+bool Settings::DownloadSection::set_download_path(std::filesystem::path&& path) { return set_value(JsonKeys::path, _download_path, path); }

@@ -8,9 +8,9 @@ public:
     DownloadSection(JsonObject& parent);
 
     bool get_ask_path_flag() const noexcept;
-    void set_ask_path_flag(bool ask);
+    bool set_ask_path_flag(bool ask);
     std::filesystem::path get_download_path() const;
-    void set_download_path(std::filesystem::path&& path);
+    bool set_download_path(std::filesystem::path&& path);
 
 private:
     bool _ask_path;

@@ -13,47 +13,44 @@ using namespace Qml;
 namespace Qml { using Role = FileItemModelRole; }
 
 FileSortFilterItemModel::FileSortFilterItemModel(std::shared_ptr<::Settings> settings, std::unique_ptr<FileItemModel, QScopedPointerDeleteLater>&& source, QObject* parent)
-    : QSortFilterProxyModel(parent), _settings(std::move(settings)), _source(std::move(source))
+    : QSortFilterProxyModel(parent), _settings(std::move(settings)), _source(std::move(source)), _params(_settings->get_sort_params()), _case_sensitive(_settings->get_filter_cs_flag())
 {
     qDebug().noquote().nospace() << QObject::tr("The file sort filter item model is being created");
-    _settings->set_sort_param_changed_notif_func([this]() { update(); });
     _params = _settings->get_sort_params();
     setSourceModel(_source.get());
     sort(0);
     _timer.setSingleShot(true);
-    const auto search = [this]() {
-        beginFilterChange();
-        _case_sensitive = _settings->get_search_cs_flag();
-        endFilterChange(QSortFilterProxyModel::Direction::Rows);
-    };
-    connect(&_timer, &QTimer::timeout, this, search);
+    _settings->add_notif_func_about_change(Settings::Sorting::Sequence, this, [this]() { update_sequence(); });
+    _settings->add_notif_func_about_change(Settings::Filter::CaseSensitive, this, [this]() { apply_case_sensitivity(); });
 }
 
 FileSortFilterItemModel::~FileSortFilterItemModel() {
     qDebug().noquote().nospace() << QObject::tr("The file sort filter item model is being destroyed");
     setSourceModel(nullptr);
-    _settings->set_sort_param_changed_notif_func(nullptr);
+    _settings->remove_notif_func_about_change(Settings::Filter::CaseSensitive, this);
+    _settings->remove_notif_func_about_change(Settings::Sorting::Sequence, this);
 }
 
-void FileSortFilterItemModel::search(const QString& text) {
+void FileSortFilterItemModel::filter(const QString& text) {
     if (_text == text)
         return;
 
-    _text = text;
-    repeatSearch(0);
+    auto update = [this, text]() {
+        beginFilterChange(); // note: Calling this code directly from QML results in invocation lessThan() with invalid QModelIndex'es
+        _text = text;
+        endFilterChange(QSortFilterProxyModel::Direction::Rows);
+    };
+    QTimer::singleShot(0, std::move(update));
 }
 
-void FileSortFilterItemModel::searchWithTimer(const QString& text) {
+void FileSortFilterItemModel::filterWithTimer(const QString& text) {
     if (_text == text)
         return;
 
-    _text = text;
-    repeatSearch(600);
-}
-
-void FileSortFilterItemModel::repeatSearch(int msec) {
     _timer.stop();
-    _timer.start(msec);
+    _timer.disconnect();
+    connect(&_timer, &QTimer::timeout, [this, text]() { filter(text); });
+    _timer.start(600);
 }
 
 bool FileSortFilterItemModel::areAllItemsCheckedToDownload() const {
@@ -116,7 +113,13 @@ bool FileSortFilterItemModel::lessThan(const QModelIndex& source_left, const QMo
     return false;
 }
 
-void FileSortFilterItemModel::update() {
+void FileSortFilterItemModel::update_sequence() {
     _params = _settings->get_sort_params();
     invalidate();
+}
+
+void FileSortFilterItemModel::apply_case_sensitivity() {
+    beginFilterChange();
+    _case_sensitive = _settings->get_filter_cs_flag();
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
 }

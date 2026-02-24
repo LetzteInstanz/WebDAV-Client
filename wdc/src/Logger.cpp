@@ -2,6 +2,8 @@
 
 #include <Common/Util.h>
 
+#include "Settings/Settings.h"
+
 namespace {
     bool operator>(QtMsgType lhs, QtMsgType rhs) {
         if (lhs != QtInfoMsg && rhs != QtInfoMsg)
@@ -19,20 +21,7 @@ namespace {
 QtMessageHandler Logger::_default_handler = nullptr;
 #endif
 
-Logger::Logger() = default;
-
-void Logger::message_handler(QtMsgType type, const QMessageLogContext& context, const QString& msg) {
-#ifndef NDEBUG
-    _default_handler(type, context, msg);
-#endif
-    static auto logger = Logger::get_instance();
-    if (type < logger->get_max_level()) // note: this doesn't work correctly with Qt6 and QtInfoMsg, since QtInfoMsg doesn't follow a mathematical pattern; it will be fixed in Qt7
-        return;
-
-    const auto nanosec = std::chrono::system_clock::now();
-    auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(nanosec.time_since_epoch());
-    logger->append_message(std::make_tuple(type, TimePoint(std::move(millisec)), msg));
-}
+Logger::~Logger() { _settings->remove_notif_func_about_change(Settings::Logging::Level, this); }
 
 std::shared_ptr<Logger> Logger::get_instance() {
 #ifdef __cpp_lib_atomic_shared_ptr
@@ -50,6 +39,13 @@ void Logger::install_handler() {
 #else
     qInstallMessageHandler(&Logger::message_handler);
 #endif
+}
+
+void Logger::set_settings(std::shared_ptr<Settings> settings) {
+    _settings = std::move(settings);
+    auto update_level = [this]() { set_max_level(_settings->get_max_log_level()); };
+    update_level();
+    _settings->add_notif_func_about_change(Settings::Logging::Level, this, std::move(update_level));
 }
 
 QtMsgType Logger::get_max_level() const noexcept { return _max_level.load(std::memory_order::relaxed); }
@@ -92,4 +88,19 @@ void Logger::set_notification_func(NotificationFunc&& func) {
     const std::lock_guard<std::mutex> locker(_mutex);
     _enable_func = false;
     _notification_func = std::move(func);
+}
+
+Logger::Logger() = default;
+
+void Logger::message_handler(QtMsgType type, const QMessageLogContext& context, const QString& msg) {
+#ifndef NDEBUG
+    _default_handler(type, context, msg);
+#endif
+    static auto logger = Logger::get_instance();
+    if (type < logger->get_max_level()) // note: this doesn't work correctly with Qt6 and QtInfoMsg, since QtInfoMsg doesn't follow a mathematical pattern; it will be fixed in Qt7
+        return;
+
+    const auto nanosec = std::chrono::system_clock::now();
+    auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(nanosec.time_since_epoch());
+    logger->append_message(std::make_tuple(type, TimePoint(std::move(millisec)), msg));
 }

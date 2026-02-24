@@ -35,7 +35,7 @@ ColumnLayout {
             privateObj.fileSystemModel.ready.connect(setModel)
             const updateView = () => {
                 currPathLabel.text = privateObj.fileSystemModel.getCurrentPath()
-                clearSearchFieldButton.click()
+                clearFilterFieldButton.click()
             }
             privateObj.fileSystemModel.ready.connect(updateView)
             privateObj.fileSystemModel.requestData(path, false)
@@ -192,28 +192,27 @@ ColumnLayout {
     }
     RowLayout {
         TextField {
-            id: searchTextField
+            id: filterTextField
             Layout.fillWidth: true
-            placeholderText: qsTr("Search by name")
-            onTextEdited: listView.model.searchWithTimer(text)
+            placeholderText: qsTr("Filter by name")
+            onTextEdited: listView.model.filterWithTimer(text)
 
             Core.Button {
-                id: clearSearchFieldButton
+                id: clearFilterFieldButton
                 anchors.right: parent.right
                 height: parent.height
                 width: height
                 background: Item {}
                 text: "×"
-                onClicked: { searchTextField.clear(); listView.model.search(searchTextField.text) }
+                onClicked: { filterTextField.clear(); listView.model.filter(filterTextField.text) }
             }
         }
         CheckBox {
             text: qsTr("Case\nsensitive")
-            checkState: Settings.getSearchCSFlag() ? Qt.Checked : Qt.Unchecked
+            checkState: Settings.getFilterCSFlag() ? Qt.Checked : Qt.Unchecked
             onClicked: {
-                const cs = Settings.getSearchCSFlag()
-                Settings.setSearchCSFlag(!cs)
-                listView.model.repeatSearch(0)
+                const cs = Settings.getFilterCSFlag()
+                Settings.setFilterCSFlag(!cs)
             }
         }
     }

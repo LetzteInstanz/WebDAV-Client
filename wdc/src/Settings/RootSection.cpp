@@ -1,6 +1,5 @@
 #include "RootSection.h"
 
-#include "../Logger.h"
 #include "../Qml/Sort/SortParam.h"
 #include "../Qml/FileItemModel/Role.h"
 
@@ -15,9 +14,7 @@ namespace JsonKeys {
     }
 }
 
-namespace Qml {
-    using Role = FileItemModelRole;
-}
+namespace Qml { using Role = FileItemModelRole; }
 
 namespace { std::unordered_map<Qml::Role, std::string> sort_param_json_id_by_role_map; }
 
@@ -52,8 +49,8 @@ namespace Qml {
     }
 }
 
-Settings::RootSection::RootSection(std::function<nlohmann::json ()>&& get_root_object, std::function<void (nlohmann::json&&)>&& set_root_object, std::shared_ptr<Logger> logger)
-    : RootObject(std::move(get_root_object), std::move(set_root_object)), _logger(std::move(logger))
+Settings::RootSection::RootSection(std::function<nlohmann::json ()>&& get_root_object, std::function<void (nlohmann::json&&)>&& set_root_object)
+    : RootObject(std::move(get_root_object), std::move(set_root_object))
 {
     assert(_get_root_object && _set_root_object);
     assert(default_sort_param_order.size() == supported_sort_params.size());
@@ -67,8 +64,6 @@ Settings::RootSection::RootSection(std::function<nlohmann::json ()>&& get_root_o
     bool value_changed;
     _log_level = *get_value<QtMsgType>(root, []() { return QtWarningMsg; }, JsonKeys::log_level, value_changed);
     needs_to_update |= value_changed;
-    _logger->set_max_level(_log_level);
-
     const auto get_default_sort_params = []() {
         std::vector<Qml::SortParam> result;
         result.reserve(supported_sort_params.size());
@@ -100,41 +95,33 @@ Settings::RootSection::~RootSection() = default;
 
 QtMsgType Settings::RootSection::get_log_level() const noexcept { return _log_level; }
 
-void Settings::RootSection::set_log_level(QtMsgType level) {
+bool Settings::RootSection::set_log_level(QtMsgType level) {
     if (_log_level == level)
-        return;
+        return false;
 
     _log_level = level;
-    _logger->set_max_level(_log_level);
-    nlohmann::json root = _get_root_object();
-    root[JsonKeys::log_level] = _log_level;
-    _set_root_object(std::move(root));
+    set_json_object(JsonKeys::log_level, std::as_const(_log_level));
+    return true;
 }
-
-void Settings::RootSection::set_sort_param_changed_notif_func(std::function<void ()>&& func) noexcept { _sort_param_changed_signal = std::move(func); }
 
 std::vector<Qml::SortParam> Settings::RootSection::get_sort_params() const { return _sort_params; }
 
-void Settings::RootSection::set_sort_params(const std::vector<Qml::SortParam>& params) {
+bool Settings::RootSection::set_sort_params(const std::vector<Qml::SortParam>& params) {
     if (_sort_params == params)
-        return;
+        return false;
 
     _sort_params = params;
-    nlohmann::json root = _get_root_object();
-    root[JsonKeys::Sorting::array] = _sort_params;
-    _set_root_object(std::move(root));
-    if (_sort_param_changed_signal)
-        _sort_param_changed_signal();
+    set_json_object(JsonKeys::Sorting::array, std::as_const(_sort_params));
+    return true;
 }
 
-bool Settings::RootSection::get_search_cs_flag() const noexcept { return _case_sensitive; }
+bool Settings::RootSection::get_filter_cs_flag() const noexcept { return _case_sensitive; }
 
-void Settings::RootSection::set_search_cs_flag(bool case_sensitive) {
+bool Settings::RootSection::set_filter_cs_flag(bool case_sensitive) {
     if (_case_sensitive == case_sensitive)
-        return;
+        return false;
 
     _case_sensitive = case_sensitive;
-    nlohmann::json root = _get_root_object();
-    root[JsonKeys::case_sensitive] = _case_sensitive;
-    _set_root_object(std::move(root));
+    set_json_object(JsonKeys::case_sensitive, std::as_const(_case_sensitive));
+    return true;
 }
